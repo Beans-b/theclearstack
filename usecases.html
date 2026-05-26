@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Use Cases — The Clear Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F4A;--navy-deep:#07152F;--navy-mid:#122260;--orange:#E07B2A;--orange-h:#C96A1A;--white:#FFFFFF;--cream:#F7F4EF;--charcoal:#1A1A1A;--gray:#5A6478;--line:#E4E6EA;--light:#F4F5F7;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:68px;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1;}
+h2{font-size:clamp(34px,4vw,54px);font-weight:700;color:var(--navy);margin-bottom:14px;}
+h3{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:14px;}
+.btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
+.btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
+.btn-ghost:hover{border-color:rgba(247,244,239,.5);color:#fff;}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
+#nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:2px;}
+.logo-the{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(247,244,239,.4);text-transform:uppercase;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:#F7F4EF;}
+.logo-name em{font-style:normal;color:var(--orange);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+.nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+.nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;text-decoration:none;}
+.nav-cta:hover{background:var(--orange-h)!important;}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+.drawer.open{transform:none;}
+.drawer ul{list-style:none;}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
+.d-cta{color:var(--orange)!important;font-weight:700!important;}
+
+/* PAGE HERO — white */
+.ph{background:var(--white);padding:72px 48px 64px;border-bottom:1px solid var(--line);}
+.ph-inner{max-width:1160px;margin:0 auto;}
+.ph h1{font-size:clamp(38px,4.5vw,62px);font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.08;}
+.ph p{font-size:18px;color:var(--gray);font-weight:300;max-width:560px;}
+
+.sec{padding:88px 48px;}
+.si{max-width:1160px;margin:0 auto;}
+
+/* NUMBERS */
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.num-item{background:var(--white);padding:40px 28px;text-align:center;transition:background .25s;}
+.num-item:hover{background:var(--cream);}
+.num-big{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:700;color:var(--orange);line-height:1;margin-bottom:8px;}
+.num-lbl{font-size:13px;color:var(--gray);font-weight:300;line-height:1.5;}
+
+/* CASES */
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.case{background:var(--cream);border-radius:6px;padding:44px 40px;border-left:3px solid var(--navy);transition:border-color .25s,transform .25s;}
+.case:hover{border-left-color:var(--orange);transform:translateY(-4px);}
+.case-ind{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;display:block;}
+.case h3{margin-bottom:14px;font-size:20px;}
+.case p{font-size:14px;margin-bottom:16px;}
+.cq{border-left:2px solid var(--orange);padding-left:14px;margin:16px 0;font-size:14px;font-style:italic;color:var(--navy);line-height:1.65;}
+.cr{display:inline-flex;align-items:center;gap:9px;background:var(--white);border-radius:3px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);}
+.pip{width:7px;height:7px;background:var(--orange);border-radius:50%;flex-shrink:0;}
+
+/* CTA CLOSE */
+.cta-close{background:var(--navy-deep);padding:88px 48px;position:relative;overflow:hidden;}
+.cta-close::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(255,255,255,.02) 79px,rgba(255,255,255,.02) 80px);}
+.cta-bot{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);}
+.cta-inner{position:relative;z-index:1;max-width:1160px;margin:0 auto;text-align:center;}
+.cta-inner h2{color:#F7F4EF;margin-bottom:16px;}
+.cta-inner p{color:rgba(247,244,239,.55);font-size:17px;font-weight:300;max-width:480px;margin:0 auto 36px;}
+.cta-urg{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;color:rgba(247,244,239,.3);display:block;margin-top:20px;}
+
+/* FOOTER */
+#footer{background:var(--navy-deep);border-top:1px solid rgba(255,255,255,.06);padding:40px 48px;}
+.fi{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.flogo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.flogo span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:rgba(247,244,239,.5);}
+.flogo em{font-style:normal;color:var(--orange);}
+.fnav{display:flex;gap:28px;list-style:none;}
+.fnav a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,239,.3);text-decoration:none;transition:color .2s;}
+.fnav a:hover{color:rgba(247,244,239,.7);}
+.fcopy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(247,244,239,.2);}
+
+@media(max-width:900px){
+  #nav{padding:0 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+  .drawer{display:block;}
+  .ph,.sec,.cta-close,#footer{padding-left:24px;padding-right:24px;}
+  .nums{grid-template-columns:1fr 1fr;}
+  .cases{grid-template-columns:1fr;}
+  .fi{flex-direction:column;gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
+    <div class="logo-wm"><span class="logo-the">The</span><span class="logo-name">Clear <em>Stack</em></span></div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html" class="active">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<div class="ph">
+  <div class="ph-inner">
+    <span class="tag">Use Cases</span>
+    <h1>Where we've cleared<br>the stack.</h1>
+    <p>Mid-market operators across industries are running too many tools. Here's what consolidation looks like when it's done — with real outcomes, real savings, and real client words.</p>
+  </div>
+</div>
+
+<!-- NUMBERS -->
+<section class="sec" style="background:var(--white);padding-top:72px;padding-bottom:72px;">
+<div class="si">
+  <div class="nums reveal">
+    <div class="num-item"><div class="num-big">$634K</div><div class="num-lbl">Total client savings identified in last 12 months</div></div>
+    <div class="num-item"><div class="num-big">47</div><div class="num-lbl">Redundant tools eliminated across active engagements</div></div>
+    <div class="num-item"><div class="num-big">90d</div><div class="num-lbl">Average engagement length from audit to handoff</div></div>
+    <div class="num-item"><div class="num-big">100%</div><div class="num-lbl">Of clients report stack clarity within 2 weeks of Catalog</div></div>
+  </div>
+</div>
+</section>
+
+<!-- CASES -->
+<section class="sec" style="background:var(--light);border-top:1px solid var(--line);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">Case Studies</span>
+    <h2>Four engagements.<br>Real outcomes.</h2>
+  </div>
+  <div class="cases">
+    <div class="case reveal">
+      <span class="case-ind">Professional Services · Law Firm · 200 Staff</span>
+      <h3>9 AI tools — 4 doing the exact same thing</h3>
+      <p>A regional law firm had accumulated Clio, Harvey AI, Lexis+ AI, CoCounsel, and five more subscriptions approved by different partners. Legal ops couldn't tell you which tool was authoritative for which task. Billing, intake, and research were split across platforms with no handoffs between them.</p>
+      <p>We cataloged the full stack in week one, identified four direct redundancies, and built an intake-to-billing automation that replaced three manual handoff steps with zero-touch data flow.</p>
+      <p class="cq">"They were quick to notify us when scope shifted and made every adjustment without friction. I've never had a vendor feel this much like part of our own team." — Director of Legal Operations</p>
+      <div class="cr"><div class="pip"></div>$180K/yr saved · 40% faster case intake · 4 tools eliminated</div>
+    </div>
+    <div class="case reveal">
+      <span class="case-ind">Manufacturing &amp; Logistics · Distribution · 850 Employees</span>
+      <h3>22 shadow AI subscriptions — zero connected</h3>
+      <p>A mid-market distribution company discovered 22 unsanctioned AI subscriptions purchased on corporate cards by individual managers. None were approved by IT, none were connected to each other, and several duplicated tools the company already paid for at the enterprise level.</p>
+      <p>Our Depth agent pre-mapped the likely stack before the first call. The Catalog audit confirmed it. We consolidated, built a governance policy, and delivered a shadow stack prevention framework their IT team now uses for every new tool request.</p>
+      <p class="cq">"We had 22 islands. None of them were talking. The Clear Stack made sense of the chaos and had us organized in 30 days." — VP of Operations</p>
+      <div class="cr"><div class="pip"></div>$94K recovered · 22 shadow tools cataloged · Governance deployed</div>
+    </div>
+    <div class="case reveal">
+      <span class="case-ind">Financial Services · RIA Firm · $800M AUM</span>
+      <h3>Three CRMs running simultaneously — zero data shared</h3>
+      <p>A registered investment advisory firm had Salesforce, Wealthbox, and Redtail all active, with client data spread across all three. Onboarding a new client required manual entry into two systems. Reporting pulled from three sources that never agreed with each other.</p>
+      <p>We identified the migration path to a single platform, automated the onboarding workflow, and built client data reconciliation logic that eliminated the duplicate-entry problem permanently.</p>
+      <p class="cq">"Brian's team found $140K in waste on day one. By week eight we had one source of truth for every client. The clarity alone was worth the fee." — Managing Partner</p>
+      <div class="cr"><div class="pip"></div>$140K identified · Single CRM · 60% less manual entry</div>
+    </div>
+    <div class="case reveal">
+      <span class="case-ind">Healthcare Operations · Multi-Site Medical Group · 15 Locations</span>
+      <h3>11 AI pilots in 18 months — none reached production</h3>
+      <p>A 15-location medical group had run eleven AI pilot programs across clinical documentation, scheduling, billing, and patient communication. Each was evaluated in isolation with no defined deployment path. They were paying pilot pricing on tools they'd already decided to keep — but the decision had never been operationalized.</p>
+      <p>We evaluated all eleven against actual workflow needs, identified two with clear ROI, built deployment workflows for both, and created an evaluation framework so future pilots come with a deployment plan from day one.</p>
+      <p class="cq">"We had been paying for potential for 18 months. Now we're paying for results." — Chief Operating Officer</p>
+      <div class="cr"><div class="pip"></div>$220K freed · 2 tools company-wide · 9 pilots retired cleanly</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- CTA -->
+<div class="cta-close">
+  <div class="cta-bot"></div>
+  <div class="cta-inner">
+    <span class="tag" style="text-align:center;color:rgba(224,123,42,.75);">Your Turn</span>
+    <h2>What would we find<br>in your stack?</h2>
+    <p>Start with a free 30-minute audit call. No prep required — we ask the questions.</p>
+    <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 44px;">Book Free Stack Audit</a>
+    <span class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots</span>
+  </div>
+</div>
+
+<footer id="footer">
+  <div class="fi">
+    <a href="index.html" class="flogo"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg><span>The Clear <em>Stack</em></span></a>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40),{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

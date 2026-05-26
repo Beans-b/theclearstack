@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Team — The Clear Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F4A;--navy-deep:#07152F;--navy-mid:#122260;--orange:#E07B2A;--orange-h:#C96A1A;--white:#FFFFFF;--cream:#F7F4EF;--charcoal:#1A1A1A;--gray:#5A6478;--line:#E4E6EA;--light:#F4F5F7;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:68px;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1;}
+h2{font-size:clamp(34px,4vw,54px);font-weight:700;color:var(--navy);margin-bottom:14px;}
+h3{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:14px;}
+.btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
+.btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-navy{background:var(--navy);color:#fff;padding:14px 34px;}
+.btn-navy:hover{background:var(--navy-mid);transform:translateY(-2px);}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
+#nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:2px;}
+.logo-the{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(247,244,239,.4);text-transform:uppercase;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:#F7F4EF;}
+.logo-name em{font-style:normal;color:var(--orange);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+.nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+.nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;text-decoration:none;}
+.nav-cta:hover{background:var(--orange-h)!important;}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+.drawer.open{transform:none;}
+.drawer ul{list-style:none;}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
+.d-cta{color:var(--orange)!important;font-weight:700!important;}
+
+/* PAGE HERO — white */
+.ph{background:var(--white);padding:72px 48px 64px;border-bottom:1px solid var(--line);}
+.ph-inner{max-width:1160px;margin:0 auto;}
+.ph .tag{color:var(--orange);}
+.ph h1{font-size:clamp(38px,4.5vw,62px);font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.08;}
+.ph p{font-size:18px;color:var(--gray);font-weight:300;max-width:560px;}
+
+/* SECTIONS */
+.sec{padding:88px 48px;}
+.si{max-width:1160px;margin:0 auto;}
+
+/* TEAM GRID */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;}
+.tc{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:40px 32px;transition:border-color .25s,transform .25s,box-shadow .25s;}
+.tc:hover{border-color:var(--navy);transform:translateY(-5px);box-shadow:0 12px 40px rgba(11,31,74,.1);}
+.tc.feat{border-top:3px solid var(--orange);}
+.av{width:72px;height:72px;border-radius:50%;margin-bottom:20px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;overflow:hidden;}.av svg{width:72px;height:72px;border-radius:50%;}
+.tname{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.ttitle{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:16px;display:block;}
+.tbio{font-size:14px;color:var(--gray);line-height:1.75;margin-bottom:16px;}
+.tquote{border-left:2px solid var(--orange);padding-left:14px;margin:16px 0;}
+.tquote p{font-size:14px;font-style:italic;color:var(--navy);line-height:1.65;font-weight:400;}
+.tsigs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.tsig{background:var(--light);border-radius:3px;padding:5px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);}
+
+/* VALUES */
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.vcard{background:var(--white);padding:36px 32px;transition:background .25s;}
+.vcard:hover{background:var(--cream);}
+.vn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--line);margin-bottom:14px;}
+.vbar{width:24px;height:3px;background:var(--orange);margin-bottom:16px;border-radius:2px;}
+.vcard h4{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+.vcard p{font-size:14px;}
+
+/* AGENTS */
+.agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.ag{background:var(--light);border:1px solid var(--line);border-radius:6px;padding:32px 24px;transition:all .25s;}
+.ag:hover{background:var(--cream);border-color:var(--navy);transform:translateY(-4px);}
+.ag-ico{font-size:28px;margin-bottom:16px;}
+.ag-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.ag-role{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:14px;display:block;}
+.ag p{font-size:13px;color:var(--gray);line-height:1.65;}
+
+/* CTA CLOSE — stays dark */
+.cta-close{background:var(--navy-deep);padding:88px 48px;position:relative;overflow:hidden;}
+.cta-close::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(255,255,255,.02) 79px,rgba(255,255,255,.02) 80px);}
+.cta-bot{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);}
+.cta-grid{position:relative;z-index:1;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center;}
+.cta-grid h2{color:#F7F4EF;margin-bottom:14px;}
+.cta-grid p{color:rgba(247,244,239,.55);font-size:17px;font-weight:300;max-width:500px;margin-bottom:16px;}
+.cta-urg{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;color:rgba(247,244,239,.3);}
+.cta-btns{display:flex;flex-direction:column;gap:12px;align-items:center;flex-shrink:0;}
+.cta-note-sm{font-size:11px;color:rgba(247,244,239,.22);}
+.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
+.btn-ghost:hover{border-color:rgba(247,244,239,.5);color:#fff;}
+
+/* FOOTER */
+#footer{background:var(--navy-deep);border-top:1px solid rgba(255,255,255,.06);padding:40px 48px;}
+.fi{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.flogo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.flogo span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:rgba(247,244,239,.5);}
+.flogo em{font-style:normal;color:var(--orange);}
+.fnav{display:flex;gap:28px;list-style:none;}
+.fnav a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,239,.3);text-decoration:none;transition:color .2s;}
+.fnav a:hover{color:rgba(247,244,239,.7);}
+.fcopy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(247,244,239,.2);}
+
+@media(max-width:960px){
+  #nav{padding:0 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+  .drawer{display:block;}
+  .ph,.sec,.cta-close,#footer{padding-left:24px;padding-right:24px;}
+  .tgrid{grid-template-columns:1fr 1fr;}
+  .agrid{grid-template-columns:1fr 1fr;}
+  .vgrid{grid-template-columns:1fr;}
+  .cta-grid{grid-template-columns:1fr;}
+  .fi{flex-direction:column;gap:16px;}
+}
+@media(max-width:600px){
+  .tgrid,.agrid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
+    <div class="logo-wm"><span class="logo-the">The</span><span class="logo-name">Clear <em>Stack</em></span></div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html" class="active">The Team</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<!-- PAGE HERO -->
+<div class="ph">
+  <div class="ph-inner">
+    <span class="tag">The Team</span>
+    <h1>The people — and<br>agents — behind the work.</h1>
+    <p>Cross-industry experience is the unfair advantage. We've sold in, operated in, and built technology for the industries we serve. We treat your stack like it's our own — because when we're inside it, it is.</p>
+  </div>
+</div>
+
+<!-- HUMAN TEAM -->
+<section class="sec" style="background:var(--white);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">Human Team</span>
+    <h2>The people who do the work.</h2>
+    <p style="font-size:17px;max-width:520px;">No account managers between you and results. You work directly with the experts who built the methodology.</p>
+  </div>
+  <div class="tgrid">
+    <div class="tc feat reveal">
+      <div class="av" style="background:linear-gradient(145deg,#0B1F4A,#1a3070);border:2px solid var(--orange);">BH</div>
+      <div class="tname">Brian Hartmann</div>
+      <span class="ttitle">Founder &amp; Chief Revenue Officer</span>
+      <p class="tbio">Brian built The Clear Stack on one conviction: companies drowning in AI tools aren't failing at technology — they're failing at clarity. With cross-industry enterprise sales experience and relationships that span financial services, healthcare, and manufacturing, he brings what pure technical firms don't have.</p>
+      <div class="tquote"><p>"We don't just audit your stack. We take accountability for what happens after — and we don't leave until it works."</p></div>
+      <div class="tsigs"><span class="tsig">Sales DNA</span><span class="tsig">Cross-industry</span><span class="tsig">4C Framework</span><span class="tsig">Make.com certified</span></div>
+    </div>
+    <div class="tc reveal">
+      <div class="av" style="background:linear-gradient(145deg,#1a3560,#2a4a8e);">PN</div>
+      <div class="tname">Priya Nair</div>
+      <span class="ttitle">VP of AI Strategy</span>
+      <p class="tbio">Priya came from a decade in enterprise SaaS and operations consulting. She learned that the hardest room is the one where the CFO and CTO argue about the same tool for opposite reasons. She bridges that gap — translating technical capability into financial clarity, and business objectives into precise system requirements.</p>
+      <div class="tquote"><p>"Most companies don't have a tool problem. They have a clarity problem. We fix the clarity first."</p></div>
+      <div class="tsigs"><span class="tsig">Enterprise SaaS</span><span class="tsig">Ops consulting</span><span class="tsig">CFO-fluent</span></div>
+    </div>
+    <div class="tc reveal">
+      <div class="av" style="background:linear-gradient(145deg,#1c2e50,#0e2040);">MW</div>
+      <div class="tname">Marcus Webb</div>
+      <span class="ttitle">Director of Automation Engineering</span>
+      <p class="tbio">Marcus spent years inside a mid-market logistics firm building automation before he ever sold a line of it. He knows what "it has to work Monday morning" means. His Make.com workflows are built to be maintained by your team — documentation and handoff are part of every build, not afterthoughts.</p>
+      <div class="tquote"><p>"I build things that are easy to understand, not just impressive to demo. Your team has to run this after I leave."</p></div>
+      <div class="tsigs"><span class="tsig">Make.com specialist</span><span class="tsig">API integration</span><span class="tsig">Process automation</span></div>
+    </div>
+    <div class="tc reveal">
+      <div class="av" style="background:linear-gradient(145deg,#1a3060,#0f2245);">TG</div>
+      <div class="tname">Tomás Guerrero</div>
+      <span class="ttitle">Head of Client Success</span>
+      <p class="tbio">Tomás ran enterprise sales teams before he crossed the aisle into implementation. That means he knows what was promised — and holds delivery accountable to it. He's the single point of contact who gives you a straight answer every time, from contract to full adoption.</p>
+      <div class="tquote"><p>"My job is to make sure what we built in week one still works in month six — and that you know exactly why."</p></div>
+      <div class="tsigs"><span class="tsig">Enterprise sales</span><span class="tsig">Implementation lead</span><span class="tsig">Client advocate</span></div>
+    </div>
+    <div class="tc reveal">
+      <div class="av" style="background:linear-gradient(145deg,#152848,#1a3565);">DO</div>
+      <div class="tname">Danielle Osei</div>
+      <span class="ttitle">Content &amp; Intelligence Lead</span>
+      <p class="tbio">Danielle runs both Tide (content) and Depth (research) — the agents that keep The Clear Stack's thinking visible and pipeline full. A former B2B marketing strategist, she makes complex ideas feel obvious. She turns our methodology into articles, case studies, and playbooks operators actually read.</p>
+      <div class="tquote"><p>"If people can't explain what you do in one sentence, the content failed. We don't let that happen."</p></div>
+      <div class="tsigs"><span class="tsig">B2B content strategy</span><span class="tsig">Runs Tide</span><span class="tsig">Runs Depth</span></div>
+    </div>
+    <!-- Aisha Okonkwo — Black woman, business casual, warm -->
+    <div class="tc reveal">
+      <div class="av av-illustrated" style="background:linear-gradient(145deg,#3d1a6e,#6b2fa0);">
+        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+          <!-- Background -->
+          <rect width="72" height="72" rx="36" fill="url(#g1)"/>
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#3d1a6e"/><stop offset="1" stop-color="#6b2fa0"/>
+            </linearGradient>
+          </defs>
+          <!-- Shoulders / blazer — burgundy business casual -->
+          <path d="M10 72 Q16 52 36 50 Q56 52 62 72Z" fill="#8B1A3A"/>
+          <path d="M27 50 Q36 55 45 50 L43 44 Q36 47 29 44Z" fill="#F5E6D3"/>
+          <!-- Neck -->
+          <rect x="31" y="40" width="10" height="10" rx="3" fill="#6B3A2A"/>
+          <!-- Head — deeper warm brown -->
+          <ellipse cx="36" cy="30" rx="14" ry="15" fill="#6B3A2A"/>
+          <!-- Natural hair — voluminous afro -->
+          <ellipse cx="36" cy="18" rx="17" ry="13" fill="#1A0A00"/>
+          <ellipse cx="22" cy="24" rx="7" ry="10" fill="#1A0A00"/>
+          <ellipse cx="50" cy="24" rx="7" ry="10" fill="#1A0A00"/>
+          <ellipse cx="36" cy="14" rx="14" ry="8" fill="#1A0A00"/>
+          <!-- Face features -->
+          <ellipse cx="30" cy="29" rx="2.5" ry="2.8" fill="#3D1F10"/>
+          <ellipse cx="42" cy="29" rx="2.5" ry="2.8" fill="#3D1F10"/>
+          <ellipse cx="30" cy="28.5" rx="1.2" ry="1.4" fill="#fff" opacity=".9"/>
+          <ellipse cx="42" cy="28.5" rx="1.2" ry="1.4" fill="#fff" opacity=".9"/>
+          <!-- Nose -->
+          <path d="M35 32 Q36 35 37 32" stroke="#4A2210" stroke-width="1" fill="none"/>
+          <!-- Smile -->
+          <path d="M31 38 Q36 42 41 38" stroke="#4A2210" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Highlight -->
+          <ellipse cx="44" cy="26" rx="2" ry="1.5" fill="#fff" opacity=".15" transform="rotate(-20 44 26)"/>
+        </svg>
+      </div>
+      <div class="tname">Aisha Okonkwo</div>
+      <span class="ttitle">Senior Software Engineer</span>
+      <p class="tbio">Aisha came to The Clear Stack from a Netflix-scale engineering background, where she built distributed systems handling millions of events per day. She's the person who pressure-tests every workflow Marcus builds before it ever touches a client environment — and she's never let a broken automation reach production.</p>
+      <div class="tquote"><p>"If it can break, I'll find it before your team does. That's the job."</p></div>
+      <div class="tsigs"><span class="tsig">Distributed systems</span><span class="tsig">QA & testing</span><span class="tsig">Python</span><span class="tsig">Node.js</span></div>
+    </div>
+
+    <!-- Wei Zhang — East Asian man, executive, sharp -->
+    <div class="tc reveal">
+      <div class="av av-illustrated" style="background:linear-gradient(145deg,#0a2744,#1a4a7a);">
+        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+          <rect width="72" height="72" rx="36" fill="url(#g2)"/>
+          <defs><linearGradient id="g2" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#0a2744"/><stop offset="1" stop-color="#1a4a7a"/></linearGradient></defs>
+          <!-- Executive suit — navy -->
+          <path d="M8 72 Q14 50 36 48 Q58 50 64 72Z" fill="#0B1F4A"/>
+          <!-- Shirt & tie -->
+          <path d="M30 48 L36 72 L42 48 Q39 52 36 51 Q33 52 30 48Z" fill="#fff" opacity=".9"/>
+          <path d="M35 50 L36 72 L37 50 L36.5 55 Z" fill="#E07B2A" opacity=".8"/>
+          <!-- Collar -->
+          <path d="M28 48 L33 44 L36 47 L39 44 L44 48" stroke="#fff" stroke-width="1" fill="none" opacity=".8"/>
+          <!-- Neck -->
+          <rect x="31" y="39" width="10" height="10" rx="2" fill="#D4A890"/>
+          <!-- Head -->
+          <ellipse cx="36" cy="28" rx="13" ry="14" fill="#D4A890"/>
+          <!-- Hair — short, dark, side parted -->
+          <path d="M23 22 Q36 14 49 22 Q46 16 36 14 Q26 14 23 22Z" fill="#1A1008"/>
+          <path d="M23 22 Q25 18 36 16 Q47 18 49 22 Q46 17 36 15 Q26 15 23 22Z" fill="#1A1008"/>
+          <!-- Glasses -->
+          <rect x="25" y="26" width="9" height="7" rx="3" stroke="#333" stroke-width="1.2" fill="none"/>
+          <rect x="38" y="26" width="9" height="7" rx="3" stroke="#333" stroke-width="1.2" fill="none"/>
+          <path d="M34 29.5 L38 29.5" stroke="#333" stroke-width="1.2"/>
+          <path d="M22 29 L25 29.5" stroke="#333" stroke-width="1"/>
+          <path d="M47 29.5 L50 29" stroke="#333" stroke-width="1"/>
+          <!-- Eyes behind glasses -->
+          <ellipse cx="29.5" cy="29.5" rx="2" ry="2" fill="#2A1A08"/>
+          <ellipse cx="42.5" cy="29.5" rx="2" ry="2" fill="#2A1A08"/>
+          <!-- Eyebrows -->
+          <path d="M25.5 25.5 Q29.5 24 33.5 25.5" stroke="#1A1008" stroke-width="1.2" fill="none"/>
+          <path d="M38.5 25.5 Q42.5 24 46.5 25.5" stroke="#1A1008" stroke-width="1.2" fill="none"/>
+          <!-- Nose & mouth -->
+          <path d="M35 33 Q36 35.5 37 33" stroke="#B8876A" stroke-width=".9" fill="none"/>
+          <path d="M31.5 38 Q36 41 40.5 38" stroke="#B8876A" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="tname">Wei Zhang</div>
+      <span class="ttitle">VP, Software &amp; Data Engineering</span>
+      <p class="tbio">Wei spent twelve years at enterprise scale — the last four as VP of Software and Data Engineering at a publicly traded logistics firm. He oversees The Clear Stack's technical delivery standards, making sure every engagement is architected to last years after we leave. When clients ask "will this still work in three years?" — Wei wrote the answer.</p>
+      <div class="tquote"><p>"Good architecture is invisible. You only notice it when it's missing."</p></div>
+      <div class="tsigs"><span class="tsig">Enterprise architecture</span><span class="tsig">Data engineering</span><span class="tsig">Technical delivery</span></div>
+    </div>
+
+    <!-- Camila Reyes — Latina woman, executive, confident -->
+    <div class="tc reveal">
+      <div class="av av-illustrated" style="background:linear-gradient(145deg,#1a3a1a,#2d6a2d);">
+        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+          <rect width="72" height="72" rx="36" fill="url(#g3)"/>
+          <defs><linearGradient id="g3" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#1a3a1a"/><stop offset="1" stop-color="#2d6a2d"/></linearGradient></defs>
+          <!-- Executive blazer — charcoal -->
+          <path d="M9 72 Q15 51 36 49 Q57 51 63 72Z" fill="#2C2C2C"/>
+          <!-- Blouse -->
+          <path d="M29 49 Q36 54 43 49 L41 44 Q36 47 31 44Z" fill="#E8D5B0"/>
+          <!-- Neck -->
+          <rect x="31" y="39" width="10" height="11" rx="3" fill="#C07840"/>
+          <!-- Head — warm olive/brown -->
+          <ellipse cx="36" cy="28" rx="13.5" ry="14.5" fill="#C07840"/>
+          <!-- Hair — straight dark, past shoulders, professional -->
+          <path d="M22.5 22 Q24 38 24 50" stroke="#1A0A00" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M49.5 22 Q48 38 48 50" stroke="#1A0A00" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M22.5 22 Q36 13 49.5 22 Q48 15 36 13 Q24 13 22.5 22Z" fill="#1A0A00"/>
+          <ellipse cx="36" cy="15" rx="13" ry="5" fill="#1A0A00"/>
+          <!-- Eyes -->
+          <ellipse cx="30" cy="28" rx="2.5" ry="2.5" fill="#2A1400"/>
+          <ellipse cx="42" cy="28" rx="2.5" ry="2.5" fill="#2A1400"/>
+          <ellipse cx="30.8" cy="27.3" rx="1" ry="1" fill="#fff" opacity=".9"/>
+          <ellipse cx="42.8" cy="27.3" rx="1" ry="1" fill="#fff" opacity=".9"/>
+          <!-- Eyebrows — strong -->
+          <path d="M27 25 Q30 23.5 33 25" stroke="#1A0800" stroke-width="1.4" fill="none"/>
+          <path d="M39 25 Q42 23.5 45 25" stroke="#1A0800" stroke-width="1.4" fill="none"/>
+          <!-- Nose -->
+          <path d="M35 32 Q36 35 37 32" stroke="#9A5820" stroke-width=".9" fill="none"/>
+          <!-- Smile — confident -->
+          <path d="M31 38 Q36 42.5 41 38" stroke="#9A5820" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Small earring -->
+          <circle cx="22.5" cy="34" r="1.5" fill="#E07B2A" opacity=".8"/>
+          <circle cx="49.5" cy="34" r="1.5" fill="#E07B2A" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="tname">Camila Reyes</div>
+      <span class="ttitle">Principal AI Architect, Office of the CTO</span>
+      <p class="tbio">Camila came from the Office of the CTO at a Fortune 500, where she was responsible for evaluating every AI vendor before a dollar was committed. She now brings that same rigorous lens to client engagements — designing architectures that the CTO will approve and the engineering team can actually maintain. She's sat in both chairs.</p>
+      <div class="tquote"><p>"The best AI architecture is the one your CTO doesn't have to explain to the board twice."</p></div>
+      <div class="tsigs"><span class="tsig">AI architecture</span><span class="tsig">CTO advisory</span><span class="tsig">Vendor evaluation</span></div>
+    </div>
+
+    <!-- David Kowalski — White man, business casual, approachable -->
+    <div class="tc reveal">
+      <div class="av av-illustrated" style="background:linear-gradient(145deg,#2a1a00,#5a3500);">
+        <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+          <rect width="72" height="72" rx="36" fill="url(#g4)"/>
+          <defs><linearGradient id="g4" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#2a1a00"/><stop offset="1" stop-color="#5a3500"/></linearGradient></defs>
+          <!-- Business casual — open collar shirt, no tie -->
+          <path d="M9 72 Q15 52 36 50 Q57 52 63 72Z" fill="#2D4A6A"/>
+          <!-- Shirt collar open -->
+          <path d="M30 50 L33 44 L36 48 L39 44 L42 50" stroke="#E8EFF5" stroke-width="1.2" fill="#E8EFF5" opacity=".9"/>
+          <!-- Neck -->
+          <rect x="31" y="39" width="10" height="12" rx="3" fill="#E8C4A0"/>
+          <!-- Head — light skin, slightly pink -->
+          <ellipse cx="36" cy="27" rx="13" ry="14" fill="#E8C4A0"/>
+          <!-- Short brown hair, slight wave -->
+          <path d="M23 21 Q28 13 36 13 Q44 13 49 21" fill="#6B3A10"/>
+          <path d="M23 21 Q24 16 29 14 Q34 12 36 13 Q38 12 43 14 Q48 16 49 21 Q46 15 36 14 Q26 15 23 21Z" fill="#7A4415"/>
+          <!-- Light stubble -->
+          <ellipse cx="36" cy="38" rx="9" ry="4" fill="#C9A888" opacity=".4"/>
+          <!-- Eyes — blue -->
+          <ellipse cx="30" cy="27" rx="2.5" ry="2.5" fill="#3A6EA8"/>
+          <ellipse cx="42" cy="27" rx="2.5" ry="2.5" fill="#3A6EA8"/>
+          <ellipse cx="30.8" cy="26.3" rx="1" ry="1" fill="#fff" opacity=".9"/>
+          <ellipse cx="42.8" cy="26.3" rx="1" ry="1" fill="#fff" opacity=".9"/>
+          <!-- Eyebrows -->
+          <path d="M27 24 Q30 22.5 33 24" stroke="#5A2E05" stroke-width="1.3" fill="none"/>
+          <path d="M39 24 Q42 22.5 45 24" stroke="#5A2E05" stroke-width="1.3" fill="none"/>
+          <!-- Nose -->
+          <path d="M35 31 Q36 34 37 31" stroke="#C4956A" stroke-width=".9" fill="none"/>
+          <!-- Friendly smile -->
+          <path d="M30.5 37.5 Q36 42 41.5 37.5" stroke="#C4956A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Laugh lines — approachable -->
+          <path d="M29 35 Q27.5 37 28.5 39" stroke="#C4956A" stroke-width=".7" fill="none" opacity=".5"/>
+          <path d="M43 35 Q44.5 37 43.5 39" stroke="#C4956A" stroke-width=".7" fill="none" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="tname">David Kowalski</div>
+      <span class="ttitle">Engineering Manager, Automation</span>
+      <p class="tbio">David managed engineering teams at a high-growth SaaS company before joining The Clear Stack. His superpower is translating what non-technical stakeholders want into precise automation requirements — and then holding the build to those requirements without scope creep. He's the reason engagements come in on time.</p>
+      <div class="tquote"><p>"Scope creep is just unclear requirements in disguise. We fix the requirements first."</p></div>
+      <div class="tsigs"><span class="tsig">Engineering management</span><span class="tsig">Requirements scoping</span><span class="tsig">Agile delivery</span></div>
+    </div>
+
+    <div class="tc reveal" style="background:var(--light);border-color:var(--line);">
+      <div style="display:flex;flex-direction:column;gap:18px;height:100%;justify-content:center;">
+        <h3>How we show up<br>for every client.</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="font-size:14px;color:var(--gray);line-height:1.65;padding-left:14px;border-left:2px solid var(--orange);">Transparent — you know what we're doing and why, at every step.</div>
+          <div style="font-size:14px;color:var(--gray);line-height:1.65;padding-left:14px;border-left:2px solid rgba(224,123,42,.4);">Proactive — we notify you before problems, not after they land.</div>
+          <div style="font-size:14px;color:var(--gray);line-height:1.65;padding-left:14px;border-left:2px solid rgba(224,123,42,.18);">Accountable — we don't leave until it works, full stop.</div>
+        </div>
+        <a href="contact.html" class="btn btn-primary" style="align-self:flex-start;">Work with us →</a>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- AGENT SYSTEM -->
+<section class="sec" style="background:var(--light);border-top:1px solid var(--line);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">The SeaLegs Agent System</span>
+    <h2>Our unfair advantage<br>runs 24/7.</h2>
+    <p style="font-size:17px;max-width:520px;">Four AI agents work alongside the human team — handling outreach, support, content, and research. We move faster than any traditional consultancy because most of the work never sleeps.</p>
+  </div>
+  <div class="agrid reveal">
+    <div class="ag"><div class="ag-ico">⚓</div><div class="ag-name">SeaLegs</div><span class="ag-role">Chief Revenue Agent</span><p>LinkedIn prospecting, follow-up sequences, and pipeline management. Opens conversations at scale so Brian spends time on the ones that matter.</p></div>
+    <div class="ag"><div class="ag-ico">🏖️</div><div class="ag-name">Shore</div><span class="ag-role">Support Agent</span><p>Handles inbound questions and client communications. No inquiry goes unanswered while the human team is deep in an engagement.</p></div>
+    <div class="ag"><div class="ag-ico">🌊</div><div class="ag-name">Tide</div><span class="ag-role">Content Agent</span><p>Posts, newsletters, case studies — drafted on schedule, reviewed by Danielle, published consistently without pulling humans off client work.</p></div>
+    <div class="ag"><div class="ag-ico">🔭</div><div class="ag-name">Depth</div><span class="ag-role">Research Agent</span><p>Prospect audits and stack discovery. Before the first call, Depth has already mapped what tools a prospect likely runs and what it probably costs them.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- VALUES -->
+<section class="sec" style="background:var(--white);border-top:1px solid var(--line);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">How We Work</span>
+    <h2>The principles behind<br>every engagement.</h2>
+  </div>
+  <div class="vgrid reveal">
+    <div class="vcard"><div class="vn">01</div><div class="vbar"></div><h4>Transparency above all</h4><p>You know what we're doing, why, and what it costs — before we do it. No surprises, no upsells you didn't ask for.</p></div>
+    <div class="vcard"><div class="vn">02</div><div class="vbar"></div><h4>Proactive, not reactive</h4><p>If scope is shifting or a timeline is at risk, you hear from us first — not when it's already a problem.</p></div>
+    <div class="vcard"><div class="vn">03</div><div class="vbar"></div><h4>We become part of your team</h4><p>We're inside your systems, on your calls, accountable to your outcomes — not handing you a report and disappearing.</p></div>
+    <div class="vcard"><div class="vn">04</div><div class="vbar"></div><h4>You own everything</h4><p>Every workflow, automation, and document — yours on day one. No lock-in, no dependency on us unless you choose the retainer.</p></div>
+    <div class="vcard"><div class="vn">05</div><div class="vbar"></div><h4>Results over impressions</h4><p>We optimize for a stack that works Monday morning and keeps working without us — not for impressive deliverables.</p></div>
+    <div class="vcard" style="background:var(--light);"><div class="vn">06</div><div class="vbar"></div><h4>Cross-industry perspective</h4><p>The best ideas for your industry usually come from outside it. We bring patterns from every vertical we've served.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- CTA -->
+<div class="cta-close">
+  <div class="cta-bot"></div>
+  <div class="cta-grid">
+    <div>
+      <span class="tag" style="color:rgba(224,123,42,.75);">Work With Us</span>
+      <h2>Ready to meet the team?</h2>
+      <p>Start with a free 30-minute audit call. You'll talk directly with Brian — not a sales rep — and leave knowing exactly where your stack stands.</p>
+      <p class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots per month</p>
+    </div>
+    <div class="cta-btns">
+      <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 40px;">Book Free Stack Audit</a>
+      <a href="contact.html" class="btn btn-ghost">Buy the Playbook — $49</a>
+      <span class="cta-note-sm">No commitment required</span>
+    </div>
+  </div>
+</div>
+
+<footer id="footer">
+  <div class="fi">
+    <a href="index.html" class="flogo"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg><span>The Clear <em>Stack</em></span></a>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40),{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works — The Clear Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F4A;--navy-deep:#07152F;--navy-mid:#122260;--orange:#E07B2A;--orange-h:#C96A1A;--white:#FFFFFF;--cream:#F7F4EF;--charcoal:#1A1A1A;--gray:#5A6478;--line:#E4E6EA;--light:#F4F5F7;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:68px;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1;}
+h2{font-size:clamp(34px,4vw,54px);font-weight:700;color:var(--navy);margin-bottom:14px;}
+h3{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:14px;}
+.btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
+.btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
+.btn-ghost:hover{border-color:rgba(247,244,239,.5);color:#fff;}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
+#nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:2px;}
+.logo-the{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(247,244,239,.4);text-transform:uppercase;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:#F7F4EF;}
+.logo-name em{font-style:normal;color:var(--orange);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+.nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+.nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;text-decoration:none;}
+.nav-cta:hover{background:var(--orange-h)!important;}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+.drawer.open{transform:none;}
+.drawer ul{list-style:none;}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
+.d-cta{color:var(--orange)!important;font-weight:700!important;}
+
+/* PAGE HERO — white */
+.ph{background:var(--white);padding:72px 48px 64px;border-bottom:1px solid var(--line);}
+.ph-inner{max-width:1160px;margin:0 auto;}
+.ph h1{font-size:clamp(38px,4.5vw,62px);font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.08;}
+.ph p{font-size:18px;color:var(--gray);font-weight:300;max-width:560px;}
+
+.sec{padding:88px 48px;}
+.si{max-width:1160px;margin:0 auto;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.step{display:grid;grid-template-columns:100px 1fr 1fr;border-bottom:1px solid var(--line);transition:background .25s;}
+.step:last-child{border-bottom:none;}
+.step:hover{background:var(--cream);}
+.step-num{padding:44px 28px;border-right:1px solid var(--line);display:flex;flex-direction:column;}
+.sn{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--line);margin-bottom:8px;}
+.sl{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:700;color:var(--navy);opacity:.1;line-height:1;}
+.step-content{padding:44px 36px;border-right:1px solid var(--line);}
+.step-content h3{font-size:26px;margin-bottom:12px;}
+.step-content p{font-size:15px;margin-bottom:16px;}
+.sbar{width:28px;height:3px;background:var(--orange);margin-bottom:18px;border-radius:2px;}
+.stime{display:inline-flex;align-items:center;gap:8px;background:var(--light);border-radius:3px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);margin-top:4px;}
+.step-detail{padding:44px 36px;}
+.step-detail h4{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em;}
+.dl{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.dl li{font-size:14px;color:var(--gray);padding-left:18px;position:relative;line-height:1.6;}
+.dl li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;background:var(--orange);border-radius:50%;}
+
+/* TIMELINE */
+.tl{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.tl-item{flex:1;padding:28px 24px;border-right:1px solid var(--line);text-align:center;}
+.tl-item:last-child{border-right:none;}
+.tl-w{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;}
+.tl-a{font-size:15px;font-weight:700;font-family:'Cormorant Garamond',serif;color:var(--navy);margin-bottom:6px;}
+.tl-d{font-size:12px;color:var(--gray);line-height:1.6;}
+.tl-end{background:var(--navy);}
+.tl-end .tl-w{color:rgba(247,244,239,.35);}
+.tl-end .tl-a{color:#F7F4EF;}
+.tl-end .tl-d{color:rgba(247,244,239,.45);}
+
+/* FAQ */
+.faq{border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{padding:24px 32px;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--navy);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .2s;}
+.faq-q:hover{background:var(--cream);}
+.faq-icon{font-size:20px;color:var(--orange);transition:transform .2s;flex-shrink:0;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;font-size:14px;color:var(--gray);line-height:1.75;padding:0 32px;}
+.faq-item.open .faq-a{max-height:300px;padding:0 32px 24px;}
+
+/* CTA CLOSE */
+.cta-close{background:var(--navy-deep);padding:88px 48px;position:relative;overflow:hidden;}
+.cta-close::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(255,255,255,.02) 79px,rgba(255,255,255,.02) 80px);}
+.cta-bot{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);}
+.cta-grid{position:relative;z-index:1;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center;}
+.cta-grid h2{color:#F7F4EF;margin-bottom:14px;}
+.cta-grid p{color:rgba(247,244,239,.55);font-size:17px;font-weight:300;max-width:500px;margin-bottom:16px;}
+.cta-urg{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;color:rgba(247,244,239,.3);}
+.cta-btns{display:flex;flex-direction:column;gap:12px;align-items:center;flex-shrink:0;}
+.cta-note-sm{font-size:11px;color:rgba(247,244,239,.22);}
+
+/* FOOTER */
+#footer{background:var(--navy-deep);border-top:1px solid rgba(255,255,255,.06);padding:40px 48px;}
+.fi{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.flogo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.flogo span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:rgba(247,244,239,.5);}
+.flogo em{font-style:normal;color:var(--orange);}
+.fnav{display:flex;gap:28px;list-style:none;}
+.fnav a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,239,.3);text-decoration:none;transition:color .2s;}
+.fnav a:hover{color:rgba(247,244,239,.7);}
+.fcopy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(247,244,239,.2);}
+
+@media(max-width:900px){
+  #nav{padding:0 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+  .drawer{display:block;}
+  .ph,.sec,.cta-close,#footer{padding-left:24px;padding-right:24px;}
+  .step{grid-template-columns:1fr;}
+  .step-num{padding:24px 24px 0;border-right:none;border-bottom:1px solid var(--line);}
+  .step-content,.step-detail{padding:24px;border-right:none;}
+  .tl{flex-direction:column;}
+  .tl-item{border-right:none;border-bottom:1px solid var(--line);}
+  .tl-end{border-bottom:none;}
+  .cta-grid{grid-template-columns:1fr;}
+  .fi{flex-direction:column;gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
+    <div class="logo-wm"><span class="logo-the">The</span><span class="logo-name">Clear <em>Stack</em></span></div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html" class="active">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<div class="ph">
+  <div class="ph-inner">
+    <span class="tag">How It Works</span>
+    <h1>The 4C Framework.<br>Built from real work,<br>not whitepapers.</h1>
+    <p>Every Clear Stack engagement follows the same four steps — Catalog, Consolidate, Connect, Coach. Here's exactly what happens, when, and why.</p>
+  </div>
+</div>
+
+<!-- STEPS -->
+<section class="sec" style="background:var(--white);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">The Methodology</span>
+    <h2>Four steps. Every engagement. Every time.</h2>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num"><div class="sn">01</div><div class="sl">C</div></div>
+      <div class="step-content">
+        <div class="sbar"></div>
+        <h3>Catalog</h3>
+        <p>We map every AI tool in your organization with the precision of a financial audit — what it costs, who uses it, how often, and what it actually produces. Most companies are genuinely shocked by what we find.</p>
+        <p>Not because they made bad decisions, but because AI adoption moved faster than visibility did.</p>
+        <span class="stime">⏱ Weeks 1–2</span>
+      </div>
+      <div class="step-detail">
+        <h4>What we deliver</h4>
+        <ul class="dl">
+          <li>Complete AI tool inventory with costs and usage data</li>
+          <li>Redundancy map — tools doing the same job</li>
+          <li>Shadow stack audit — unsanctioned subscriptions</li>
+          <li>Total annual AI spend, line by line</li>
+          <li>Department-level breakdown with owner names</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><div class="sn">02</div><div class="sl">C</div></div>
+      <div class="step-content">
+        <div class="sbar"></div>
+        <h3>Consolidate</h3>
+        <p>We eliminate redundancy, keep the best tool for each function, and negotiate better terms where leverage exists. The stack gets smaller. The monthly bill drops. The output goes up.</p>
+        <p>This is where most clients see their first clear ROI number — and it's usually larger than expected.</p>
+        <span class="stime">⏱ Weeks 3–5</span>
+      </div>
+      <div class="step-detail">
+        <h4>What we deliver</h4>
+        <ul class="dl">
+          <li>Recommended consolidated stack with justification for each decision</li>
+          <li>Cancellation plan for redundant tools</li>
+          <li>Vendor negotiation playbook</li>
+          <li>Projected annual savings, modeled and documented</li>
+          <li>Governance policy to prevent future shadow sprawl</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><div class="sn">03</div><div class="sl">C</div></div>
+      <div class="step-content">
+        <div class="sbar"></div>
+        <h3>Connect</h3>
+        <p>We build Make.com automation workflows connecting your surviving tools — data flows between platforms, handoffs happen automatically, and the manual steps costing your team hours get eliminated.</p>
+        <p>Every workflow is built to be understood and maintained by your team. You own it from day one.</p>
+        <span class="stime">⏱ Weeks 5–10</span>
+      </div>
+      <div class="step-detail">
+        <h4>What we deliver</h4>
+        <ul class="dl">
+          <li>Custom Make.com automation workflows, fully tested</li>
+          <li>CRM, communication, and operational tool integrations</li>
+          <li>Data flow diagrams for each workflow</li>
+          <li>Error handling and monitoring setup</li>
+          <li>Full technical documentation your team can follow</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><div class="sn">04</div><div class="sl">C</div></div>
+      <div class="step-content">
+        <div class="sbar"></div>
+        <h3>Coach</h3>
+        <p>We train your team until they can run the system without us — because the best outcome of this engagement is that you don't need us anymore. We document everything and stay available 30 days post-handoff.</p>
+        <p>Every question gets a straight answer. No ticket system, no offshore support queue.</p>
+        <span class="stime">⏱ Weeks 10–13</span>
+      </div>
+      <div class="step-detail">
+        <h4>What we deliver</h4>
+        <ul class="dl">
+          <li>Team training sessions (recorded and indexed)</li>
+          <li>Step-by-step runbooks for every workflow</li>
+          <li>30-day post-handoff support window</li>
+          <li>Recommended monitoring cadence</li>
+          <li>Quarterly review framework for ongoing optimization</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- TIMELINE -->
+<section class="sec" style="background:var(--light);border-top:1px solid var(--line);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">Typical Engagement</span>
+    <h2>90 days to a clear,<br>connected stack.</h2>
+  </div>
+  <div class="tl reveal">
+    <div class="tl-item"><div class="tl-w">Weeks 1–2</div><div class="tl-a">Catalog</div><div class="tl-d">Full stack audit, cost mapping, redundancy identification</div></div>
+    <div class="tl-item"><div class="tl-w">Weeks 3–5</div><div class="tl-a">Consolidate</div><div class="tl-d">Stack decisions made, cancellations executed, savings locked</div></div>
+    <div class="tl-item"><div class="tl-w">Weeks 5–10</div><div class="tl-a">Connect</div><div class="tl-d">Automations built, tested, and deployed in your environment</div></div>
+    <div class="tl-item"><div class="tl-w">Weeks 10–13</div><div class="tl-a">Coach</div><div class="tl-d">Team training, documentation, handoff, 30-day support</div></div>
+    <div class="tl-item tl-end"><div class="tl-w">After</div><div class="tl-a">You own it</div><div class="tl-d">Retainer available if you want ongoing optimization</div></div>
+  </div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" style="background:var(--white);border-top:1px solid var(--line);">
+<div class="si">
+  <div style="margin-bottom:48px;" class="reveal">
+    <span class="tag">Common Questions</span>
+    <h2>Questions we get<br>on every first call.</h2>
+  </div>
+  <div class="faq reveal">
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do you handle tools we're locked into long-term contracts for?<span class="faq-icon">+</span></div>
+      <div class="faq-a">We work with what you have. The Catalog phase identifies contracts, expiry dates, and cancellation clauses. Consolidation is sequenced around your actual exit dates — we don't recommend cuts that create liability. We build your roadmap around the real timeline, not the ideal one.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do we need a technical team internally for this to work?<span class="faq-icon">+</span></div>
+      <div class="faq-a">No. We've run engagements with companies that have dedicated IT departments and companies where the most technical person is the founder on a MacBook. Marcus builds everything to be maintained without developer knowledge — that's a requirement, not a nice-to-have.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What if we only want the audit and not the full implementation?<span class="faq-icon">+</span></div>
+      <div class="faq-a">That's a valid engagement. We do Catalog-only audits where we map your stack, identify waste, and hand you a prioritized consolidation roadmap. You implement it yourself or bring us back for Connect later. Scope is always your call.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do you guarantee ROI?<span class="faq-icon">+</span></div>
+      <div class="faq-a">If we don't identify savings or efficiency gains that justify the engagement fee within the Catalog phase, we'll tell you before proceeding. We don't take engagements we can't win. For DFY implementations, if the system doesn't work as specified at handoff, we keep working until it does.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What size company is the right fit?<span class="faq-icon">+</span></div>
+      <div class="faq-a">The sweet spot is 50–500 employees — small enough that decisions can move quickly, large enough that tool sprawl has had time to compound. We've worked with companies as small as 30 people with surprising complexity and as large as 2,000 with surprisingly clean stacks.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- CTA -->
+<div class="cta-close">
+  <div class="cta-bot"></div>
+  <div class="cta-grid">
+    <div>
+      <span class="tag" style="color:rgba(224,123,42,.75);">Start Here</span>
+      <h2>Ready to run<br>the 4C Framework?</h2>
+      <p>Book a free 30-minute audit call and we'll start the Catalog phase on your stack before the call even ends.</p>
+      <p class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots per month</p>
+    </div>
+    <div class="cta-btns">
+      <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 40px;">Book Free Stack Audit</a>
+      <a href="contact.html" class="btn btn-ghost">Buy the Playbook — $49</a>
+      <span class="cta-note-sm">No commitment required</span>
+    </div>
+  </div>
+</div>
+
+<footer id="footer">
+  <div class="fi">
+    <a href="index.html" class="flogo"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg><span>The Clear <em>Stack</em></span></a>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40),{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

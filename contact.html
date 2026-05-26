@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work With Us — The Clear Stack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F4A;--navy-deep:#07152F;--navy-mid:#122260;--orange:#E07B2A;--orange-h:#C96A1A;--white:#FFFFFF;--cream:#F7F4EF;--charcoal:#1A1A1A;--gray:#5A6478;--line:#E4E6EA;--light:#F4F5F7;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:68px;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1;}
+h2{font-size:clamp(34px,4vw,54px);font-weight:700;color:var(--navy);margin-bottom:14px;}
+h3{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;}
+p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:14px;}
+.btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
+.btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
+.btn-ghost:hover{border-color:rgba(247,244,239,.5);color:#fff;}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.in{opacity:1;transform:none;}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
+#nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:2px;}
+.logo-the{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(247,244,239,.4);text-transform:uppercase;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:#F7F4EF;}
+.logo-name em{font-style:normal;color:var(--orange);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+.nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+.nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;text-decoration:none;}
+.nav-cta:hover{background:var(--orange-h)!important;}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+.drawer.open{transform:none;}
+.drawer ul{list-style:none;}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
+.d-cta{color:var(--orange)!important;font-weight:700!important;}
+
+/* PAGE HERO — white */
+.ph{background:var(--white);padding:72px 48px 64px;border-bottom:1px solid var(--line);}
+.ph-inner{max-width:1160px;margin:0 auto;}
+.ph h1{font-size:clamp(38px,4.5vw,62px);font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.08;}
+.ph p{font-size:18px;color:var(--gray);font-weight:300;max-width:560px;}
+
+.sec{padding:88px 48px;}
+.si{max-width:1160px;margin:0 auto;}
+
+/* CONTACT LAYOUT */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
+
+/* TRUST SIGNALS */
+.tsigs{display:flex;flex-direction:column;gap:16px;margin-bottom:40px;}
+.tsig-item{display:flex;align-items:flex-start;gap:14px;padding:18px;background:var(--light);border-radius:4px;border:1px solid var(--line);}
+.tsig-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.tsig-text h4{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.tsig-text p{font-size:13px;margin-bottom:0;}
+
+/* PRICING */
+.pcards{display:flex;flex-direction:column;gap:14px;}
+.pc{background:var(--light);border:1px solid var(--line);border-radius:6px;padding:24px 26px;transition:border-color .25s;}
+.pc:hover{border-color:var(--navy);}
+.pc.feat{border-color:var(--orange);border-top-width:2px;}
+.pc-tier{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);margin-bottom:6px;display:block;}
+.pc h4{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.pc-price{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--orange);line-height:1;margin-bottom:8px;}
+.pc p{font-size:13px;}
+
+/* FORM */
+.form-wrap{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:40px 36px;}
+.form-wrap h3{font-size:26px;margin-bottom:6px;}
+.form-wrap>p{font-size:14px;margin-bottom:28px;}
+.urg-bar{background:rgba(224,123,42,.08);border:1px solid rgba(224,123,42,.2);border-radius:4px;padding:12px 16px;margin-bottom:24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--orange);display:flex;align-items:center;gap:10px;}
+.u-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;animation:pulse 2.4s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.fg{margin-bottom:18px;}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--navy);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:3px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--charcoal);background:var(--white);transition:border-color .2s;appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--navy);}
+.fg textarea{height:90px;resize:vertical;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-note{font-size:12px;color:var(--gray);margin-top:10px;text-align:center;}
+.form-note a{color:var(--navy);font-weight:600;}
+
+/* FOOTER */
+#footer{background:var(--navy-deep);border-top:1px solid rgba(255,255,255,.06);padding:40px 48px;}
+.fi{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.flogo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.flogo span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:rgba(247,244,239,.5);}
+.flogo em{font-style:normal;color:var(--orange);}
+.fnav{display:flex;gap:28px;list-style:none;}
+.fnav a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,239,.3);text-decoration:none;transition:color .2s;}
+.fnav a:hover{color:rgba(247,244,239,.7);}
+.fcopy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(247,244,239,.2);}
+
+@media(max-width:960px){
+  #nav{padding:0 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+  .drawer{display:block;}
+  .ph,.sec,#footer{padding-left:24px;padding-right:24px;}
+  .cgrid{grid-template-columns:1fr;}
+  .frow{grid-template-columns:1fr;}
+  .form-wrap{padding:28px 22px;}
+  .fi{flex-direction:column;gap:16px;}
+  #footer{padding:32px 24px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
+    <div class="logo-wm"><span class="logo-the">The</span><span class="logo-name">Clear <em>Stack</em></span></div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta active">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<div class="ph">
+  <div class="ph-inner">
+    <span class="tag">Work With Us</span>
+    <h1>Let's clear<br>your stack.</h1>
+    <p>Start with a free 30-minute audit call. No prep required. We ask the questions, map your situation, and tell you exactly what we'd do — and what it would cost. No obligation.</p>
+  </div>
+</div>
+
+<section class="sec" style="background:var(--white);">
+<div class="si">
+<div class="cgrid">
+
+  <!-- LEFT -->
+  <div class="reveal">
+    <span class="tag">Why book the audit</span>
+    <h2>You'll leave knowing<br>exactly where you stand.</h2>
+    <p style="font-size:16px;margin-bottom:32px;">Most companies we talk to have never seen their full AI spend in one place. The free audit call changes that — in 30 minutes.</p>
+
+    <div class="tsigs">
+      <div class="tsig-item">
+        <div class="tsig-icon">🔍</div>
+        <div class="tsig-text">
+          <h4>We map your stack before the call</h4>
+          <p>Our Depth agent researches your likely tools ahead of time. We arrive informed, not cold — so 30 minutes goes on solutions, not discovery.</p>
+        </div>
+      </div>
+      <div class="tsig-item">
+        <div class="tsig-icon">💬</div>
+        <div class="tsig-text">
+          <h4>You get a straight answer, every time</h4>
+          <p>We'll tell you if we can help. If we can't, we'll tell you who you should call instead. No soft sells, no vague follow-ups.</p>
+        </div>
+      </div>
+      <div class="tsig-item">
+        <div class="tsig-icon">⚡</div>
+        <div class="tsig-text">
+          <h4>We notify you before problems, not after</h4>
+          <p>If scope shifts mid-engagement, you hear from us first — not when it's already a problem.</p>
+        </div>
+      </div>
+      <div class="tsig-item">
+        <div class="tsig-icon">🔒</div>
+        <div class="tsig-text">
+          <h4>You own everything we build</h4>
+          <p>Every automation, workflow, and document — yours on day one. No lock-in, no ongoing dependency unless you choose the retainer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <span class="tag">Pricing</span>
+      <h3 style="margin-bottom:20px;">Three ways to engage.</h3>
+      <div class="pcards">
+        <div class="pc feat">
+          <span class="pc-tier">Most Popular</span>
+          <h4>Done-For-You Implementation</h4>
+          <div class="pc-price">$10–25K</div>
+          <p>Full stack audit, consolidation, Make.com automation build, and team training. 90-day delivery. ROI-guaranteed or we keep working.</p>
+        </div>
+        <div class="pc">
+          <span class="pc-tier">Self-Serve</span>
+          <h4>The Clear Stack Playbook</h4>
+          <div class="pc-price">$49</div>
+          <p>Complete audit methodology and the 4C Framework. Instant download. Do it yourself — or hand it to your team.</p>
+        </div>
+        <div class="pc">
+          <span class="pc-tier">Ongoing</span>
+          <h4>Retainer &amp; Maintenance</h4>
+          <div class="pc-price">Custom</div>
+          <p>Monthly stack management, tool evaluation, and quarterly reviews. Available after DFY or as standalone.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — FORM -->
+  <div class="reveal">
+    <div class="form-wrap">
+      <div class="urg-bar"><div class="u-dot"></div>Currently accepting Q3 2026 engagements — limited slots</div>
+      <h3>Book your free audit</h3>
+      <p>30 minutes. No prep needed. We handle the agenda.</p>
+      <form onsubmit="handleSubmit(event)">
+        <div class="frow">
+          <div class="fg"><label>First Name</label><input type="text" placeholder="Brian" required></div>
+          <div class="fg"><label>Last Name</label><input type="text" placeholder="Hartmann" required></div>
+        </div>
+        <div class="fg"><label>Work Email</label><input type="email" placeholder="brian@yourcompany.com" required></div>
+        <div class="fg"><label>Company Name</label><input type="text" placeholder="Acme Corp" required></div>
+        <div class="frow">
+          <div class="fg">
+            <label>Company Size</label>
+            <select required>
+              <option value="">Select…</option>
+              <option>Under 50 employees</option>
+              <option>50–150 employees</option>
+              <option>150–500 employees</option>
+              <option>500–1,000 employees</option>
+              <option>1,000+ employees</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Industry</label>
+            <select required>
+              <option value="">Select…</option>
+              <option>Professional Services</option>
+              <option>Financial Services</option>
+              <option>Healthcare</option>
+              <option>Manufacturing &amp; Logistics</option>
+              <option>Technology</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Rough monthly AI spend (optional)</label>
+          <select>
+            <option value="">Not sure / prefer not to say</option>
+            <option>Under $2,000/mo</option>
+            <option>$2,000–$10,000/mo</option>
+            <option>$10,000–$50,000/mo</option>
+            <option>$50,000+/mo</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Biggest pain point with your current stack?</label>
+          <textarea placeholder="Too many tools doing the same thing, no one knows what's connected to what…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;font-size:16px;padding:16px;" id="submit-btn">Request Free Stack Audit</button>
+        <p class="form-note">Or book directly on Calendly — <a href="https://calendly.com" target="_blank">pick a time →</a></p>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+</section>
+
+<footer id="footer">
+  <div class="fi">
+    <a href="index.html" class="flogo"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg><span>The Clear <em>Stack</em></span></a>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40),{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+function handleSubmit(e){
+  e.preventDefault();
+  const btn=document.getElementById('submit-btn');
+  btn.textContent='✓ Request received — we\'ll be in touch within one business day';
+  btn.style.background='#1a4a1a';
+  btn.disabled=true;
+}
+</script>
+</body>
+</html>

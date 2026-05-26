@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Clear Stack — AI Clarity for Mid-Market Companies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0B1F4A;
+  --navy-deep: #07152F;
+  --navy-mid:  #122260;
+  --orange:    #E07B2A;
+  --orange-h:  #C96A1A;
+  --white:     #FFFFFF;
+  --cream:     #F7F4EF;
+  --charcoal:  #1A1A1A;
+  --gray:      #5A6478;
+  --line:      #E4E6EA;
+  --light:     #F4F5F7;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--white);
+  color: var(--charcoal);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  padding-top: 68px;
+}
+h1, h2, h3, h4 { font-family: 'Cormorant Garamond', serif; line-height: 1.1; }
+h2 { font-size: clamp(34px, 4vw, 54px); font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+h3 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+p  { font-size: 15px; line-height: 1.75; color: var(--gray); font-weight: 300; }
+.tag { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--orange); display: block; margin-bottom: 14px; }
+
+/* BUTTONS */
+.btn { display: inline-block; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px; text-decoration: none; border-radius: 3px; transition: all .22s ease; cursor: pointer; border: none; }
+.btn-primary { background: var(--orange); color: #fff; padding: 15px 34px; }
+.btn-primary:hover { background: var(--orange-h); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(224,123,42,.28); }
+.btn-ghost  { background: transparent; color: rgba(247,244,239,.78); border: 1px solid rgba(247,244,239,.25); padding: 14px 34px; }
+.btn-ghost:hover { border-color: rgba(247,244,239,.55); color: #fff; }
+.btn-navy   { background: var(--navy); color: #fff; padding: 14px 34px; }
+.btn-navy:hover { background: var(--navy-mid); transform: translateY(-2px); }
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── NAV — stays dark ── */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: 68px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 48px;
+  background: rgba(7, 21, 47, .97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  transition: box-shadow .3s;
+}
+#nav.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.25); border-bottom-color: rgba(255,255,255,.14); }
+.nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+.logo-the { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .28em; color: rgba(247,244,239,.4); text-transform: uppercase; }
+.logo-name { font-family: 'Cormorant Garamond', serif; font-size: 21px; font-weight: 700; color: #F7F4EF; }
+.logo-name em { font-style: normal; color: var(--orange); }
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+.nav-links a { font-size: 13px; font-weight: 500; color: rgba(247,244,239,.6); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: rgba(247,244,239,.95); }
+.nav-links a.active { border-bottom: 1px solid var(--orange); padding-bottom: 2px; }
+.nav-cta { background: var(--orange) !important; color: #fff !important; padding: 9px 22px; border-radius: 3px; font-size: 13px !important; font-weight: 600 !important; text-decoration: none; transition: background .2s; }
+.nav-cta:hover { background: var(--orange-h) !important; }
+.burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
+.burger span { display: block; width: 22px; height: 2px; background: rgba(247,244,239,.7); border-radius: 2px; }
+.drawer { display: none; position: fixed; top: 68px; left: 0; right: 0; bottom: 0; background: var(--navy-deep); z-index: 999; padding: 32px 24px; transform: translateX(-100%); transition: transform .3s ease; }
+.drawer.open { transform: none; }
+.drawer ul { list-style: none; }
+.drawer a { display: block; padding: 18px 0; font-size: 18px; font-weight: 500; color: rgba(247,244,239,.75); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+.d-cta { color: var(--orange) !important; font-weight: 700 !important; }
+
+/* ── HERO — white background ── */
+#hero {
+  background: var(--white);
+  padding: 80px 48px 72px;
+  border-bottom: 1px solid var(--line);
+}
+.hero-body {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 400px;
+  gap: 80px; align-items: center;
+}
+.hero-left { animation: fadeUp .85s .1s both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+
+.h-badge { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.h-badge-text { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--orange); }
+.pulse { width: 7px; height: 7px; background: var(--orange); border-radius: 50%; animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.3; transform:scale(.8); } }
+
+h1 { font-size: clamp(46px, 5.5vw, 74px); font-weight: 700; color: var(--navy); line-height: 1.05; margin-bottom: 22px; }
+h1 em { font-style: italic; color: var(--orange); }
+.hero-sub { font-size: 18px; font-weight: 300; color: var(--gray); line-height: 1.75; max-width: 480px; margin-bottom: 40px; }
+.hero-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.hero-note { font-size: 12px; color: var(--gray); opacity: .65; }
+
+/* Metric card — light on white */
+.mc {
+  background: var(--light);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--orange);
+  border-radius: 6px; padding: 36px 32px;
+  animation: fadeUp .9s .3s both;
+}
+.mc-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gray); margin-bottom: 24px; }
+.mc-row { display: flex; flex-direction: column; gap: 22px; }
+.mc-item { border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+.mc-item:last-child { border-bottom: none; padding-bottom: 0; }
+.mc-num { font-family: 'Cormorant Garamond', serif; font-size: 46px; font-weight: 700; color: var(--orange); line-height: 1; margin-bottom: 4px; }
+.mc-desc { font-size: 13px; color: var(--gray); line-height: 1.5; font-weight: 300; }
+
+/* TRUST */
+#trust { background: var(--white); border-bottom: 1px solid var(--line); padding: 0 48px; }
+.trust-inner { max-width: 1160px; margin: 0 auto; display: flex; align-items: center; height: 64px; }
+.trust-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gray); white-space: nowrap; padding-right: 28px; border-right: 1px solid var(--line); margin-right: 28px; flex-shrink: 0; }
+.trust-items { display: flex; align-items: center; gap: 24px; }
+.trust-item { font-size: 13px; font-weight: 600; color: var(--gray); opacity: .5; transition: opacity .2s; }
+.trust-item:hover { opacity: 1; }
+.trust-div { width: 1px; height: 14px; background: var(--line); }
+
+/* SECTIONS */
+.sec { padding: 96px 48px; }
+.si { max-width: 1160px; margin: 0 auto; }
+
+/* SERVICES */
+.svc-hd { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 52px; gap: 40px; flex-wrap: wrap; }
+.svc-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.svc { background: var(--white); padding: 40px 34px; transition: background .25s; }
+.svc:hover { background: var(--cream); }
+.svc-n { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--line); letter-spacing: .1em; margin-bottom: 18px; }
+.svc-ico { width: 36px; height: 36px; margin-bottom: 18px; }
+.svc p { font-size: 14px; margin-bottom: 20px; }
+.svc-price { font-size: 13px; font-weight: 600; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+.svc-price::before { content: ''; width: 20px; height: 2px; background: var(--orange); flex-shrink: 0; }
+.svc-dark { background: var(--navy) !important; cursor: pointer; }
+.svc-dark:hover { background: var(--navy-mid) !important; }
+.svc-dark h3 { color: #F7F4EF !important; }
+.svc-dark p  { color: rgba(247,244,239,.55) !important; }
+.svc-dark .svc-n { color: rgba(255,255,255,.1) !important; }
+.cta-lnk { color: var(--orange); font-size: 13px; font-weight: 600; margin-top: 8px; display: inline-block; }
+
+/* 4C */
+.four-c { display: grid; grid-template-columns: repeat(4,1fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.cc { padding: 44px 28px; border-right: 1px solid var(--line); transition: background .25s; position: relative; }
+.cc:last-child { border-right: none; }
+.cc:hover { background: var(--cream); }
+.cc-n { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--line); margin-bottom: 20px; }
+.cc-bar { width: 28px; height: 3px; background: var(--orange); margin-bottom: 18px; border-radius: 2px; }
+.cc-ghost { font-family: 'Cormorant Garamond', serif; font-size: 80px; font-weight: 700; color: var(--navy); opacity: .06; position: absolute; top: 20px; right: 16px; line-height: 1; pointer-events: none; user-select: none; }
+.cc h3 { margin-bottom: 12px; }
+.cc p  { font-size: 14px; }
+.center-link { margin-top: 36px; text-align: center; }
+
+/* PROOF */
+.proof-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+.proof-card { background: var(--cream); border-radius: 6px; padding: 36px 32px; border-left: 3px solid var(--navy); transition: border-color .25s, transform .25s; }
+.proof-card:hover { border-left-color: var(--orange); transform: translateY(-4px); }
+.qm { font-family: 'Cormorant Garamond', serif; font-size: 48px; color: var(--orange); line-height: .6; display: block; margin-bottom: 12px; }
+.pq { font-size: 15px; line-height: 1.7; color: var(--charcoal); font-style: italic; margin-bottom: 20px; }
+.pa { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--gray); margin-bottom: 14px; display: block; }
+.pr { display: inline-flex; align-items: center; gap: 8px; background: #fff; border-radius: 3px; padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--navy); }
+.pip { width: 7px; height: 7px; background: var(--orange); border-radius: 50%; flex-shrink: 0; }
+
+/* CTA CLOSE — stays dark */
+#cta-close {
+  background: var(--navy-deep);
+  padding: 96px 48px;
+  position: relative; overflow: hidden;
+}
+#cta-close::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(255,255,255,.02) 79px,rgba(255,255,255,.02) 80px); }
+.cta-bot { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--orange); }
+.cta-grid { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 60px; align-items: center; }
+.cta-grid h2 { color: #F7F4EF; margin-bottom: 14px; }
+.cta-grid p  { color: rgba(247,244,239,.55); font-size: 17px; font-weight: 300; max-width: 500px; margin-bottom: 16px; }
+.cta-urg { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .15em; color: rgba(247,244,239,.3); }
+.cta-btns { display: flex; flex-direction: column; gap: 12px; align-items: center; flex-shrink: 0; }
+.cta-note-sm { font-size: 11px; color: rgba(247,244,239,.22); }
+
+/* FOOTER — stays dark */
+#footer { background: var(--navy-deep); border-top: 1px solid rgba(255,255,255,.06); padding: 40px 48px; }
+.fi { max-width: 1160px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.flogo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.flogo span { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: rgba(247,244,239,.5); }
+.flogo em { font-style: normal; color: var(--orange); }
+.fnav { display: flex; gap: 28px; list-style: none; }
+.fnav a { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(247,244,239,.3); text-decoration: none; transition: color .2s; }
+.fnav a:hover { color: rgba(247,244,239,.7); }
+.fcopy { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(247,244,239,.2); }
+
+@media(max-width: 900px) {
+  #nav { padding: 0 20px; }
+  .nav-links, .nav-cta { display: none; }
+  .burger { display: flex; }
+  .drawer { display: block; }
+  #hero { padding: 60px 24px 56px; }
+  .hero-body { grid-template-columns: 1fr; gap: 40px; }
+  .mc { display: none; }
+  #trust, .sec, #cta-close, #footer { padding-left: 24px; padding-right: 24px; }
+  #trust { padding-top: 0; padding-bottom: 0; }
+  .trust-items { display: none; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .svc-hd { flex-direction: column; align-items: flex-start; }
+  .four-c { grid-template-columns: 1fr 1fr; }
+  .cc { border-right: none; border-bottom: 1px solid var(--line); }
+  .proof-grid { grid-template-columns: 1fr; }
+  .cta-grid { grid-template-columns: 1fr; }
+  .fi { flex-direction: column; gap: 16px; }
+}
+@media(max-width: 500px) {
+  .four-c { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV — dark always -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/>
+      <rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/>
+      <rect x="1" y="6"  width="30" height="6" rx="1.5" fill="#E07B2A"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-the">The</span>
+      <span class="logo-name">Clear <em>Stack</em></span>
+    </div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+  </ul>
+  <a href="contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="team.html">The Team</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<!-- HERO — white background -->
+<section id="hero">
+  <div class="hero-body">
+    <div class="hero-left">
+      <div class="h-badge">
+        <div class="pulse"></div>
+        <span class="h-badge-text">AI Consolidation Consulting</span>
+      </div>
+      <h1>Your AI stack<br>should work<br><em>for you.</em><br>Not against you.</h1>
+      <p class="hero-sub">Mid-market companies are drowning in disconnected, redundant AI tools. We audit the mess, cut the waste, connect what matters — and hand you a stack that actually runs.</p>
+      <div class="hero-row">
+        <a href="contact.html" class="btn btn-primary">Get Your Free Stack Audit</a>
+        <span class="hero-note">No commitment &nbsp;·&nbsp; 30 minutes</span>
+      </div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">The problem in numbers</div>
+      <div class="mc-row">
+        <div class="mc-item">
+          <div class="mc-num">73%</div>
+          <div class="mc-desc">of mid-market companies pay for redundant AI tools every month</div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-num">$2.4M</div>
+          <div class="mc-desc">average annual AI spend waste identified per engagement</div>
+        </div>
+        <div class="mc-item">
+          <div class="mc-num">90d</div>
+          <div class="mc-desc">average time to a fully consolidated, connected stack</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div id="trust">
+  <div class="trust-inner">
+    <span class="trust-label">Trusted by operators in</span>
+    <div class="trust-items">
+      <span class="trust-item">Professional Services</span><div class="trust-div"></div>
+      <span class="trust-item">Financial Services</span><div class="trust-div"></div>
+      <span class="trust-item">Healthcare Operations</span><div class="trust-div"></div>
+      <span class="trust-item">Manufacturing &amp; Logistics</span><div class="trust-div"></div>
+      <span class="trust-item">Technology</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT WE DO -->
+<section class="sec" style="background:var(--white);">
+  <div class="si">
+    <div class="svc-hd">
+      <div><span class="tag">What We Do</span><h2>Five ways we<br>generate ROI for you.</h2></div>
+      <p style="max-width:360px;font-size:16px;color:var(--gray);font-weight:300;">Every engagement starts the same: what's in your stack, what does it cost, and is any of it worth keeping?</p>
+    </div>
+    <div class="svc-grid reveal">
+      <div class="svc">
+        <div class="svc-n">01</div>
+        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><rect x="2" y="5" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".18"/><rect x="2" y="15" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".45"/><rect x="2" y="25" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".82"/></svg>
+        <h3>The Clear Stack Playbook</h3>
+        <p>Our complete PDF methodology — audit templates, consolidation scorecard, and the 4C Framework. Self-serve version of everything we do for clients.</p>
+        <span class="svc-price">$49 — Instant download</span>
+      </div>
+      <div class="svc">
+        <div class="svc-n">02</div>
+        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="#0B1F4A" stroke-width="1.5" opacity=".2"/><path d="M11 18l5 5 10-10" stroke="#0B1F4A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Done-For-You Implementation</h3>
+        <p>Full audit, redundancy elimination, Make.com automation build, and team handoff. 90-day delivery. We don't leave until it works — that's not a promise, it's the contract.</p>
+        <span class="svc-price">$10K–$25K per engagement</span>
+      </div>
+      <div class="svc">
+        <div class="svc-n">03</div>
+        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><path d="M4 18h28M18 4v28" stroke="#0B1F4A" stroke-width="1.5" stroke-linecap="round" opacity=".18"/><circle cx="18" cy="18" r="5" fill="#0B1F4A" opacity=".7"/><circle cx="32" cy="18" r="3" fill="#0B1F4A" opacity=".3"/><circle cx="4" cy="18" r="3" fill="#0B1F4A" opacity=".3"/></svg>
+        <h3>Retainer &amp; Maintenance</h3>
+        <p>Ongoing stack management, new tool evaluation, and quarterly reviews. We keep you optimized as the AI landscape shifts.</p>
+        <span class="svc-price">Monthly retainer — custom pricing</span>
+      </div>
+      <div class="svc">
+        <div class="svc-n">04</div>
+        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><rect x="2" y="10" width="13" height="18" rx="1.5" stroke="#0B1F4A" stroke-width="1.5" opacity=".35"/><rect x="21" y="5" width="13" height="26" rx="1.5" stroke="#0B1F4A" stroke-width="1.5" opacity=".7"/><path d="M8 18h20" stroke="#0B1F4A" stroke-width="1" stroke-dasharray="3 2" opacity=".2"/></svg>
+        <h3>Template Marketplace</h3>
+        <p>Pre-built Make.com automation templates, stack audit worksheets, and integration blueprints — built from real client work, ready to deploy today.</p>
+        <span class="svc-price">SeaLegs Market — from $29/template</span>
+      </div>
+      <div class="svc">
+        <div class="svc-n">05</div>
+        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><path d="M6 30l6-7m6-7 5-8" stroke="#0B1F4A" stroke-width="1.5" stroke-linecap="round" opacity=".4"/><circle cx="6" cy="30" r="3.5" fill="#0B1F4A" opacity=".25"/><circle cx="18" cy="18" r="3.5" fill="#0B1F4A" opacity=".55"/><circle cx="30" cy="8" r="3.5" fill="#0B1F4A" opacity=".85"/></svg>
+        <h3>Coaching Cohort</h3>
+        <p>Live cohort training, peer community, and Clear Stack certification. For operators and consultants who want to run this methodology themselves.</p>
+        <span class="svc-price">Cohort — apply for access</span>
+      </div>
+      <div class="svc svc-dark" onclick="location.href='contact.html'">
+        <div class="svc-n">→</div>
+        <h3>Not sure where<br>to start?</h3>
+        <p>Book a free 30-minute stack review. We'll tell you exactly where you're bleeding and what it costs — no pressure, no obligation.</p>
+        <span class="cta-lnk">Book free audit →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4C -->
+<section class="sec" style="background:var(--light);border-top:1px solid var(--line);">
+  <div class="si">
+    <div class="reveal">
+      <span class="tag">How It Works</span>
+      <h2>The 4C Framework.</h2>
+      <p style="font-size:17px;font-weight:300;max-width:520px;margin-bottom:48px;">Built from real implementation work — not whitepapers. Four steps, every engagement, every time.</p>
+    </div>
+    <div class="four-c reveal">
+      <div class="cc"><div class="cc-ghost">C</div><div class="cc-n">01</div><div class="cc-bar"></div><h3>Catalog</h3><p style="font-size:14px;">Map every AI tool — cost, usage, and whether it's worth keeping.</p></div>
+      <div class="cc"><div class="cc-ghost">C</div><div class="cc-n">02</div><div class="cc-bar"></div><h3>Consolidate</h3><p style="font-size:14px;">Redundancy removed. Stack tightened. Better terms negotiated on your behalf.</p></div>
+      <div class="cc"><div class="cc-ghost">C</div><div class="cc-n">03</div><div class="cc-bar"></div><h3>Connect</h3><p style="font-size:14px;">Make.com workflows link your tools — data flows, handoffs happen automatically.</p></div>
+      <div class="cc"><div class="cc-ghost">C</div><div class="cc-n">04</div><div class="cc-bar"></div><h3>Coach</h3><p style="font-size:14px;">Full team training and documentation. You own the system from day one.</p></div>
+    </div>
+    <div class="center-link reveal"><a href="method.html" class="btn btn-navy">See the full methodology →</a></div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="sec" style="background:var(--white);border-top:1px solid var(--line);">
+  <div class="si">
+    <div class="reveal">
+      <span class="tag">Client Results</span>
+      <h2>What clients say<br>after we clear their stack.</h2>
+      <p style="font-size:17px;font-weight:300;max-width:500px;margin-bottom:48px;">We treat your business like it's our own — because when we're inside it, it is.</p>
+    </div>
+    <div class="proof-grid reveal">
+      <div class="proof-card">
+        <span class="qm">"</span>
+        <p class="pq">Brian's team found $140K in waste on day one. By week eight our three CRM systems were one. The clarity alone was worth the engagement fee.</p>
+        <span class="pa">Managing Partner · Financial Services · RIA Firm</span>
+        <div class="pr"><div class="pip"></div>$140K identified · Single source of truth</div>
+      </div>
+      <div class="proof-card">
+        <span class="qm">"</span>
+        <p class="pq">We had 22 AI subscriptions nobody approved and zero of them talking to each other. The Clear Stack made sense of the chaos and had us consolidated in 30 days.</p>
+        <span class="pa">VP of Operations · Mid-Market Logistics · 850 Employees</span>
+        <div class="pr"><div class="pip"></div>$94K recovered · Full visibility in 30 days</div>
+      </div>
+      <div class="proof-card">
+        <span class="qm">"</span>
+        <p class="pq">They were quick to notify us when scope shifted and made every adjustment without friction. I've never had a team feel this much like part of our own people.</p>
+        <span class="pa">Director of Legal Operations · Regional Law Firm · 200 Staff</span>
+        <div class="pr"><div class="pip"></div>$180K/yr saved · 40% faster case intake</div>
+      </div>
+    </div>
+    <div class="center-link reveal"><a href="usecases.html" class="btn btn-navy">See all case studies →</a></div>
+  </div>
+</section>
+
+<!-- CTA CLOSE — stays dark -->
+<section id="cta-close">
+  <div class="cta-bot"></div>
+  <div class="cta-grid">
+    <div>
+      <span class="tag" style="color:rgba(224,123,42,.75);">Work With Us</span>
+      <h2>Ready to clear<br>your stack?</h2>
+      <p>Start with a free 30-minute audit. We map your AI spend, identify the waste, and tell you exactly what consolidation looks like for your business.</p>
+      <p class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots per month</p>
+    </div>
+    <div class="cta-btns">
+      <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 40px;">Book Free Stack Audit</a>
+      <a href="contact.html" class="btn btn-ghost">Buy the Playbook — $49</a>
+      <span class="cta-note-sm">No commitment required</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="fi">
+    <a href="index.html" class="flogo">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
+      <span>The Clear <em>Stack</em></span>
+    </a>
+    <ul class="fnav">
+      <li><a href="index.html">Services</a></li>
+      <li><a href="method.html">Method</a></li>
+      <li><a href="usecases.html">Use Cases</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () =>
+  document.getElementById('nav').classList.toggle('scrolled', scrollY > 40),
+  { passive: true });
+document.getElementById('burger').addEventListener('click', () =>
+  document.getElementById('drawer').classList.toggle('open'));
+const io = new IntersectionObserver(entries =>
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+  { threshold: .08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
