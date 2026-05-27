@@ -1,0 +1,22 @@
+{
+  "name": "resumeagent",
+  "version": "1.0.0",
+  "description": "AI-powered job search, resume tailoring, and outreach — © 2025 Brian Burge",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:protected": "next build && node obfuscate.js",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@anthropic-ai/sdk": "^0.24.3",
+    "nodemailer": "^6.9.13"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.1"
+  }
+}
