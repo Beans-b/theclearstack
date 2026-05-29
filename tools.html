@@ -1249,20 +1249,8 @@ async function doSearch() {
   try {
     const raw = await callClaude({
       apiKey,
-      maxTokens: 2500,
-      systemPrompt: `You are a job search assistant. Return ONLY a raw JSON array of 6 job listings matching the query. Each object must have exactly:
-- title (string)
-- company (string)
-- location (string)
-- source (one of: LinkedIn / Indeed / Y Combinator / Company Site)
-- score (integer 60-98, fit score based on typical candidate profile)
-- salary (string, e.g. "$120K–$160K OTE")
-- summary (2 sentences about the role)
-- tags (array of 3-4 skill strings)
-- url (realistic careers URL)
-- jobDescription (4-5 sentence detailed job description with real requirements)
-- email (object: { subject: string, body: string })
-Make listings realistic, diverse in company size and location. Return ONLY the JSON array, zero other text.`,
+      maxTokens: 1800,
+      systemPrompt: `You are a job search assistant. Return ONLY a raw JSON array of 5 job listings. Each object must have exactly these fields with SHORT values: title (string max 8 words), company (string), location (string e.g. Remote or Austin TX), source (one of: LinkedIn, Indeed, Y Combinator, Company Site), score (integer 60-98), salary (string e.g. 120K-160K), summary (one sentence under 20 words), tags (array of exactly 3 short strings), url (string realistic careers URL), jobDescription (two sentences under 40 words total), email (object with subject string and body string under 60 words). CRITICAL: Keep all strings SHORT. No special characters or apostrophes inside strings. Return ONLY valid JSON array, no other text, no markdown backticks.`,
       userPrompt: `Find jobs for: ${q}`,
     });
 
@@ -1276,7 +1264,35 @@ Make listings realistic, diverse in company size and location. Return ONLY the J
 
     const match = raw.match(/\[[\s\S]*\]/);
     if (!match) throw new Error('Could not parse job results. Try again.');
-    const jobs = JSON.parse(match[0]);
+
+    // Clean common JSON issues: smart quotes, unescaped special chars
+    let cleaned = match[0]
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/\n/g, ' ')
+      .replace(/\r/g, '')
+      .replace(/([^\\])\\([^"\\/bfnrtu])/g, '$1\\\\$2'); // fix bad escapes
+
+    // Try direct parse first, then progressively fix issues
+    let jobs;
+    try {
+      jobs = JSON.parse(cleaned);
+    } catch(parseErr) {
+      // Strip any trailing incomplete object and close the array
+      const lastComplete = cleaned.lastIndexOf('},');
+      if (lastComplete > 0) {
+        cleaned = cleaned.substring(0, lastComplete + 1) + ']';
+        try {
+          jobs = JSON.parse(cleaned);
+        } catch(e2) {
+          throw new Error('Could not parse job results — please try your search again.');
+        }
+      } else {
+        throw new Error('Could not parse job results — please try your search again.');
+      }
+    }
+
+    if (!jobs || !jobs.length) throw new Error('No results returned. Try a different search.');
     renderJobs(jobs);
   } catch (e) {
     clearInterval(ticker);
