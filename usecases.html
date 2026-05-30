@@ -29,10 +29,25 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 #nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
 #nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
 .nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
-.logo-wm{display:flex;flex-direction:column;line-height:1;gap:2px;}
-.logo-the{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(247,244,239,.4);text-transform:uppercase;}
-.logo-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:#F7F4EF;}
-.logo-name em{font-style:normal;color:var(--orange);}
+.nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+/* ── LOGO WORDMARK ── */
+.logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: #F7F4EF;
+  letter-spacing: 0.01em;
+}
+.logo-name .logo-the { font-weight: 600; color: #F7F4EF; }
+.logo-name em { font-style: normal; font-weight: 700; color: var(--orange); }
+.logo-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 6.5px;
+  letter-spacing: 0.14em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+}
 .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
 .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
 .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
@@ -110,15 +125,42 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 
 <nav id="nav">
   <a href="index.html" class="nav-logo">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg>
-    <div class="logo-wm"><span class="logo-the">The</span><span class="logo-name">Clear <em>Stack</em></span></div>
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="buc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="muc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="tuc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#buc)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#muc)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#tuc)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
   </a>
   <button class="burger" id="burger"><span></span><span></span><span></span></button>
   <ul class="nav-links">
     <li><a href="index.html">What We Do</a></li>
     <li><a href="method.html">How It Works</a></li>
     <li><a href="usecases.html" class="active">Use Cases</a></li>
-    <li><a href="team.html">The Team</a></li>
+    <li><a href="tools.html">Tools</a></li>
   </ul>
   <a href="contact.html" class="nav-cta">Work With Us</a>
 </nav>
@@ -126,8 +168,8 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
   <ul>
     <li><a href="index.html">What We Do</a></li>
     <li><a href="method.html">How It Works</a></li>
-    <li><a href="usecases.html">Use Cases</a></li>
-    <li><a href="team.html">The Team</a></li>
+    <li><a href="usecases.html" class="active">Use Cases</a></li>
+    <li><a href="tools.html">Tools</a></li>
     <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
   </ul>
 </div>
@@ -210,8 +252,32 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 
 <footer id="footer">
   <div class="fi">
-    <a href="index.html" class="flogo"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><rect x="1" y="22" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".3"/><rect x="1" y="14" width="30" height="6" rx="1.5" fill="#E07B2A" opacity=".65"/><rect x="1" y="6" width="30" height="6" rx="1.5" fill="#E07B2A"/></svg><span>The Clear <em>Stack</em></span></a>
-    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="team.html">Team</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <a href="index.html" class="flogo"><svg width="20" height="23" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fbuc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="fmuc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="ftuc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#fbuc)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#fmuc)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ftuc)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg><span>the <em>clear</em> stack</span></a>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html" class="active">Use Cases</a></li><li><a href="tools.html">Tools</a></li><li><a href="contact.html">Contact</a></li></ul>
     <span class="fcopy">© 2026 The Clear Stack · theclearstack.ai</span>
   </div>
 </footer>
