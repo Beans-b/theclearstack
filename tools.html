@@ -20,12 +20,11 @@
       --light:   #F4F5F7;
       --charcoal:#1A1A1A;
       --gray:    #5A6478;
-      --slate:   #334155;
       --border:  rgba(11,31,74,0.10);
       --border2: rgba(11,31,74,0.18);
       --shadow:  0 2px 24px rgba(11,31,74,0.08);
       --shadow2: 0 8px 48px rgba(11,31,74,0.13);
-      --radius:  4px;
+      --radius:  10px;
       --font-head: 'Cormorant Garamond', serif;
       --font-body: 'Outfit', sans-serif;
       --font-mono: 'DM Mono', monospace;
@@ -68,40 +67,44 @@
       text-decoration: none;
     }
 
+    .nav-logo svg { width: 28px; height: 28px; }
 
-    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
-/* ── LOGO WORDMARK ── */
-.logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
-.logo-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 19px;
-  font-weight: 600;
-  color: #F7F4EF;
-  letter-spacing: 0.01em;
-}
-.logo-name .logo-the { font-weight: 600; color: #F7F4EF; }
-.logo-name em { font-style: normal; font-weight: 700; color: var(--orange); }
-.logo-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 6.5px;
-  letter-spacing: 0.14em;
-  color: #FFFFFF;
-  text-transform: uppercase;
-}
+    .nav-logo-text {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.02em;
+    }
 
-    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
-    .nav-links a { font-size: 13px; font-weight: 500; color: rgba(247,244,239,.6); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
-    .nav-links a:hover, .nav-links a.active { color: rgba(247,244,239,.95); }
-    .nav-links a.active { border-bottom: 1px solid var(--orange); padding-bottom: 2px; }
-    .nav-cta { background: var(--orange) !important; color: #fff !important; padding: 9px 22px; border-radius: 3px; font-size: 13px !important; font-weight: 600 !important; text-decoration: none; transition: background .2s; }
-    .nav-cta:hover { background: #C96A1A !important; }
-    .burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
-    .burger span { display: block; width: 22px; height: 2px; background: rgba(247,244,239,.7); border-radius: 2px; }
-    .drawer { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: #07152F; z-index: 999; padding: 32px 24px; transform: translateX(-100%); transition: transform .3s ease; }
-    .drawer.open { transform: none; }
-    .drawer ul { list-style: none; }
-    .drawer a { display: block; padding: 18px 0; font-size: 18px; font-weight: 500; color: rgba(247,244,239,.75); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.07); }
-    .d-cta { color: var(--orange) !important; font-weight: 700 !important; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-links a.active { color: #fff; background: rgba(255,255,255,0.12); }
+
+    .nav-cta {
+      background: var(--orange);
+      color: #fff !important;
+      padding: 7px 18px !important;
+      border-radius: 6px !important;
+    }
+
+    .nav-cta:hover { background: #c96e20 !important; opacity: 1 !important; }
 
     /* ── HERO ── */
     .hero {
@@ -893,11 +896,9 @@
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
+    @media (max-width: 640px) {
       nav { padding: 0 20px; }
-      .nav-links, .nav-cta { display: none; }
-      .burger { display: flex; }
-      .drawer { display: block; }
+      .nav-links { display: none; }
       .hero { padding: 48px 24px 40px; }
       .main { padding: 32px 16px 60px; }
       .setup-card { padding: 20px; }
@@ -911,54 +912,23 @@
 <!-- ── NAV ── -->
 <nav>
   <a href="index.html" class="nav-logo">
-    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2550A8"/>
-          <stop offset="100%" stop-color="#193C82"/>
-        </linearGradient>
-        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
-        </linearGradient>
-        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
-        </linearGradient>
-      </defs>
-      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
-      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
-      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
-      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
-      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
-      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
-      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
-      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
-      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    <!-- Clear Stack 3-bar SVG logo -->
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="20" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="1.0"/>
+      <rect x="4" y="13" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.65"/>
+      <rect x="4" y="6"  width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.3"/>
     </svg>
-    <div class="logo-wm">
-      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
-      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
-    </div>
+    <span class="nav-logo-text">The Clear Stack</span>
   </a>
-  <button class="burger" id="burger"><span></span><span></span><span></span></button>
   <ul class="nav-links">
-    <li><a href="index.html">What We Do</a></li>
-    <li><a href="method.html">How It Works</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="method.html">Method</a></li>
+    <li><a href="team.html">Team</a></li>
     <li><a href="usecases.html">Use Cases</a></li>
     <li><a href="tools.html" class="active">Tools</a></li>
+    <li><a href="contact.html" class="nav-cta">Book a Call</a></li>
   </ul>
-  <a href="contact.html" class="nav-cta">Work With Us</a>
 </nav>
-<div class="drawer" id="drawer">
-  <ul>
-    <li><a href="index.html">What We Do</a></li>
-    <li><a href="method.html">How It Works</a></li>
-    <li><a href="usecases.html">Use Cases</a></li>
-    <li><a href="tools.html">Tools</a></li>
-    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
-  </ul>
-</div>
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -966,7 +936,7 @@
   <h1>Job Search, <em>Rebuilt</em><br>with AI</h1>
   <p>Search any role, get a tailored resume and cover letter in seconds. Powered by Claude. Built by The Clear Stack.</p>
   <div class="hero-badges">
-    <div class="hero-badge"><div class="hero-badge-dot"></div>Bring your own API key</div>
+    <div class="hero-badge"><div class="hero-badge-dot"></div>No API key required</div>
     <div class="hero-badge"><div class="hero-badge-dot"></div>Nothing stored on our servers</div>
     <div class="hero-badge"><div class="hero-badge-dot"></div>Free to use</div>
   </div>
@@ -987,10 +957,6 @@
     </div>
 
     <div class="setup-grid">
-      <div class="field">
-        <label>Anthropic API Key</label>
-        <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" oninput="saveSettings()" />
-      </div>
       <div class="field" id="resumeFieldWrap" style="display:none">
         <label>Your Resume (plain text)</label>
         <textarea id="resumeInput" rows="5" placeholder="Paste your full resume here..." oninput="saveSettings()"></textarea>
@@ -1078,6 +1044,27 @@
   </div>
 </div>
 
+<!-- ── LOGIN MODAL ── -->
+<div class="admin-modal" id="loginModal" style="display:none">
+  <div class="admin-modal-box">
+    <div style="margin-bottom:20px;">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;margin:0 auto 12px;display:block;">
+        <rect x="4" y="20" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="1.0"/>
+        <rect x="4" y="13" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.65"/>
+        <rect x="4" y="6"  width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.3"/>
+      </svg>
+    </div>
+    <div class="admin-modal-title">Job Search Tool</div>
+    <div class="admin-modal-sub">Enter your password to access the tool.</div>
+    <div class="field" style="margin-bottom:14px;text-align:left;">
+      <label>Password</label>
+      <input type="password" id="loginPassInput" placeholder="••••••••" style="width:100%;background:var(--light);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:14px;outline:none;" onkeydown="if(event.key==='Enter')checkLoginPass()" />
+    </div>
+    <div class="error-box" id="loginError" style="display:none;margin-bottom:12px;"></div>
+    <button class="btn btn-primary btn-full" onclick="checkLoginPass()">Enter →</button>
+  </div>
+</div>
+
 <!-- ── ADMIN PASSWORD MODAL ── -->
 <div class="admin-modal" id="adminModal" style="display:none">
   <div class="admin-modal-box">
@@ -1099,13 +1086,16 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // CONFIG — update these before deploying
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const ADMIN_PASSWORD   = '1234';   // change this
-const HUBSPOT_PORTAL_ID = 'YOUR_PORTAL_ID';  // e.g. '12345678'
-const HUBSPOT_FORM_ID   = 'YOUR_FORM_ID';    // e.g. 'abc123-...'
+const ANTHROPIC_API_KEY = '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'; // hardcoded — never expose publicly
+const APP_PASSWORD      = 'clearstack2026';    // login password for tool access
+const ADMIN_PASSWORD    = '1234';              // admin mode (email send)
+const HUBSPOT_PORTAL_ID = 'YOUR_PORTAL_ID';   // e.g. '12345678'
+const HUBSPOT_FORM_ID   = 'YOUR_FORM_ID';     // e.g. 'abc123-...'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // STATE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let isLoggedIn   = false;
 let isAdmin      = false;
 let currentJob   = null;
 let tailoredText = '';
@@ -1126,7 +1116,6 @@ const STATUS_STEPS = [
 function loadSettings() {
   try {
     const s = JSON.parse(localStorage.getItem('tcs_tool_settings') || '{}');
-    document.getElementById('apiKey').value        = s.apiKey    || '';
     document.getElementById('resumeInputShort').value = s.resume || '';
     document.getElementById('resumeInput').value   = s.resume    || '';
     document.getElementById('gmailUser').value     = s.gmailUser || '';
@@ -1139,7 +1128,6 @@ function saveSettings() {
     ? document.getElementById('resumeInput').value
     : document.getElementById('resumeInputShort').value;
   localStorage.setItem('tcs_tool_settings', JSON.stringify({
-    apiKey:    document.getElementById('apiKey').value,
     resume,
     gmailUser: document.getElementById('gmailUser').value,
     gmailPass: document.getElementById('gmailPass').value,
@@ -1151,11 +1139,40 @@ function getSettings() {
     ? document.getElementById('resumeInput').value
     : document.getElementById('resumeInputShort').value;
   return {
-    apiKey:    document.getElementById('apiKey').value.trim(),
+    apiKey:    ANTHROPIC_API_KEY,
     resume,
     gmailUser: document.getElementById('gmailUser').value.trim(),
     gmailPass: document.getElementById('gmailPass').value.trim(),
   };
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// LOGIN GATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showLoginModal() {
+  document.getElementById('loginModal').style.display = 'flex';
+  document.getElementById('loginPassInput').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  setTimeout(() => document.getElementById('loginPassInput').focus(), 100);
+}
+
+function checkLoginPass() {
+  const val = document.getElementById('loginPassInput').value;
+  if (val === APP_PASSWORD || val === ADMIN_PASSWORD) {
+    isLoggedIn = true;
+    if (val === ADMIN_PASSWORD) {
+      isAdmin = true;
+      document.getElementById('adminToggle').checked = true;
+      document.getElementById('adminLabel').textContent = 'Admin ✓';
+      updateAdminUI();
+    }
+    document.getElementById('loginModal').style.display = 'none';
+  } else {
+    document.getElementById('loginError').textContent = 'Incorrect password.';
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPassInput').value = '';
+    document.getElementById('loginPassInput').focus();
+  }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1222,7 +1239,7 @@ async function callClaude({ apiKey, systemPrompt, userPrompt, maxTokens = 1500 }
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: maxTokens,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
@@ -1242,8 +1259,8 @@ async function callClaude({ apiKey, systemPrompt, userPrompt, maxTokens = 1500 }
 async function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
+  if (!isLoggedIn) { showLoginModal(); return; }
   const { apiKey } = getSettings();
-  if (!apiKey) { showError('Add your Anthropic API key in settings above.'); return; }
 
   showError('');
   document.getElementById('emptyState').style.display = 'none';
@@ -1279,8 +1296,20 @@ async function doSearch() {
   try {
     const raw = await callClaude({
       apiKey,
-      maxTokens: 1800,
-      systemPrompt: `You are a job search assistant. Return ONLY a raw JSON array of 5 job listings. Each object must have exactly these fields with SHORT values: title (string max 8 words), company (string), location (string e.g. Remote or Austin TX), source (one of: LinkedIn, Indeed, Y Combinator, Company Site), score (integer 60-98), salary (string e.g. 120K-160K), summary (one sentence under 20 words), tags (array of exactly 3 short strings), url (string realistic careers URL), jobDescription (two sentences under 40 words total), email (object with subject string and body string under 60 words). CRITICAL: Keep all strings SHORT. No special characters or apostrophes inside strings. Return ONLY valid JSON array, no other text, no markdown backticks.`,
+      maxTokens: 2500,
+      systemPrompt: `You are a job search assistant. Return ONLY a raw JSON array of 6 job listings matching the query. Each object must have exactly:
+- title (string)
+- company (string)
+- location (string)
+- source (one of: LinkedIn / Indeed / Y Combinator / Company Site)
+- score (integer 60-98, fit score based on typical candidate profile)
+- salary (string, e.g. "$120K–$160K OTE")
+- summary (2 sentences about the role)
+- tags (array of 3-4 skill strings)
+- url (realistic careers URL)
+- jobDescription (4-5 sentence detailed job description with real requirements)
+- email (object: { subject: string, body: string })
+Make listings realistic, diverse in company size and location. Return ONLY the JSON array, zero other text.`,
       userPrompt: `Find jobs for: ${q}`,
     });
 
@@ -1294,35 +1323,7 @@ async function doSearch() {
 
     const match = raw.match(/\[[\s\S]*\]/);
     if (!match) throw new Error('Could not parse job results. Try again.');
-
-    // Clean common JSON issues: smart quotes, unescaped special chars
-    let cleaned = match[0]
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/\n/g, ' ')
-      .replace(/\r/g, '')
-      .replace(/([^\\])\\([^"\\/bfnrtu])/g, '$1\\\\$2'); // fix bad escapes
-
-    // Try direct parse first, then progressively fix issues
-    let jobs;
-    try {
-      jobs = JSON.parse(cleaned);
-    } catch(parseErr) {
-      // Strip any trailing incomplete object and close the array
-      const lastComplete = cleaned.lastIndexOf('},');
-      if (lastComplete > 0) {
-        cleaned = cleaned.substring(0, lastComplete + 1) + ']';
-        try {
-          jobs = JSON.parse(cleaned);
-        } catch(e2) {
-          throw new Error('Could not parse job results — please try your search again.');
-        }
-      } else {
-        throw new Error('Could not parse job results — please try your search again.');
-      }
-    }
-
-    if (!jobs || !jobs.length) throw new Error('No results returned. Try a different search.');
+    const jobs = JSON.parse(match[0]);
     renderJobs(jobs);
   } catch (e) {
     clearInterval(ticker);
@@ -1665,9 +1666,7 @@ function esc(str) {
 // INIT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 loadSettings();
-</script>
-<script>
-document.getElementById('burger').addEventListener('click', () => document.getElementById('drawer').classList.toggle('open'));
+showLoginModal();
 </script>
 </body>
 </html>
