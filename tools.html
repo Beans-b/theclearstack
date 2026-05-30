@@ -20,11 +20,12 @@
       --light:   #F4F5F7;
       --charcoal:#1A1A1A;
       --gray:    #5A6478;
+      --slate:   #334155;
       --border:  rgba(11,31,74,0.10);
       --border2: rgba(11,31,74,0.18);
       --shadow:  0 2px 24px rgba(11,31,74,0.08);
       --shadow2: 0 8px 48px rgba(11,31,74,0.13);
-      --radius:  10px;
+      --radius:  4px;
       --font-head: 'Cormorant Garamond', serif;
       --font-body: 'Outfit', sans-serif;
       --font-mono: 'DM Mono', monospace;
@@ -67,44 +68,40 @@
       text-decoration: none;
     }
 
-    .nav-logo svg { width: 28px; height: 28px; }
 
-    .nav-logo-text {
-      font-family: var(--font-head);
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--white);
-      letter-spacing: 0.02em;
-    }
+    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+/* ── LOGO WORDMARK ── */
+.logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: #F7F4EF;
+  letter-spacing: 0.01em;
+}
+.logo-name .logo-the { font-weight: 600; color: #F7F4EF; }
+.logo-name em { font-style: normal; font-weight: 700; color: var(--orange); }
+.logo-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 6.5px;
+  letter-spacing: 0.14em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+}
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: rgba(255,255,255,0.65);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 6px;
-      transition: all 0.15s;
-      letter-spacing: 0.02em;
-    }
-
-    .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .nav-links a.active { color: #fff; background: rgba(255,255,255,0.12); }
-
-    .nav-cta {
-      background: var(--orange);
-      color: #fff !important;
-      padding: 7px 18px !important;
-      border-radius: 6px !important;
-    }
-
-    .nav-cta:hover { background: #c96e20 !important; opacity: 1 !important; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: rgba(247,244,239,.6); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: rgba(247,244,239,.95); }
+    .nav-links a.active { border-bottom: 1px solid var(--orange); padding-bottom: 2px; }
+    .nav-cta { background: var(--orange) !important; color: #fff !important; padding: 9px 22px; border-radius: 3px; font-size: 13px !important; font-weight: 600 !important; text-decoration: none; transition: background .2s; }
+    .nav-cta:hover { background: #C96A1A !important; }
+    .burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
+    .burger span { display: block; width: 22px; height: 2px; background: rgba(247,244,239,.7); border-radius: 2px; }
+    .drawer { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: #07152F; z-index: 999; padding: 32px 24px; transform: translateX(-100%); transition: transform .3s ease; }
+    .drawer.open { transform: none; }
+    .drawer ul { list-style: none; }
+    .drawer a { display: block; padding: 18px 0; font-size: 18px; font-weight: 500; color: rgba(247,244,239,.75); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .d-cta { color: var(--orange) !important; font-weight: 700 !important; }
 
     /* ── HERO ── */
     .hero {
@@ -896,9 +893,11 @@
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
+    @media (max-width: 900px) {
       nav { padding: 0 20px; }
-      .nav-links { display: none; }
+      .nav-links, .nav-cta { display: none; }
+      .burger { display: flex; }
+      .drawer { display: block; }
       .hero { padding: 48px 24px 40px; }
       .main { padding: 32px 16px 60px; }
       .setup-card { padding: 20px; }
@@ -912,23 +911,54 @@
 <!-- ── NAV ── -->
 <nav>
   <a href="index.html" class="nav-logo">
-    <!-- Clear Stack 3-bar SVG logo -->
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="20" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="1.0"/>
-      <rect x="4" y="13" width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.65"/>
-      <rect x="4" y="6"  width="20" height="3" rx="1.5" fill="#E07B2A" opacity="0.3"/>
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
     </svg>
-    <span class="nav-logo-text">The Clear Stack</span>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
   </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="method.html">Method</a></li>
-    <li><a href="team.html">Team</a></li>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
     <li><a href="usecases.html">Use Cases</a></li>
     <li><a href="tools.html" class="active">Tools</a></li>
-    <li><a href="contact.html" class="nav-cta">Book a Call</a></li>
   </ul>
+  <a href="contact.html" class="nav-cta">Work With Us</a>
 </nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="index.html">What We Do</a></li>
+    <li><a href="method.html">How It Works</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
+    <li><a href="tools.html">Tools</a></li>
+    <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -1635,6 +1665,9 @@ function esc(str) {
 // INIT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 loadSettings();
+</script>
+<script>
+document.getElementById('burger').addEventListener('click', () => document.getElementById('drawer').classList.toggle('open'));
 </script>
 </body>
 </html>

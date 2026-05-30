@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 72" width="64" height="72">
+  <defs>
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2550A8"/>
+      <stop offset="100%" stop-color="#193C82"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <!-- Base solid layer -->
+  <polygon points="4,50 32,36 60,50 32,64" fill="url(#base)"/>
+  <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+  <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+  <!-- Mid glass layer -->
+  <polygon points="4,36 32,22 60,36 32,50" fill="url(#mid)"/>
+  <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+  <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+  <!-- Top glass layer — fades to clear -->
+  <polygon points="4,22 32,8 60,22 32,36" fill="url(#top)"/>
+  <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+  <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+</svg>
