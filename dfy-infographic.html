@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Done-For-You — The Clear Stack</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0B1F4A;
+    --deep: #07152F;
+    --orange: #E07B2A;
+    --white: #FFFFFF;
+    --cream: #F7F4EF;
+    --light: #F4F5F7;
+    --charcoal: #1A1A1A;
+    --gray: #5A6478;
+    --border: rgba(11,31,74,0.12);
+  }
+
+  body {
+    background: var(--white);
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .card {
+    width: 700px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 36px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 60px;
+    width: 140px; height: 140px;
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.0;
+    margin-bottom: 10px;
+  }
+  .header-title span { color: var(--orange); }
+  .header-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    letter-spacing: 0.2px;
+  }
+
+  /* ── CORE TRUTH ── */
+  .truth {
+    background: var(--cream);
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .truth-bar {
+    width: 3px;
+    height: 36px;
+    background: var(--orange);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .truth-text {
+    font-size: 15px;
+    color: var(--navy);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .truth-text em {
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--orange);
+  }
+
+  /* ── BODY ── */
+  .body { padding: 40px 48px; }
+
+  /* ── WHAT YOU DO / DON'T ── */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .split-box {
+    border-radius: 3px;
+    padding: 20px 22px;
+  }
+  .split-box.do {
+    background: rgba(11,31,74,0.04);
+    border: 1px solid rgba(11,31,74,0.10);
+  }
+  .split-box.dont {
+    background: rgba(224,123,42,0.05);
+    border: 1px solid rgba(224,123,42,0.18);
+  }
+  .split-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .split-box.do .split-label { color: var(--navy); }
+  .split-box.dont .split-label { color: var(--orange); }
+  .split-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 9px;
+    font-size: 13px;
+    color: var(--charcoal);
+    line-height: 1.4;
+  }
+  .split-item:last-child { margin-bottom: 0; }
+  .split-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .do .split-dot { background: var(--navy); }
+  .dont .split-dot { background: var(--orange); opacity: 0.5; }
+  .split-item s { color: var(--gray); text-decoration-color: rgba(90,100,120,0.4); }
+
+  /* ── 5-STEP FLOW ── */
+  .flow-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 40px; }
+
+  .step {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 48px;
+    flex-shrink: 0;
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step:last-child .step-num { background: var(--orange); }
+  .step-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin: 2px 0;
+  }
+  .step:last-child .step-line { display: none; }
+
+  .step-content {
+    padding: 4px 0 20px 16px;
+    flex: 1;
+  }
+  .step:last-child .step-content { padding-bottom: 0; }
+  .step-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+  .step-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .tag-time { background: rgba(11,31,74,0.07); color: var(--navy); }
+  .tag-rev { background: rgba(224,123,42,0.12); color: var(--orange); }
+
+  /* ── EXAMPLE ── */
+  .example {
+    background: var(--light);
+    border-radius: 3px;
+    padding: 22px 24px;
+    margin-bottom: 40px;
+    border-left: 3px solid var(--orange);
+  }
+  .example-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 10px;
+  }
+  .example-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ex-node {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--navy);
+    font-weight: 500;
+  }
+  .ex-arrow {
+    font-size: 14px;
+    color: var(--orange);
+    font-weight: 300;
+  }
+  .example-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.5;
+  }
+
+  /* ── PRICING ── */
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .price-box {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 16px 18px;
+    background: var(--white);
+  }
+  .price-box.highlight {
+    border-color: var(--orange);
+    background: rgba(224,123,42,0.04);
+  }
+  .price-tier {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .price-box.highlight .price-tier { color: var(--orange); }
+  .price-setup {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .price-monthly {
+    font-size: 12px;
+    color: var(--gray);
+  }
+  .price-detail {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--deep);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+  }
+  .footer-brand span { color: var(--orange); }
+  .footer-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-label">The Clear Stack · Service Model</div>
+    <div class="header-title">Done-For-<span>You</span><br>Integration</div>
+    <div class="header-sub">We connect what you already own. No new platforms. No migrations.</div>
+  </div>
+
+  <!-- CORE TRUTH -->
+  <div class="truth">
+    <div class="truth-bar"></div>
+    <div class="truth-text">
+      Your Shopify store stays exactly as-is. We build an automation layer on top using <em>Make.com</em> — wiring your existing tools together so they run on autopilot.
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- WHAT WE DO / DON'T -->
+    <div class="split">
+      <div class="split-box do">
+        <div class="split-label">What we do</div>
+        <div class="split-item"><div class="split-dot"></div>Audit your current tools & manual tasks</div>
+        <div class="split-item"><div class="split-dot"></div>Build Make.com automation workflows</div>
+        <div class="split-item"><div class="split-dot"></div>Connect Shopify to your other tools</div>
+        <div class="split-item"><div class="split-dot"></div>Hand off & train your team</div>
+        <div class="split-item"><div class="split-dot"></div>Maintain & expand on retainer</div>
+      </div>
+      <div class="split-box dont">
+        <div class="split-label">What we don't do</div>
+        <div class="split-item"><div class="split-dot"></div><s>Replace your Shopify store</s></div>
+        <div class="split-item"><div class="split-dot"></div><s>Migrate platforms or data</s></div>
+        <div class="split-item"><div class="split-dot"></div><s>Build custom code apps</s></div>
+        <div class="split-item"><div class="split-dot"></div><s>Require your dev resources</s></div>
+        <div class="split-item"><div class="split-dot"></div><s>Leave before it works</s></div>
+      </div>
+    </div>
+
+    <!-- 5-STEP FLOW -->
+    <div class="flow-title">How an engagement runs</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-name">Audit Call <span class="step-tag tag-time">30 min</span></div>
+          <div class="step-desc">Map current tools, find the biggest manual pain points, identify quick wins.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-name">Proposal</div>
+          <div class="step-desc">2–3 specific workflows, fixed price, clear deliverables. No ambiguity.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-name">Build <span class="step-tag tag-time">1–3 weeks</span></div>
+          <div class="step-desc">We build in Make.com. Client sees nothing change on their end until it's ready.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-name">Handoff</div>
+          <div class="step-desc">Live walkthrough, full documentation, confirm everything runs before we leave.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-left">
+          <div class="step-num">5</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-name">Retainer <span class="step-tag tag-rev">recurring</span></div>
+          <div class="step-desc">Monthly maintenance, new workflows added over time, stack stays optimized.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE EXAMPLE -->
+    <div class="example">
+      <div class="example-label">Live Example — Retail / Shopify</div>
+      <div class="example-flow">
+        <div class="ex-node">Product sells out</div>
+        <div class="ex-arrow">→</div>
+        <div class="ex-node">Make.com detects it</div>
+        <div class="ex-arrow">→</div>
+        <div class="ex-node">Emails supplier</div>
+        <div class="ex-arrow">→</div>
+        <div class="ex-node">Updates restock tracker</div>
+        <div class="ex-arrow">→</div>
+        <div class="ex-node">Owner gets Slack alert</div>
+      </div>
+      <div class="example-note">Zero new software. Zero code. Shopify untouched. Manual task: eliminated.</div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="flow-title">How we charge</div>
+    <div class="pricing">
+      <div class="price-box">
+        <div class="price-tier">Starter</div>
+        <div class="price-setup">$500–$1,500 setup</div>
+        <div class="price-monthly">+ $99–$199/mo</div>
+        <div class="price-detail">1 workflow. Ideal for single pain point.</div>
+      </div>
+      <div class="price-box highlight">
+        <div class="price-tier">Growth</div>
+        <div class="price-setup">$2,500–$5K setup</div>
+        <div class="price-monthly">+ $299–$499/mo</div>
+        <div class="price-detail">3–5 workflows. Connected stack.</div>
+      </div>
+      <div class="price-box">
+        <div class="price-tier">Done-For-You</div>
+        <div class="price-setup">$10K–$25K</div>
+        <div class="price-monthly">+ Custom retainer</div>
+        <div class="price-detail">Full implementation. 90-day delivery.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">the <span>clear</span> stack</div>
+    <div class="footer-tag">theclearstack.com · AI Clarity for Mid-Market Companies</div>
+  </div>
+
+</div>
+</body>
+</html>
