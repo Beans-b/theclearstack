@@ -233,6 +233,41 @@ h1 em { font-style: italic; color: var(--orange); }
 @media(max-width: 500px) {
   .four-c { grid-template-columns: 1fr; }
 }
+
+/* ─── CHALLENGER SECTION ─── */
+.challenger { background: var(--navy-deep); padding: 100px 48px; }
+.ch-inner { max-width: 920px; margin: 0 auto; }
+.ch-head { margin-bottom: 56px; max-width: 680px; }
+.ch-head h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px,4.5vw,58px); font-weight: 700; color: #F7F4EF; line-height: 1.08; letter-spacing: -.02em; margin-bottom: 0; }
+.ch-head h2 em { font-style: italic; color: var(--orange); }
+.ch-reframe { border-left: 3px solid var(--orange); padding: 28px 36px; background: rgba(255,255,255,.03); border-radius: 0 8px 8px 0; margin-bottom: 48px; }
+.ch-reframe p { font-size: clamp(16px,2vw,20px); font-weight: 300; color: rgba(247,244,239,.85); line-height: 1.8; max-width: 740px; }
+.ch-reframe p strong { font-weight: 600; color: #F7F4EF; }
+.ch-triggers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+.ch-trigger { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 24px; position: relative; }
+.ch-trigger::before { content: '"'; font-family: 'Cormorant Garamond', serif; font-size: 64px; color: var(--orange); opacity: .25; position: absolute; top: 8px; left: 16px; line-height: 1; }
+.ch-trigger p { font-size: 14px; font-style: italic; color: rgba(247,244,239,.6); line-height: 1.65; padding-top: 24px; font-weight: 300; }
+.ch-trigger-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); margin-top: 14px; display: block; font-style: normal; }
+.ch-divider { height: 1px; background: rgba(255,255,255,.07); margin: 48px 0; }
+.ch-consequence { background: rgba(224,123,42,.07); border: 1px solid rgba(224,123,42,.2); border-radius: 10px; padding: 32px 36px; margin-bottom: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.ch-consequence-left p { font-size: 15px; color: rgba(247,244,239,.7); line-height: 1.8; font-weight: 300; }
+.ch-consequence-left p strong { color: #F7F4EF; font-weight: 600; }
+.ch-consequence-right { display: flex; flex-direction: column; gap: 16px; }
+.ch-stat { display: flex; align-items: baseline; gap: 12px; }
+.ch-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 700; color: var(--orange); line-height: 1; white-space: nowrap; }
+.ch-stat-label { font-size: 13px; color: rgba(247,244,239,.5); line-height: 1.5; }
+.ch-resolution { margin-bottom: 48px; }
+.ch-resolution p { font-size: clamp(16px,1.8vw,19px); color: rgba(247,244,239,.8); line-height: 1.8; font-weight: 300; max-width: 760px; }
+.ch-resolution p strong { color: #F7F4EF; font-weight: 600; }
+.ch-resolution p em { font-style: italic; color: var(--orange); }
+.ch-cta { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.ch-cta-note { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .1em; color: rgba(255,255,255,.3); }
+@media(max-width:720px) {
+  .challenger { padding: 64px 24px; }
+  .ch-triggers { grid-template-columns: 1fr; }
+  .ch-consequence { grid-template-columns: 1fr; }
+  .ch-reframe { padding: 20px 22px; }
+}
 </style>
 </head>
 <body>
@@ -406,6 +441,71 @@ h1 em { font-style: italic; color: var(--orange); }
       <div class="cc"><div class="cc-ghost">C</div><div class="cc-n">04</div><div class="cc-bar"></div><h3>Coach</h3><p style="font-size:14px;">Full team training and documentation. You own the system from day one.</p></div>
     </div>
     <div class="center-link reveal"><a href="method.html" class="btn btn-navy">See the full methodology →</a></div>
+  </div>
+</section>
+
+
+<!-- CHALLENGER — THE REAL PROBLEM -->
+<section class="challenger">
+  <div class="ch-inner">
+
+    <div class="ch-head">
+      <span class="tag">The Real Problem</span>
+      <h2>You didn't buy AI.<br>You bought <em>more work.</em></h2>
+    </div>
+
+    <div class="ch-reframe">
+      <p>Every company is different. Your tools, your team, your processes — none of it looks like anyone else's. <strong>That's exactly why this problem is still unsolved.</strong> The fragmentation is invisible from the inside — until someone maps it, prices it, and shows you what it's actually costing you every single day you leave it alone.</p>
+    </div>
+
+    <div class="ch-triggers">
+      <div class="ch-trigger">
+        <p>Our sales team is buried in admin. We bought AI to fix that and somehow it got worse.</p>
+        <span class="ch-trigger-label">VP of Sales · 180-person company</span>
+      </div>
+      <div class="ch-trigger">
+        <p>We spent $200K on AI tools last year. I couldn't tell you what half of them actually do.</p>
+        <span class="ch-trigger-label">COO · Professional Services firm</span>
+      </div>
+      <div class="ch-trigger">
+        <p>Our close rate dropped and nobody can explain it. The data is in six different places.</p>
+        <span class="ch-trigger-label">CRO · Distribution company</span>
+      </div>
+    </div>
+
+    <div class="ch-divider"></div>
+
+    <div class="ch-consequence">
+      <div class="ch-consequence-left">
+        <p>Those aren't AI problems. <strong>They're integration problems.</strong> When your tools don't talk to each other, your people become the connectors — manually copying data, chasing updates, bridging gaps that should close themselves. Every closed deal, every new client, every escalated ticket triggers a chain of manual steps across systems that have no idea the others exist. <strong>The AI you bought made the noise louder. It didn't fix the wiring.</strong></p>
+      </div>
+      <div class="ch-consequence-right">
+        <div class="ch-stat">
+          <div class="ch-stat-num">11hrs</div>
+          <div class="ch-stat-label">per week per rep lost to manual handoffs between disconnected tools</div>
+        </div>
+        <div class="ch-stat">
+          <div class="ch-stat-num">$128K</div>
+          <div class="ch-stat-label">annual productivity loss for a 30-person sales team at loaded cost</div>
+        </div>
+        <div class="ch-stat">
+          <div class="ch-stat-num">47%</div>
+          <div class="ch-stat-label">of AI tool spend goes to tools doing the same job twice</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ch-divider"></div>
+
+    <div class="ch-resolution">
+      <p>The fix is not another tool. <strong>It's making the tools you already own work as one system.</strong> One trigger — a deal closes, a client onboards, a ticket escalates — and everything updates automatically, across every platform, in seconds, with no one touching it. <em>That's what we build.</em> We come in, map exactly where your stack breaks, cut what's redundant, and wire the rest together so your business runs the way you always assumed it did.</p>
+    </div>
+
+    <div class="ch-cta">
+      <a href="contact.html" class="btn btn-primary">See Where Your Stack Breaks — Free Audit</a>
+      <span class="ch-cta-note">30 minutes &nbsp;·&nbsp; No commitment &nbsp;·&nbsp; We show you exactly what it's costing you</span>
+    </div>
+
   </div>
 </section>
 
