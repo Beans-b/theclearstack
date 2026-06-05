@@ -1669,5 +1669,944 @@ loadSettings();
 <script>
 document.getElementById('burger').addEventListener('click', () => document.getElementById('drawer').classList.toggle('open'));
 </script>
+<!-- ═══════════════════════════════════════════════════════════════
+     PROJECT COMMAND CENTER — INSERT BEFORE </body> IN tools.html
+     TCS Design System: white/cream bg · navy/charcoal text
+     Orange: section tag label ONLY (one use, functional)
+     Supabase: aicnfrbafeydlrkvsprd.supabase.co · table: projects
+     ═══════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ── SECTION WRAPPER ── */
+#cc-wrap {
+  background: var(--light);
+  padding: 80px 40px 88px;
+  border-top: 1px solid var(--border);
+}
+
+.cc-inner { max-width: 1100px; margin: 0 auto; }
+
+/* Orange used ONCE — section tag only */
+.cc-section-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--orange);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.cc-section-title {
+  font-family: var(--font-head);
+  font-size: clamp(32px, 4vw, 50px);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.cc-section-sub {
+  font-size: 15px;
+  color: var(--gray);
+  font-weight: 300;
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+/* ── PANEL ── */
+#cc-panel {
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* ── PANEL HEADER — cream bg, navy text, no color ── */
+#cc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--cream);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cc-panel-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+
+.cc-panel-name {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 3px;
+}
+
+.cc-panel-name em {
+  font-style: italic;
+  color: var(--navy);
+  font-weight: 400;
+}
+
+.cc-stats {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cc-stat { text-align: right; }
+
+.cc-stat-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.cc-stat-val.muted { color: var(--gray); }
+
+.cc-stat-lbl {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--gray);
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* Ghost navy button — no orange here */
+.cc-park-btn {
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid rgba(11,31,74,0.3);
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.cc-park-btn:hover {
+  background: var(--navy);
+  color: var(--cream);
+  border-color: var(--navy);
+}
+
+/* ── VIEW TABS ── */
+#cc-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  background: var(--white);
+}
+
+.cc-tab {
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--gray);
+  margin-bottom: -1px;
+  transition: color 0.15s;
+}
+.cc-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+.cc-tab:hover  { color: var(--navy); }
+
+/* ── BODY ── */
+#cc-body { padding: 24px; background: var(--white); }
+
+/* ── ZONES ── */
+.cc-zone { margin-bottom: 28px; }
+
+.cc-zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cc-zone-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* Active zone label gets navy — subtle distinction, no color */
+.cc-zone-building .cc-zone-label { color: var(--navy); font-weight: 700; }
+.cc-zone-priority .cc-zone-label { color: var(--slate); }
+.cc-zone-lot      .cc-zone-label { color: var(--gray);  }
+
+.cc-zone-inner {
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 14px;
+  min-height: 56px;
+}
+
+/* Building zone: cream tint, left navy rule */
+.cc-zone-building .cc-zone-inner {
+  background: var(--cream);
+  border-color: var(--border2);
+  border-left: 3px solid var(--navy);
+}
+
+/* Priority zone: light bg, left slate rule */
+.cc-zone-priority .cc-zone-inner {
+  background: var(--light);
+  border-color: var(--border);
+  border-left: 3px solid var(--slate);
+}
+
+/* Lot zone: plain light */
+.cc-zone-lot .cc-zone-inner {
+  background: var(--light);
+  border-color: var(--border);
+}
+
+.cc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+/* ── PROJECT CARD ── */
+.cc-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  border-radius: 3px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cc-card:hover {
+  border-color: rgba(11,31,74,0.18);
+  box-shadow: 0 2px 12px rgba(11,31,74,0.06);
+}
+
+.cc-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cc-card-cat {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.cc-card-score {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--gray);
+  margin-left: 6px;
+  opacity: 0.6;
+}
+
+.cc-card-name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--charcoal);
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.cc-card-pct {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--navy);
+}
+
+/* Progress bar: navy fill, no color */
+.cc-progress {
+  height: 2px;
+  background: var(--border);
+  margin-top: 8px;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.cc-progress-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.4s ease;
+  background: rgba(11,31,74,0.25);
+}
+
+/* High completion: slightly darker fill, still no orange */
+.cc-progress-fill.high { background: var(--navy); }
+
+/* ── EXPANDED ── */
+.cc-card-expanded {
+  display: none;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.cc-card-expanded.open { display: block; }
+
+.cc-card-notes {
+  font-size: 11px;
+  color: var(--gray);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.cc-move-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.cc-move-btn {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cc-move-btn:hover {
+  background: var(--navy);
+  color: var(--cream);
+  border-color: var(--navy);
+}
+
+/* ── FILTER PILLS ── */
+.cc-filters { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.cc-filter-btn {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cc-filter-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--cream);
+}
+
+/* ── EMPTY / LOADING ── */
+.cc-empty {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--border2);
+  padding: 14px 0;
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.cc-loading {
+  text-align: center;
+  padding: 40px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gray);
+}
+
+/* ── STATUS BAR ── */
+#cc-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--cream);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cc-status-dots { display: flex; gap: 18px; flex-wrap: wrap; }
+
+.cc-dot {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--border2);
+}
+.cc-dot.on { color: var(--navy); }
+
+.cc-status-copy {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--border2);
+}
+
+/* ── LEGEND ── */
+.cc-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.cc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+}
+
+.cc-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cc-score-note {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--border2);
+  letter-spacing: 0.04em;
+  margin-left: auto;
+}
+
+/* ── MODAL ── */
+#cc-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(7,21,47,0.5);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+#cc-modal-overlay.open { display: flex; }
+
+#cc-modal {
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 28px;
+  width: min(480px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow2);
+}
+
+.cc-modal-title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.cc-modal-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gray);
+  margin-bottom: 20px;
+}
+
+.cc-field-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray);
+  display: block;
+  margin-bottom: 5px;
+  margin-top: 14px;
+}
+
+.cc-finput {
+  width: 100%;
+  background: var(--light);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--charcoal);
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+  box-sizing: border-box;
+  transition: border 0.15s;
+}
+.cc-finput:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(11,31,74,0.06);
+}
+
+.cc-num-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.cc-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* Navy fill save button — one clean CTA, no orange */
+.cc-btn-save {
+  flex: 1;
+  padding: 11px;
+  background: var(--navy);
+  border: none;
+  border-radius: 3px;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cc-btn-save:hover:not(:disabled) { background: var(--navy2); }
+.cc-btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cc-btn-cancel {
+  padding: 11px 20px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--gray);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cc-btn-cancel:hover { border-color: var(--navy); color: var(--navy); }
+
+@media (max-width: 640px) {
+  #cc-wrap { padding: 56px 20px 64px; }
+  #cc-header { padding: 14px 16px; }
+  #cc-body { padding: 16px; }
+  .cc-num-row { grid-template-columns: 1fr 1fr; }
+  .cc-stats { gap: 16px; }
+}
+</style>
+
+<!-- ── SECTION ── -->
+<section id="cc-wrap">
+  <div class="cc-inner">
+    <span class="cc-section-tag">Live Tool · SeaLegs OS</span>
+    <h2 class="cc-section-title">Project Command Center</h2>
+    <p class="cc-section-sub">Every idea captured, scored, and parked. One rule: nothing moves into the Building until the Building is empty.</p>
+
+    <div id="cc-panel">
+
+      <!-- Header — cream bg, navy text, ghost button -->
+      <div id="cc-header">
+        <div>
+          <div class="cc-panel-title">The Clear Stack · Internal OS</div>
+          <div class="cc-panel-name">Project <em>Command</em> Center</div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat">
+            <div class="cc-stat-val" id="cc-stat-total">—</div>
+            <div class="cc-stat-lbl">Total</div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-val" id="cc-stat-active">—</div>
+            <div class="cc-stat-lbl">Active</div>
+          </div>
+          <div class="cc-stat">
+            <div class="cc-stat-val muted" id="cc-stat-avg">—</div>
+            <div class="cc-stat-lbl">Avg Done</div>
+          </div>
+          <button class="cc-park-btn" onclick="ccOpenModal()">+ Park Idea</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div id="cc-tabs">
+        <button class="cc-tab active" onclick="ccSetView('lot', this)">🅿 Lot View</button>
+        <button class="cc-tab" onclick="ccSetView('list', this)">≡ List View</button>
+      </div>
+
+      <!-- Body -->
+      <div id="cc-body">
+        <div class="cc-loading" id="cc-loading">Loading projects…</div>
+        <div id="cc-lot-view"  style="display:none;"></div>
+        <div id="cc-list-view" style="display:none;"></div>
+      </div>
+
+      <!-- Status bar -->
+      <div id="cc-status">
+        <div class="cc-status-dots">
+          <span class="cc-dot on">● Supabase</span>
+          <span class="cc-dot on">● Make.com</span>
+          <span class="cc-dot on">● HubSpot</span>
+          <span class="cc-dot on">● Apollo</span>
+          <span class="cc-dot">◌ WebReveal</span>
+        </div>
+        <span class="cc-status-copy">The Clear Stack · theclearstack.com</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── MODAL ── -->
+<div id="cc-modal-overlay">
+  <div id="cc-modal">
+    <div class="cc-modal-title">New Project</div>
+    <div class="cc-modal-sub">Capture · Score · Park</div>
+
+    <label class="cc-field-lbl">Project Name</label>
+    <input class="cc-finput" id="cc-f-name" placeholder="What's the idea?" />
+
+    <label class="cc-field-lbl">Category</label>
+    <select class="cc-finput" id="cc-f-cat">
+      <option value="SeaLegs">SeaLegs</option>
+      <option value="TCS" selected>TCS</option>
+      <option value="Client">Client</option>
+      <option value="Personal">Personal</option>
+    </select>
+
+    <label class="cc-field-lbl">Initial Status</label>
+    <select class="cc-finput" id="cc-f-status">
+      <option value="lot">The Lot — Parked</option>
+      <option value="priority">Priority Parking — Next Up</option>
+      <option value="building">In The Building — Active</option>
+    </select>
+
+    <label class="cc-field-lbl">Notes</label>
+    <textarea class="cc-finput" id="cc-f-notes" rows="3" placeholder="What's known so far?"></textarea>
+
+    <div class="cc-num-row">
+      <div>
+        <label class="cc-field-lbl">Revenue (1–5)</label>
+        <input class="cc-finput" id="cc-f-rev" type="number" min="1" max="5" value="3" />
+      </div>
+      <div>
+        <label class="cc-field-lbl">Done %</label>
+        <input class="cc-finput" id="cc-f-pct" type="number" min="0" max="100" value="0" />
+      </div>
+      <div>
+        <label class="cc-field-lbl">Effort (1–5)</label>
+        <input class="cc-finput" id="cc-f-eff" type="number" min="1" max="5" value="3" />
+      </div>
+    </div>
+
+    <div class="cc-modal-actions">
+      <button class="cc-btn-save" id="cc-save-btn" onclick="ccSaveProject()">Park It →</button>
+      <button class="cc-btn-cancel" onclick="ccCloseModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────
+const CC_URL = 'https://aicnfrbafeydlrkvsprd.supabase.co';
+const CC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
+
+// All categories: navy/gray tones only — no color per brand rules
+const CC_CATS = {
+  SeaLegs:  { color: '#334155', bg: 'rgba(51,65,85,0.07)'   },
+  TCS:      { color: '#0B1F4A', bg: 'rgba(11,31,74,0.07)'   },
+  Client:   { color: '#5A6478', bg: 'rgba(90,100,120,0.07)' },
+  Personal: { color: '#5A6478', bg: 'rgba(90,100,120,0.05)' }
+};
+
+// ── STATE ────────────────────────────────────────────────────────
+let ccProjects = [];
+let ccView     = 'lot';
+let ccFilter   = 'ALL';
+let ccExpanded = {};
+
+// ── SUPABASE ─────────────────────────────────────────────────────
+async function ccApi(path, opts = {}) {
+  const r = await fetch(`${CC_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': CC_KEY,
+      'Authorization': `Bearer ${CC_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  const t = await r.text();
+  return t ? JSON.parse(t) : [];
+}
+
+async function ccLoad() {
+  try {
+    ccProjects = await ccApi('projects?order=created_at.asc');
+    ccRender();
+  } catch(e) {
+    document.getElementById('cc-loading').textContent = 'Could not connect — check console.';
+    console.error('CC Load:', e);
+  }
+}
+
+async function ccSaveProject() {
+  const name = document.getElementById('cc-f-name').value.trim();
+  if (!name) { document.getElementById('cc-f-name').focus(); return; }
+  const btn = document.getElementById('cc-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const rows = await ccApi('projects', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        category:   document.getElementById('cc-f-cat').value,
+        status:     document.getElementById('cc-f-status').value,
+        notes:      document.getElementById('cc-f-notes').value.trim() || null,
+        revenue:    parseInt(document.getElementById('cc-f-rev').value)  || 3,
+        completion: parseInt(document.getElementById('cc-f-pct').value)  || 0,
+        effort:     parseInt(document.getElementById('cc-f-eff').value)  || 3
+      })
+    });
+    ccProjects.push(rows[0]);
+    ccCloseModal();
+    ccRender();
+  } catch(e) {
+    btn.textContent = 'Error — try again';
+    btn.disabled = false;
+    console.error('CC Save:', e);
+  }
+}
+
+async function ccMove(id, status) {
+  try {
+    await ccApi(`projects?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    ccProjects = ccProjects.map(p => p.id === id ? {...p, status} : p);
+    ccRender();
+  } catch(e) { console.error('CC Move:', e); }
+}
+
+// ── SCORING ──────────────────────────────────────────────────────
+function ccScore(p) { return (p.revenue * 2) + (p.completion / 20) - p.effort; }
+function ccSorted(arr) { return [...arr].sort((a,b) => ccScore(b) - ccScore(a)); }
+
+// ── RENDER ───────────────────────────────────────────────────────
+function ccRender() {
+  document.getElementById('cc-loading').style.display = 'none';
+
+  const building = ccProjects.filter(p => p.status === 'building');
+  const priority  = ccProjects.filter(p => p.status === 'priority');
+  const lot       = ccProjects.filter(p => p.status === 'lot');
+  const avg = ccProjects.length
+    ? Math.round(ccProjects.reduce((a,p) => a + p.completion, 0) / ccProjects.length)
+    : 0;
+
+  document.getElementById('cc-stat-total').textContent  = ccProjects.length || '0';
+  document.getElementById('cc-stat-active').textContent = building.length   || '0';
+  document.getElementById('cc-stat-avg').textContent    = avg + '%';
+
+  if (ccView === 'lot') {
+    document.getElementById('cc-lot-view').style.display  = 'block';
+    document.getElementById('cc-list-view').style.display = 'none';
+    ccRenderLot(building, priority, lot);
+  } else {
+    document.getElementById('cc-lot-view').style.display  = 'none';
+    document.getElementById('cc-list-view').style.display = 'block';
+    ccRenderList(building, priority, lot);
+  }
+}
+
+function ccRenderLot(building, priority, lot) {
+  const filtered = ccFilter === 'ALL' ? lot : lot.filter(p => p.category === ccFilter);
+  document.getElementById('cc-lot-view').innerHTML = `
+
+    <div class="cc-zone cc-zone-building">
+      <div class="cc-zone-header">
+        <div class="cc-zone-label">▸ Active — In The Building</div>
+      </div>
+      <div class="cc-zone-inner">
+        ${building.length === 0
+          ? '<div class="cc-empty">Nothing active — pull from Priority Parking</div>'
+          : `<div class="cc-grid">${building.map(p => ccCard(p)).join('')}</div>`}
+      </div>
+    </div>
+
+    <div class="cc-zone cc-zone-priority">
+      <div class="cc-zone-header">
+        <div class="cc-zone-label">▸ Next Up — Priority Parking</div>
+      </div>
+      <div class="cc-zone-inner">
+        ${priority.length === 0
+          ? '<div class="cc-empty">Priority empty — promote from the lot</div>'
+          : `<div class="cc-grid">${priority.map(p => ccCard(p)).join('')}</div>`}
+      </div>
+    </div>
+
+    <div class="cc-zone cc-zone-lot">
+      <div class="cc-zone-header">
+        <div class="cc-zone-label">▸ Parked — The Lot (${lot.length})</div>
+        <div class="cc-filters">
+          ${['ALL','SeaLegs','TCS','Client','Personal'].map(cat =>
+            `<button class="cc-filter-btn ${ccFilter===cat?'active':''}"
+              onclick="ccSetFilter('${cat}')">${cat}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="cc-zone-inner">
+        ${filtered.length === 0
+          ? '<div class="cc-empty">Lot empty for this filter</div>'
+          : `<div class="cc-grid">${ccSorted(filtered).map(p => ccCard(p)).join('')}</div>`}
+      </div>
+    </div>
+
+    <div class="cc-legend">
+      ${Object.entries(CC_CATS).map(([cat, cfg]) => `
+        <div class="cc-legend-item">
+          <div class="cc-legend-dot" style="background:${cfg.color};"></div>
+          ${cat}
+        </div>
+      `).join('')}
+      <span class="cc-score-note">Sorted: (Revenue × 2) + (Done ÷ 20) − Effort</span>
+    </div>
+  `;
+}
+
+function ccRenderList(building, priority, lot) {
+  document.getElementById('cc-list-view').innerHTML = [
+    { label:'In The Building',  cls:'cc-zone-building', data: building },
+    { label:'Priority Parking', cls:'cc-zone-priority', data: priority },
+    { label:'The Lot',          cls:'cc-zone-lot',      data: lot }
+  ].map(s => `
+    <div class="cc-zone ${s.cls}">
+      <div class="cc-zone-header">
+        <div class="cc-zone-label">▸ ${s.label} (${s.data.length})</div>
+      </div>
+      <div class="cc-zone-inner">
+        ${s.data.length === 0
+          ? '<div class="cc-empty">Empty</div>'
+          : ccSorted(s.data).map(p => ccCard(p)).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function ccCard(p) {
+  const cfg    = CC_CATS[p.category] || CC_CATS.Client;
+  const isHigh = p.completion >= 80;
+  const isOpen = !!ccExpanded[p.id];
+  const score  = ccScore(p);
+
+  const moves = [
+    p.status !== 'building'
+      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','building');event.stopPropagation()">→ Building</button>` : '',
+    p.status !== 'priority'
+      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','priority');event.stopPropagation()">→ Priority</button>` : '',
+    p.status !== 'lot'
+      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','lot');event.stopPropagation()">→ Lot</button>` : ''
+  ].filter(Boolean).join('');
+
+  return `
+    <div class="cc-card" style="border-left-color:${cfg.color};" onclick="ccToggle('${p.id}')">
+      <div class="cc-card-top">
+        <div style="flex:1;">
+          <div>
+            <span class="cc-card-cat" style="color:${cfg.color};background:${cfg.bg};padding:2px 7px;border-radius:10px;">${p.category}</span>
+            <span class="cc-card-score">${score.toFixed(1)}</span>
+          </div>
+          <div class="cc-card-name">${p.name}</div>
+        </div>
+        <div class="cc-card-pct">${p.completion}%</div>
+      </div>
+      <div class="cc-progress">
+        <div class="cc-progress-fill ${isHigh?'high':''}" style="width:${p.completion}%;"></div>
+      </div>
+      <div class="cc-card-expanded ${isOpen?'open':''}">
+        <div class="cc-card-notes">${p.notes || '—'}</div>
+        <div class="cc-move-btns">${moves}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── UI ───────────────────────────────────────────────────────────
+function ccToggle(id) { ccExpanded[id] = !ccExpanded[id]; ccRender(); }
+
+function ccSetView(v, btn) {
+  ccView = v;
+  document.querySelectorAll('.cc-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ccRender();
+}
+
+function ccSetFilter(f) { ccFilter = f; ccRender(); }
+
+function ccOpenModal() {
+  ['cc-f-name','cc-f-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cc-f-rev').value    = '3';
+  document.getElementById('cc-f-pct').value    = '0';
+  document.getElementById('cc-f-eff').value    = '3';
+  document.getElementById('cc-f-cat').value    = 'TCS';
+  document.getElementById('cc-f-status').value = 'lot';
+  const btn = document.getElementById('cc-save-btn');
+  btn.disabled = false; btn.textContent = 'Park It →';
+  document.getElementById('cc-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('cc-f-name').focus(), 50);
+}
+
+function ccCloseModal() {
+  document.getElementById('cc-modal-overlay').classList.remove('open');
+}
+
+document.getElementById('cc-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) ccCloseModal();
+});
+
+ccLoad();
+</script>
+
 </body>
 </html>
