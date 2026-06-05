@@ -965,7 +965,6 @@
   <div style="max-width:1100px;margin:0 auto;display:flex;gap:0;align-items:stretch;">
     <a href="#job-search-tool"
       onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
-      id="appnav-job"
       style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;
       border-bottom:2px solid var(--navy);font-family:var(--font-mono);font-size:10px;
       font-weight:700;letter-spacing:0.1em;color:var(--navy);text-decoration:none;
@@ -974,7 +973,6 @@
     </a>
     <a href="#cc-wrap"
       onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
-      id="appnav-cc"
       style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;
       border-bottom:2px solid transparent;font-family:var(--font-mono);font-size:10px;
       font-weight:700;letter-spacing:0.1em;color:var(--gray);text-decoration:none;
@@ -2001,6 +1999,33 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
 }
 .cc-move-btn:hover { background: var(--navy); color: var(--cream); border-color: var(--navy); }
 
+/* ── EDIT / DELETE ICON BUTTONS ── */
+.cc-icon-btns {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.cc-icon-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+}
+.cc-icon-btn.edit  { color: var(--gray); }
+.cc-icon-btn.edit:hover  { background: rgba(11,31,74,0.07); border-color: var(--navy); color: var(--navy); }
+.cc-icon-btn.trash { color: var(--gray); }
+.cc-icon-btn.trash:hover { background: rgba(180,40,40,0.07); border-color: #b42828; color: #b42828; }
+
 /* ── FILTERS ── */
 .cc-filters { display: flex; gap: 5px; flex-wrap: wrap; }
 .cc-filter-btn {
@@ -2450,7 +2475,13 @@ function ccCard(p) {
           </div>
           <div class="cc-card-name">${p.name}</div>
         </div>
-        <div class="cc-card-pct">${p.completion}%</div>
+        <div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0;">
+          <div class="cc-card-pct">${p.completion}%</div>
+          <div class="cc-icon-btns">
+            <button class="cc-icon-btn edit"  title="Edit"   onclick="ccEditProject('${p.id}');event.stopPropagation()">✏️</button>
+            <button class="cc-icon-btn trash" title="Delete" onclick="ccDeleteProject('${p.id}');event.stopPropagation()">🗑️</button>
+          </div>
+        </div>
       </div>
       <div class="cc-progress">
         <div class="cc-progress-fill" style="width:${p.completion}%;background:${barColor};"></div>
@@ -2460,6 +2491,66 @@ function ccCard(p) {
         <div class="cc-move-btns">${moves}</div>
       </div>
     </div>`;
+}
+
+function ccEditProject(id) {
+  const p = ccProjects.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('cc-f-name').value   = p.name||'';
+  document.getElementById('cc-f-notes').value  = p.notes||'';
+  document.getElementById('cc-f-rev').value    = p.revenue||3;
+  document.getElementById('cc-f-pct').value    = p.completion||0;
+  document.getElementById('cc-f-eff').value    = p.effort||3;
+  document.getElementById('cc-f-cat').value    = p.category||'TCS';
+  document.getElementById('cc-f-status').value = p.status||'lot';
+  const btn = document.getElementById('cc-save-btn');
+  btn.disabled = false;
+  btn.textContent = 'Save Changes →';
+  btn.onclick = () => ccUpdateProject(id);
+  document.getElementById('cc-modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('cc-f-name').focus(), 50);
+}
+
+async function ccUpdateProject(id) {
+  const btn = document.getElementById('cc-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await ccApi('projects?id=eq.'+id, { method:'PATCH', body: JSON.stringify({
+      name:       document.getElementById('cc-f-name').value.trim(),
+      category:   document.getElementById('cc-f-cat').value,
+      status:     document.getElementById('cc-f-status').value,
+      notes:      document.getElementById('cc-f-notes').value.trim()||null,
+      revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
+      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
+      effort:     parseInt(document.getElementById('cc-f-eff').value)||3
+    })});
+    ccProjects = ccProjects.map(p => p.id===id ? {
+      ...p,
+      name:       document.getElementById('cc-f-name').value.trim(),
+      category:   document.getElementById('cc-f-cat').value,
+      status:     document.getElementById('cc-f-status').value,
+      notes:      document.getElementById('cc-f-notes').value.trim()||null,
+      revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
+      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
+      effort:     parseInt(document.getElementById('cc-f-eff').value)||3
+    } : p);
+    ccCloseModal();
+    // Reset save btn back to add mode
+    const b = document.getElementById('cc-save-btn');
+    b.onclick = ccSaveProject;
+    ccRender();
+  } catch(e) { btn.textContent='Error — try again'; btn.disabled=false; console.error('CC Update:',e); }
+}
+
+async function ccDeleteProject(id) {
+  const p = ccProjects.find(x=>x.id===id);
+  if (!p) return;
+  if (!confirm('Delete "'+p.name+'"? This cannot be undone.')) return;
+  try {
+    await ccApi('projects?id=eq.'+id, { method:'DELETE', headers:{'Prefer':'return=minimal'} });
+    ccProjects = ccProjects.filter(x=>x.id!==id);
+    ccRender();
+  } catch(e) { console.error('CC Delete:',e); alert('Delete failed — check console.'); }
 }
 
 function ccToggle(id) { ccExpanded[id]=!ccExpanded[id]; ccRender(); }
@@ -2481,11 +2572,52 @@ function ccOpenModal() {
   document.getElementById('cc-modal-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('cc-f-name').focus(),50);
 }
-function ccCloseModal() { document.getElementById('cc-modal-overlay').classList.remove('open'); }
+function ccCloseModal() {
+  document.getElementById('cc-modal-overlay').classList.remove('open');
+  // Reset to add mode
+  const btn = document.getElementById('cc-save-btn');
+  if (btn) { btn.textContent='Park It →'; btn.onclick=ccSaveProject; btn.disabled=false; }
+}
 document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this) ccCloseModal(); });
 
 ccLoad();
 </script>
+
+
+<!-- ── BOTTOM APP NAV ── -->
+<div style="background:var(--navy);padding:32px 40px;border-top:1px solid rgba(255,255,255,0.08);">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.18em;color:rgba(247,244,239,0.35);text-transform:uppercase;margin-bottom:16px;">Available Tools</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="#job-search-tool"
+        onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
+        style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(255,255,255,0.05);
+        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;
+        transition:all 0.2s;flex:1;min-width:200px;"
+        onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)'">
+        <span style="font-size:22px;">⚡</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(247,244,239,0.9);text-transform:uppercase;">Job Search Agent</div>
+          <div style="font-family:var(--font-body);font-size:12px;color:rgba(247,244,239,0.4);margin-top:2px;">AI resume tailoring + cover letter</div>
+        </div>
+      </a>
+      <a href="#cc-wrap"
+        onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
+        style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(255,255,255,0.05);
+        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;
+        transition:all 0.2s;flex:1;min-width:200px;"
+        onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)'">
+        <span style="font-size:22px;">🅿</span>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(247,244,239,0.9);text-transform:uppercase;">Project Command Center</div>
+          <div style="font-family:var(--font-body);font-size:12px;color:rgba(247,244,239,0.4);margin-top:2px;">Live project tracker · SeaLegs OS</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
