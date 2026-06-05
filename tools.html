@@ -960,6 +960,27 @@
   </ul>
 </div>
 
+<!-- ── APP NAV STRIP ── -->
+<div style="background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:0;">
+    <a href="#job-search-tool" onclick="document.getElementById('setupCard').scrollIntoView({behavior:'smooth'});return false;"
+      style="display:flex;align-items:center;gap:8px;padding:14px 20px 13px;border-bottom:2px solid var(--navy);
+      font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--navy);
+      text-decoration:none;text-transform:uppercase;transition:all 0.15s;">
+      <span style="font-size:14px;">⚡</span> Job Search Agent
+    </a>
+    <a href="#cc-wrap" onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
+      style="display:flex;align-items:center;gap:8px;padding:14px 20px 13px;border-bottom:2px solid transparent;
+      font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--gray);
+      text-decoration:none;text-transform:uppercase;transition:all 0.15s;"
+      onmouseover="this.style.color='var(--navy)'" onmouseout="this.style.color='var(--gray)'">
+      <span style="font-size:14px;">🅿</span> Project Command Center
+    </a>
+  </div>
+</div>
+<div id="job-search-tool"></div>
+
+
 <!-- ── HERO ── -->
 <section class="hero">
   <div class="hero-label">Free AI Tool</div>
@@ -1671,22 +1692,18 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
 </script>
 <!-- ═══════════════════════════════════════════════════════════════
      PROJECT COMMAND CENTER — INSERT BEFORE </body> IN tools.html
-     TCS Design System: white/cream bg · navy/charcoal text
-     Orange: section tag label ONLY (one use, functional)
-     Supabase: aicnfrbafeydlrkvsprd.supabase.co · table: projects
+     TCS palette · SVG parking lot visuals · Supabase live data
      ═══════════════════════════════════════════════════════════════ -->
 
 <style>
-/* ── SECTION WRAPPER ── */
+/* ── SECTION ── */
 #cc-wrap {
   background: var(--light);
   padding: 80px 40px 88px;
   border-top: 1px solid var(--border);
 }
-
 .cc-inner { max-width: 1100px; margin: 0 auto; }
 
-/* Orange used ONCE — section tag only */
 .cc-section-tag {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -1696,7 +1713,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   display: block;
   margin-bottom: 12px;
 }
-
 .cc-section-title {
   font-family: var(--font-head);
   font-size: clamp(32px, 4vw, 50px);
@@ -1705,7 +1721,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   line-height: 1.1;
   margin-bottom: 10px;
 }
-
 .cc-section-sub {
   font-size: 15px;
   color: var(--gray);
@@ -1724,7 +1739,7 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   box-shadow: var(--shadow);
 }
 
-/* ── PANEL HEADER — cream bg, navy text, no color ── */
+/* ── HEADER — cream, navy text ── */
 #cc-header {
   display: flex;
   justify-content: space-between;
@@ -1735,15 +1750,13 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   flex-wrap: wrap;
   gap: 12px;
 }
-
-.cc-panel-title {
+.cc-panel-eyebrow {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.18em;
   color: var(--gray);
   text-transform: uppercase;
 }
-
 .cc-panel-name {
   font-family: var(--font-head);
   font-size: 20px;
@@ -1751,22 +1764,9 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   color: var(--navy);
   margin-top: 3px;
 }
-
-.cc-panel-name em {
-  font-style: italic;
-  color: var(--navy);
-  font-weight: 400;
-}
-
-.cc-stats {
-  display: flex;
-  gap: 28px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
+.cc-panel-name em { font-style: italic; font-weight: 400; }
+.cc-stats { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
 .cc-stat { text-align: right; }
-
 .cc-stat-val {
   font-family: var(--font-mono);
   font-size: 20px;
@@ -1774,9 +1774,7 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   line-height: 1;
   color: var(--navy);
 }
-
 .cc-stat-val.muted { color: var(--gray); }
-
 .cc-stat-lbl {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -1785,8 +1783,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   margin-top: 2px;
   text-transform: uppercase;
 }
-
-/* Ghost navy button — no orange here */
 .cc-park-btn {
   padding: 8px 18px;
   background: transparent;
@@ -1801,20 +1797,15 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   transition: all 0.2s;
   text-transform: uppercase;
 }
-.cc-park-btn:hover {
-  background: var(--navy);
-  color: var(--cream);
-  border-color: var(--navy);
-}
+.cc-park-btn:hover { background: var(--navy); color: var(--cream); border-color: var(--navy); }
 
-/* ── VIEW TABS ── */
+/* ── TABS ── */
 #cc-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
   background: var(--white);
 }
-
 .cc-tab {
   padding: 10px 18px;
   font-family: var(--font-mono);
@@ -1838,8 +1829,7 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
 
 /* ── ZONES ── */
 .cc-zone { margin-bottom: 28px; }
-
-.cc-zone-header {
+.cc-zone-hdr {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1847,76 +1837,87 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   flex-wrap: wrap;
   gap: 8px;
 }
-
-.cc-zone-label {
+.cc-zone-lbl {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gray);
 }
-
-/* Active zone label gets navy — subtle distinction, no color */
-.cc-zone-building .cc-zone-label { color: var(--navy); font-weight: 700; }
-.cc-zone-priority .cc-zone-label { color: var(--slate); }
-.cc-zone-lot      .cc-zone-label { color: var(--gray);  }
+.cc-zone-building .cc-zone-lbl { color: var(--navy); font-weight: 700; }
+.cc-zone-priority .cc-zone-lbl { color: var(--slate); }
 
 .cc-zone-inner {
   background: var(--light);
   border: 1px solid var(--border);
   border-radius: 3px;
-  padding: 14px;
-  min-height: 56px;
+  padding: 16px;
+  min-height: 60px;
 }
-
-/* Building zone: cream tint, left navy rule */
 .cc-zone-building .cc-zone-inner {
   background: var(--cream);
   border-color: var(--border2);
   border-left: 3px solid var(--navy);
 }
-
-/* Priority zone: light bg, left slate rule */
 .cc-zone-priority .cc-zone-inner {
-  background: var(--light);
-  border-color: var(--border);
   border-left: 3px solid var(--slate);
 }
 
-/* Lot zone: plain light */
-.cc-zone-lot .cc-zone-inner {
+/* ── PARKING LOT GRID ── */
+.cc-lot-floor {
   background: var(--light);
-  border-color: var(--border);
+  background-image: repeating-linear-gradient(
+    90deg, transparent 0px, transparent 58px,
+    rgba(11,31,74,0.06) 58px, rgba(11,31,74,0.06) 60px
+  );
+  border-radius: 3px;
+  padding: 20px 16px 16px;
+  border: 1px solid var(--border);
 }
-
 .cc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+/* ── PARKED SLOT — car + card stacked ── */
+.cc-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+.cc-slot-num {
+  position: absolute;
+  top: -16px;
+  left: 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: rgba(11,31,74,0.2);
 }
 
 /* ── PROJECT CARD ── */
 .cc-card {
+  width: 100%;
   background: var(--white);
   border: 1px solid var(--border);
   border-left: 3px solid var(--border2);
   border-radius: 3px;
-  padding: 12px 14px;
+  padding: 11px 13px;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .cc-card:hover {
-  border-color: rgba(11,31,74,0.18);
+  border-color: rgba(11,31,74,0.2);
   box-shadow: 0 2px 12px rgba(11,31,74,0.06);
 }
-
 .cc-card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
 }
-
 .cc-card-cat {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -1924,7 +1925,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   text-transform: uppercase;
   font-weight: 700;
 }
-
 .cc-card-score {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -1932,7 +1932,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   margin-left: 6px;
   opacity: 0.6;
 }
-
 .cc-card-name {
   font-family: var(--font-body);
   font-size: 12px;
@@ -1941,7 +1940,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   line-height: 1.35;
   margin-top: 3px;
 }
-
 .cc-card-pct {
   font-family: var(--font-mono);
   font-size: 15px;
@@ -1949,8 +1947,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   flex-shrink: 0;
   color: var(--navy);
 }
-
-/* Progress bar: navy fill, no color */
 .cc-progress {
   height: 2px;
   background: var(--border);
@@ -1958,26 +1954,17 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   border-radius: 1px;
   overflow: hidden;
 }
-
 .cc-progress-fill {
   height: 100%;
   border-radius: 1px;
   transition: width 0.4s ease;
   background: rgba(11,31,74,0.25);
 }
-
-/* High completion: slightly darker fill, still no orange */
 .cc-progress-fill.high { background: var(--navy); }
 
 /* ── EXPANDED ── */
-.cc-card-expanded {
-  display: none;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-}
-.cc-card-expanded.open { display: block; }
-
+.cc-card-exp { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.cc-card-exp.open { display: block; }
 .cc-card-notes {
   font-size: 11px;
   color: var(--gray);
@@ -1985,9 +1972,7 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   line-height: 1.6;
   margin-bottom: 10px;
 }
-
 .cc-move-btns { display: flex; gap: 5px; flex-wrap: wrap; }
-
 .cc-move-btn {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -2001,15 +1986,10 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   cursor: pointer;
   transition: all 0.15s;
 }
-.cc-move-btn:hover {
-  background: var(--navy);
-  color: var(--cream);
-  border-color: var(--navy);
-}
+.cc-move-btn:hover { background: var(--navy); color: var(--cream); border-color: var(--navy); }
 
-/* ── FILTER PILLS ── */
+/* ── FILTERS ── */
 .cc-filters { display: flex; gap: 5px; flex-wrap: wrap; }
-
 .cc-filter-btn {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -2023,11 +2003,7 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   cursor: pointer;
   transition: all 0.15s;
 }
-.cc-filter-btn.active {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: var(--cream);
-}
+.cc-filter-btn.active { background: var(--navy); border-color: var(--navy); color: var(--cream); }
 
 /* ── EMPTY / LOADING ── */
 .cc-empty {
@@ -2038,7 +2014,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   text-align: center;
   letter-spacing: 0.08em;
 }
-
 .cc-loading {
   text-align: center;
   padding: 40px;
@@ -2059,23 +2034,10 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .cc-status-dots { display: flex; gap: 18px; flex-wrap: wrap; }
-
-.cc-dot {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: var(--border2);
-}
+.cc-dot { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; color: var(--border2); }
 .cc-dot.on { color: var(--navy); }
-
-.cc-status-copy {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: var(--border2);
-}
+.cc-status-copy { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; color: var(--border2); }
 
 /* ── LEGEND ── */
 .cc-legend {
@@ -2087,7 +2049,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   padding-top: 14px;
   border-top: 1px solid var(--border);
 }
-
 .cc-legend-item {
   display: flex;
   align-items: center;
@@ -2097,21 +2058,8 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   color: var(--gray);
   letter-spacing: 0.06em;
 }
-
-.cc-legend-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.cc-score-note {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--border2);
-  letter-spacing: 0.04em;
-  margin-left: auto;
-}
+.cc-legend-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.cc-score-note { font-family: var(--font-mono); font-size: 9px; color: var(--border2); margin-left: auto; }
 
 /* ── MODAL ── */
 #cc-modal-overlay {
@@ -2124,7 +2072,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   justify-content: center;
 }
 #cc-modal-overlay.open { display: flex; }
-
 #cc-modal {
   background: var(--white);
   border: 1px solid var(--border2);
@@ -2135,94 +2082,32 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   overflow-y: auto;
   box-shadow: var(--shadow2);
 }
-
-.cc-modal-title {
-  font-family: var(--font-head);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 4px;
-}
-
-.cc-modal-sub {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--gray);
-  margin-bottom: 20px;
-}
-
+.cc-modal-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.cc-modal-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--gray); margin-bottom: 20px; }
 .cc-field-lbl {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray);
-  display: block;
-  margin-bottom: 5px;
-  margin-top: 14px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gray); display: block;
+  margin-bottom: 5px; margin-top: 14px;
 }
-
 .cc-finput {
-  width: 100%;
-  background: var(--light);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  color: var(--charcoal);
-  padding: 9px 12px;
-  font-size: 13px;
-  font-family: var(--font-body);
-  outline: none;
-  box-sizing: border-box;
-  transition: border 0.15s;
+  width: 100%; background: var(--light); border: 1px solid var(--border2);
+  border-radius: 4px; color: var(--charcoal); padding: 9px 12px; font-size: 13px;
+  font-family: var(--font-body); outline: none; box-sizing: border-box; transition: border 0.15s;
 }
-.cc-finput:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(11,31,74,0.06);
-}
-
-.cc-num-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.cc-modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-/* Navy fill save button — one clean CTA, no orange */
+.cc-finput:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11,31,74,0.06); }
+.cc-num-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 14px; }
+.cc-modal-actions { display: flex; gap: 10px; margin-top: 24px; }
 .cc-btn-save {
-  flex: 1;
-  padding: 11px;
-  background: var(--navy);
-  border: none;
-  border-radius: 3px;
-  color: var(--cream);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s;
+  flex: 1; padding: 11px; background: var(--navy); border: none; border-radius: 3px;
+  color: var(--cream); font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: background 0.2s;
 }
 .cc-btn-save:hover:not(:disabled) { background: var(--navy2); }
 .cc-btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
-
 .cc-btn-cancel {
-  padding: 11px 20px;
-  background: transparent;
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  color: var(--gray);
-  font-family: var(--font-body);
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.15s;
+  padding: 11px 20px; background: transparent; border: 1px solid var(--border2);
+  border-radius: 3px; color: var(--gray); font-family: var(--font-body); font-size: 13px;
+  cursor: pointer; transition: border-color 0.15s;
 }
 .cc-btn-cancel:hover { border-color: var(--navy); color: var(--navy); }
 
@@ -2243,11 +2128,9 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
     <p class="cc-section-sub">Every idea captured, scored, and parked. One rule: nothing moves into the Building until the Building is empty.</p>
 
     <div id="cc-panel">
-
-      <!-- Header — cream bg, navy text, ghost button -->
       <div id="cc-header">
         <div>
-          <div class="cc-panel-title">The Clear Stack · Internal OS</div>
+          <div class="cc-panel-eyebrow">The Clear Stack · Internal OS</div>
           <div class="cc-panel-name">Project <em>Command</em> Center</div>
         </div>
         <div class="cc-stats">
@@ -2267,20 +2150,17 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
         </div>
       </div>
 
-      <!-- Tabs -->
       <div id="cc-tabs">
-        <button class="cc-tab active" onclick="ccSetView('lot', this)">🅿 Lot View</button>
-        <button class="cc-tab" onclick="ccSetView('list', this)">≡ List View</button>
+        <button class="cc-tab active" onclick="ccSetView('lot',this)">🅿 Lot View</button>
+        <button class="cc-tab" onclick="ccSetView('list',this)">≡ List View</button>
       </div>
 
-      <!-- Body -->
       <div id="cc-body">
         <div class="cc-loading" id="cc-loading">Loading projects…</div>
         <div id="cc-lot-view"  style="display:none;"></div>
         <div id="cc-list-view" style="display:none;"></div>
       </div>
 
-      <!-- Status bar -->
       <div id="cc-status">
         <div class="cc-status-dots">
           <span class="cc-dot on">● Supabase</span>
@@ -2291,7 +2171,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
         </div>
         <span class="cc-status-copy">The Clear Stack · theclearstack.com</span>
       </div>
-
     </div>
   </div>
 </section>
@@ -2301,10 +2180,8 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   <div id="cc-modal">
     <div class="cc-modal-title">New Project</div>
     <div class="cc-modal-sub">Capture · Score · Park</div>
-
     <label class="cc-field-lbl">Project Name</label>
     <input class="cc-finput" id="cc-f-name" placeholder="What's the idea?" />
-
     <label class="cc-field-lbl">Category</label>
     <select class="cc-finput" id="cc-f-cat">
       <option value="SeaLegs">SeaLegs</option>
@@ -2312,32 +2189,19 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
       <option value="Client">Client</option>
       <option value="Personal">Personal</option>
     </select>
-
     <label class="cc-field-lbl">Initial Status</label>
     <select class="cc-finput" id="cc-f-status">
       <option value="lot">The Lot — Parked</option>
       <option value="priority">Priority Parking — Next Up</option>
       <option value="building">In The Building — Active</option>
     </select>
-
     <label class="cc-field-lbl">Notes</label>
     <textarea class="cc-finput" id="cc-f-notes" rows="3" placeholder="What's known so far?"></textarea>
-
     <div class="cc-num-row">
-      <div>
-        <label class="cc-field-lbl">Revenue (1–5)</label>
-        <input class="cc-finput" id="cc-f-rev" type="number" min="1" max="5" value="3" />
-      </div>
-      <div>
-        <label class="cc-field-lbl">Done %</label>
-        <input class="cc-finput" id="cc-f-pct" type="number" min="0" max="100" value="0" />
-      </div>
-      <div>
-        <label class="cc-field-lbl">Effort (1–5)</label>
-        <input class="cc-finput" id="cc-f-eff" type="number" min="1" max="5" value="3" />
-      </div>
+      <div><label class="cc-field-lbl">Revenue (1–5)</label><input class="cc-finput" id="cc-f-rev" type="number" min="1" max="5" value="3" /></div>
+      <div><label class="cc-field-lbl">Done %</label><input class="cc-finput" id="cc-f-pct" type="number" min="0" max="100" value="0" /></div>
+      <div><label class="cc-field-lbl">Effort (1–5)</label><input class="cc-finput" id="cc-f-eff" type="number" min="1" max="5" value="3" /></div>
     </div>
-
     <div class="cc-modal-actions">
       <button class="cc-btn-save" id="cc-save-btn" onclick="ccSaveProject()">Park It →</button>
       <button class="cc-btn-cancel" onclick="ccCloseModal()">Cancel</button>
@@ -2350,7 +2214,6 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
 const CC_URL = 'https://aicnfrbafeydlrkvsprd.supabase.co';
 const CC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
 
-// All categories: navy/gray tones only — no color per brand rules
 const CC_CATS = {
   SeaLegs:  { color: '#334155', bg: 'rgba(51,65,85,0.07)'   },
   TCS:      { color: '#0B1F4A', bg: 'rgba(11,31,74,0.07)'   },
@@ -2358,27 +2221,51 @@ const CC_CATS = {
   Personal: { color: '#5A6478', bg: 'rgba(90,100,120,0.05)' }
 };
 
-// ── STATE ────────────────────────────────────────────────────────
-let ccProjects = [];
-let ccView     = 'lot';
-let ccFilter   = 'ALL';
-let ccExpanded = {};
+let ccProjects = [], ccView = 'lot', ccFilter = 'ALL', ccExpanded = {};
+
+// ── SVG HELPERS ──────────────────────────────────────────────────
+function ccCarSVG(tint) {
+  return `<svg viewBox="0 0 60 28" width="52" height="24" style="display:block;">
+    <rect x="7" y="11" width="46" height="13" rx="2" fill="${tint}"/>
+    <rect x="13" y="5"  width="30" height="11" rx="2" fill="${tint}" opacity=".75"/>
+    <rect x="15" y="7"  width="10" height="6"  rx="1" fill="rgba(255,255,255,0.28)"/>
+    <rect x="31" y="7"  width="10" height="6"  rx="1" fill="rgba(255,255,255,0.28)"/>
+    <circle cx="16" cy="24" r="4" fill="#1A1A1A"/><circle cx="16" cy="24" r="2" fill="#444"/>
+    <circle cx="44" cy="24" r="4" fill="#1A1A1A"/><circle cx="44" cy="24" r="2" fill="#444"/>
+    <rect x="51" y="13" width="5" height="3" rx="1" fill="rgba(247,244,239,0.5)"/>
+    <rect x="4"  y="13" width="3" height="3" rx="1" fill="rgba(180,60,60,0.5)"/>
+  </svg>`;
+}
+
+function ccBuildingSVG() {
+  return `<svg viewBox="0 0 200 110" style="width:100%;max-height:88px;">
+    <rect x="28" y="20" width="144" height="84" fill="#F7F4EF" stroke="#0B1F4A" stroke-width="1.2"/>
+    <polygon points="18,20 100,2 182,20" fill="#F4F5F7" stroke="#0B1F4A" stroke-width="1.2"/>
+    <rect x="84" y="68" width="32" height="36" fill="#E8E4DF" stroke="#0B1F4A" stroke-width="1"/>
+    <circle cx="112" cy="86" r="2" fill="#0B1F4A"/>
+    ${[0,1,2,3].map(i=>`
+      <rect x="${40+i*34}" y="32" width="20" height="16" rx="1"
+        fill="${i===0?'rgba(11,31,74,0.08)':'rgba(11,31,74,0.04)'}"
+        stroke="${i===0?'#0B1F4A':'rgba(11,31,74,0.25)'}" stroke-width="${i===0?'1':'0.7'}"/>
+    `).join('')}
+    ${[0,1,2,3].map(i=>`
+      <rect x="${40+i*34}" y="54" width="20" height="14" rx="1"
+        fill="rgba(11,31,74,0.03)" stroke="rgba(11,31,74,0.15)" stroke-width="0.7"/>
+    `).join('')}
+    <rect x="54" y="7" width="92" height="14" fill="#0B1F4A" rx="2"/>
+    <text x="100" y="17" text-anchor="middle" font-size="7" fill="#F7F4EF" font-weight="700" font-family="monospace">THE CLEAR STACK</text>
+  </svg>`;
+}
 
 // ── SUPABASE ─────────────────────────────────────────────────────
-async function ccApi(path, opts = {}) {
+async function ccApi(path, opts={}) {
   const r = await fetch(`${CC_URL}/rest/v1/${path}`, {
-    headers: {
-      'apikey': CC_KEY,
-      'Authorization': `Bearer ${CC_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-      ...opts.headers
-    },
+    headers: { 'apikey':CC_KEY, 'Authorization':`Bearer ${CC_KEY}`,
+      'Content-Type':'application/json', 'Prefer':'return=representation', ...opts.headers },
     ...opts
   });
   if (!r.ok) throw new Error(await r.text());
-  const t = await r.text();
-  return t ? JSON.parse(t) : [];
+  const t = await r.text(); return t ? JSON.parse(t) : [];
 }
 
 async function ccLoad() {
@@ -2397,59 +2284,42 @@ async function ccSaveProject() {
   const btn = document.getElementById('cc-save-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    const rows = await ccApi('projects', {
-      method: 'POST',
-      body: JSON.stringify({
-        name,
-        category:   document.getElementById('cc-f-cat').value,
-        status:     document.getElementById('cc-f-status').value,
-        notes:      document.getElementById('cc-f-notes').value.trim() || null,
-        revenue:    parseInt(document.getElementById('cc-f-rev').value)  || 3,
-        completion: parseInt(document.getElementById('cc-f-pct').value)  || 0,
-        effort:     parseInt(document.getElementById('cc-f-eff').value)  || 3
-      })
-    });
-    ccProjects.push(rows[0]);
-    ccCloseModal();
-    ccRender();
-  } catch(e) {
-    btn.textContent = 'Error — try again';
-    btn.disabled = false;
-    console.error('CC Save:', e);
-  }
+    const rows = await ccApi('projects', { method:'POST', body: JSON.stringify({
+      name, category: document.getElementById('cc-f-cat').value,
+      status: document.getElementById('cc-f-status').value,
+      notes:  document.getElementById('cc-f-notes').value.trim() || null,
+      revenue: parseInt(document.getElementById('cc-f-rev').value)||3,
+      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
+      effort: parseInt(document.getElementById('cc-f-eff').value)||3
+    })});
+    ccProjects.push(rows[0]); ccCloseModal(); ccRender();
+  } catch(e) { btn.textContent='Error — try again'; btn.disabled=false; console.error('CC Save:',e); }
 }
 
 async function ccMove(id, status) {
   try {
-    await ccApi(`projects?id=eq.${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status })
-    });
-    ccProjects = ccProjects.map(p => p.id === id ? {...p, status} : p);
+    await ccApi(`projects?id=eq.${id}`, { method:'PATCH', body: JSON.stringify({status}) });
+    ccProjects = ccProjects.map(p => p.id===id ? {...p,status} : p);
     ccRender();
-  } catch(e) { console.error('CC Move:', e); }
+  } catch(e) { console.error('CC Move:',e); }
 }
 
 // ── SCORING ──────────────────────────────────────────────────────
-function ccScore(p) { return (p.revenue * 2) + (p.completion / 20) - p.effort; }
-function ccSorted(arr) { return [...arr].sort((a,b) => ccScore(b) - ccScore(a)); }
+function ccScore(p) { return (p.revenue*2)+(p.completion/20)-p.effort; }
+function ccSorted(arr) { return [...arr].sort((a,b)=>ccScore(b)-ccScore(a)); }
 
 // ── RENDER ───────────────────────────────────────────────────────
 function ccRender() {
   document.getElementById('cc-loading').style.display = 'none';
+  const building = ccProjects.filter(p=>p.status==='building');
+  const priority  = ccProjects.filter(p=>p.status==='priority');
+  const lot       = ccProjects.filter(p=>p.status==='lot');
+  const avg = ccProjects.length ? Math.round(ccProjects.reduce((a,p)=>a+p.completion,0)/ccProjects.length) : 0;
+  document.getElementById('cc-stat-total').textContent  = ccProjects.length||'0';
+  document.getElementById('cc-stat-active').textContent = building.length||'0';
+  document.getElementById('cc-stat-avg').textContent    = avg+'%';
 
-  const building = ccProjects.filter(p => p.status === 'building');
-  const priority  = ccProjects.filter(p => p.status === 'priority');
-  const lot       = ccProjects.filter(p => p.status === 'lot');
-  const avg = ccProjects.length
-    ? Math.round(ccProjects.reduce((a,p) => a + p.completion, 0) / ccProjects.length)
-    : 0;
-
-  document.getElementById('cc-stat-total').textContent  = ccProjects.length || '0';
-  document.getElementById('cc-stat-active').textContent = building.length   || '0';
-  document.getElementById('cc-stat-avg').textContent    = avg + '%';
-
-  if (ccView === 'lot') {
+  if (ccView==='lot') {
     document.getElementById('cc-lot-view').style.display  = 'block';
     document.getElementById('cc-list-view').style.display = 'none';
     ccRenderLot(building, priority, lot);
@@ -2461,94 +2331,100 @@ function ccRender() {
 }
 
 function ccRenderLot(building, priority, lot) {
-  const filtered = ccFilter === 'ALL' ? lot : lot.filter(p => p.category === ccFilter);
+  const filtered = ccFilter==='ALL' ? lot : lot.filter(p=>p.category===ccFilter);
   document.getElementById('cc-lot-view').innerHTML = `
 
+    <!-- BUILDING ZONE -->
     <div class="cc-zone cc-zone-building">
-      <div class="cc-zone-header">
-        <div class="cc-zone-label">▸ Active — In The Building</div>
-      </div>
-      <div class="cc-zone-inner">
-        ${building.length === 0
-          ? '<div class="cc-empty">Nothing active — pull from Priority Parking</div>'
-          : `<div class="cc-grid">${building.map(p => ccCard(p)).join('')}</div>`}
+      <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Active — In The Building</div></div>
+      <div class="cc-zone-inner" style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="width:160px;flex-shrink:0;">
+          ${ccBuildingSVG()}
+          <div style="text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--navy);letter-spacing:0.12em;margin-top:4px;">ACTIVELY BUILDING</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          ${building.length===0
+            ? '<div class="cc-empty">Nothing active — pull from Priority Parking</div>'
+            : building.map(p=>`
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  ${ccCarSVG('#0B1F4A')}
+                  <div style="flex:1;">${ccCard(p)}</div>
+                </div>`).join('')}
+        </div>
       </div>
     </div>
 
+    <!-- PRIORITY ZONE -->
     <div class="cc-zone cc-zone-priority">
-      <div class="cc-zone-header">
-        <div class="cc-zone-label">▸ Next Up — Priority Parking</div>
-      </div>
+      <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Next Up — Priority Parking</div></div>
       <div class="cc-zone-inner">
-        ${priority.length === 0
+        ${priority.length===0
           ? '<div class="cc-empty">Priority empty — promote from the lot</div>'
-          : `<div class="cc-grid">${priority.map(p => ccCard(p)).join('')}</div>`}
+          : `<div class="cc-grid">${priority.map(p=>`
+              <div class="cc-slot">
+                ${ccCarSVG('rgba(11,31,74,0.45)')}
+                ${ccCard(p)}
+              </div>`).join('')}</div>`}
       </div>
     </div>
 
+    <!-- THE LOT -->
     <div class="cc-zone cc-zone-lot">
-      <div class="cc-zone-header">
-        <div class="cc-zone-label">▸ Parked — The Lot (${lot.length})</div>
+      <div class="cc-zone-hdr">
+        <div class="cc-zone-lbl">▸ Parked — The Lot (${lot.length})</div>
         <div class="cc-filters">
-          ${['ALL','SeaLegs','TCS','Client','Personal'].map(cat =>
-            `<button class="cc-filter-btn ${ccFilter===cat?'active':''}"
-              onclick="ccSetFilter('${cat}')">${cat}</button>`
+          ${['ALL','SeaLegs','TCS','Client','Personal'].map(cat=>
+            `<button class="cc-filter-btn ${ccFilter===cat?'active':''}" onclick="ccSetFilter('${cat}')">${cat}</button>`
           ).join('')}
         </div>
       </div>
-      <div class="cc-zone-inner">
-        ${filtered.length === 0
+      <div class="cc-lot-floor">
+        ${filtered.length===0
           ? '<div class="cc-empty">Lot empty for this filter</div>'
-          : `<div class="cc-grid">${ccSorted(filtered).map(p => ccCard(p)).join('')}</div>`}
+          : `<div class="cc-grid">${ccSorted(filtered).map((p,i)=>`
+              <div class="cc-slot">
+                <div class="cc-slot-num">#${i+1}</div>
+                ${ccCarSVG('rgba(11,31,74,0.18)')}
+                ${ccCard(p)}
+              </div>`).join('')}</div>`}
       </div>
     </div>
 
+    <!-- LEGEND -->
     <div class="cc-legend">
-      ${Object.entries(CC_CATS).map(([cat, cfg]) => `
+      ${Object.entries(CC_CATS).map(([cat,cfg])=>`
         <div class="cc-legend-item">
-          <div class="cc-legend-dot" style="background:${cfg.color};"></div>
-          ${cat}
-        </div>
-      `).join('')}
-      <span class="cc-score-note">Sorted: (Revenue × 2) + (Done ÷ 20) − Effort</span>
+          <div class="cc-legend-dot" style="background:${cfg.color};"></div>${cat}
+        </div>`).join('')}
+      <span class="cc-score-note">Sorted: (Revenue×2)+(Done÷20)−Effort</span>
     </div>
   `;
 }
 
 function ccRenderList(building, priority, lot) {
   document.getElementById('cc-list-view').innerHTML = [
-    { label:'In The Building',  cls:'cc-zone-building', data: building },
-    { label:'Priority Parking', cls:'cc-zone-priority', data: priority },
-    { label:'The Lot',          cls:'cc-zone-lot',      data: lot }
-  ].map(s => `
+    { label:'In The Building',  cls:'cc-zone-building', data:building },
+    { label:'Priority Parking', cls:'cc-zone-priority', data:priority },
+    { label:'The Lot',          cls:'cc-zone-lot',      data:lot }
+  ].map(s=>`
     <div class="cc-zone ${s.cls}">
-      <div class="cc-zone-header">
-        <div class="cc-zone-label">▸ ${s.label} (${s.data.length})</div>
-      </div>
+      <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ ${s.label} (${s.data.length})</div></div>
       <div class="cc-zone-inner">
-        ${s.data.length === 0
-          ? '<div class="cc-empty">Empty</div>'
-          : ccSorted(s.data).map(p => ccCard(p)).join('')}
+        ${s.data.length===0 ? '<div class="cc-empty">Empty</div>'
+          : ccSorted(s.data).map(p=>ccCard(p)).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function ccCard(p) {
-  const cfg    = CC_CATS[p.category] || CC_CATS.Client;
-  const isHigh = p.completion >= 80;
+  const cfg = CC_CATS[p.category]||CC_CATS.Client;
   const isOpen = !!ccExpanded[p.id];
-  const score  = ccScore(p);
-
+  const score = ccScore(p);
   const moves = [
-    p.status !== 'building'
-      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','building');event.stopPropagation()">→ Building</button>` : '',
-    p.status !== 'priority'
-      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','priority');event.stopPropagation()">→ Priority</button>` : '',
-    p.status !== 'lot'
-      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','lot');event.stopPropagation()">→ Lot</button>` : ''
+    p.status!=='building' ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','building');event.stopPropagation()">→ Building</button>` : '',
+    p.status!=='priority' ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','priority');event.stopPropagation()">→ Priority</button>` : '',
+    p.status!=='lot'      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','lot');event.stopPropagation()">→ Lot</button>` : ''
   ].filter(Boolean).join('');
-
   return `
     <div class="cc-card" style="border-left-color:${cfg.color};" onclick="ccToggle('${p.id}')">
       <div class="cc-card-top">
@@ -2562,48 +2438,37 @@ function ccCard(p) {
         <div class="cc-card-pct">${p.completion}%</div>
       </div>
       <div class="cc-progress">
-        <div class="cc-progress-fill ${isHigh?'high':''}" style="width:${p.completion}%;"></div>
+        <div class="cc-progress-fill ${p.completion>=80?'high':''}" style="width:${p.completion}%;"></div>
       </div>
-      <div class="cc-card-expanded ${isOpen?'open':''}">
-        <div class="cc-card-notes">${p.notes || '—'}</div>
+      <div class="cc-card-exp ${isOpen?'open':''}">
+        <div class="cc-card-notes">${p.notes||'—'}</div>
         <div class="cc-move-btns">${moves}</div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 // ── UI ───────────────────────────────────────────────────────────
-function ccToggle(id) { ccExpanded[id] = !ccExpanded[id]; ccRender(); }
-
-function ccSetView(v, btn) {
-  ccView = v;
-  document.querySelectorAll('.cc-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  ccRender();
+function ccToggle(id) { ccExpanded[id]=!ccExpanded[id]; ccRender(); }
+function ccSetView(v,btn) {
+  ccView=v;
+  document.querySelectorAll('.cc-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); ccRender();
 }
-
-function ccSetFilter(f) { ccFilter = f; ccRender(); }
-
+function ccSetFilter(f) { ccFilter=f; ccRender(); }
 function ccOpenModal() {
-  ['cc-f-name','cc-f-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('cc-f-rev').value    = '3';
-  document.getElementById('cc-f-pct').value    = '0';
-  document.getElementById('cc-f-eff').value    = '3';
-  document.getElementById('cc-f-cat').value    = 'TCS';
-  document.getElementById('cc-f-status').value = 'lot';
-  const btn = document.getElementById('cc-save-btn');
-  btn.disabled = false; btn.textContent = 'Park It →';
+  ['cc-f-name','cc-f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cc-f-rev').value='3';
+  document.getElementById('cc-f-pct').value='0';
+  document.getElementById('cc-f-eff').value='3';
+  document.getElementById('cc-f-cat').value='TCS';
+  document.getElementById('cc-f-status').value='lot';
+  const btn=document.getElementById('cc-save-btn');
+  btn.disabled=false; btn.textContent='Park It →';
   document.getElementById('cc-modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('cc-f-name').focus(), 50);
+  setTimeout(()=>document.getElementById('cc-f-name').focus(),50);
 }
-
-function ccCloseModal() {
-  document.getElementById('cc-modal-overlay').classList.remove('open');
-}
-
-document.getElementById('cc-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) ccCloseModal();
-});
+function ccCloseModal() { document.getElementById('cc-modal-overlay').classList.remove('open'); }
+document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this) ccCloseModal(); });
 
 ccLoad();
 </script>
