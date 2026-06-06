@@ -1797,6 +1797,19 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
 }
 .cc-park-btn:hover { background: var(--navy); color: var(--cream); border-color: var(--navy); }
 
+.cc-lock-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.cc-lock-btn:hover { background: var(--light); border-color: var(--navy); }
+.cc-lock-btn.unlocked { border-color: #4a9e6b; background: rgba(74,158,107,0.07); }
+
 /* ── TABS ── */
 #cc-tabs {
   display: flex;
@@ -2176,14 +2189,15 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
     <div id="cc-panel">
       <div id="cc-header">
         <div>
-          <div class="cc-panel-eyebrow">The Clear Stack · Internal OS</div>
+          <div class="cc-panel-eyebrow">The Clear Stack · Internal OS <span id="cc-demo-badge" style="display:inline-block;margin-left:8px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;background:rgba(224,123,42,0.12);color:var(--orange);border:1px solid rgba(224,123,42,0.3);border-radius:10px;padding:2px 8px;">Demo Mode</span></span></div>
           <div class="cc-panel-name">Project <em>Command</em> Center</div>
         </div>
         <div class="cc-stats">
           <div class="cc-stat"><div class="cc-stat-val" id="cc-stat-total">—</div><div class="cc-stat-lbl">Total</div></div>
           <div class="cc-stat"><div class="cc-stat-val" id="cc-stat-active">—</div><div class="cc-stat-lbl">Active</div></div>
           <div class="cc-stat"><div class="cc-stat-val muted" id="cc-stat-avg">—</div><div class="cc-stat-lbl">Avg Done</div></div>
-          <button class="cc-park-btn" onclick="ccOpenModal()">+ Park Idea</button>
+          <button class="cc-park-btn" id="cc-park-btn" onclick="ccOpenModal()" style="display:none;">+ Park Idea</button>
+          <button class="cc-lock-btn" id="cc-lock-btn" onclick="ccLockClick()" title="Admin login">🔒</button>
         </div>
       </div>
 
@@ -2246,9 +2260,133 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   </div>
 </div>
 
+<!-- ── CC ADMIN AUTH MODAL ── -->
+<div id="cc-auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(7,21,47,0.85);display:none;align-items:center;justify-content:center;z-index:400;padding:20px;">
+  <div style="background:var(--white);border-radius:14px;padding:32px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(7,21,47,0.3);">
+    <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+    <div style="font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:8px;">Admin Access</div>
+    <div style="color:var(--gray);font-size:13px;margin-bottom:20px;">Enter the admin password to unlock full edit access.</div>
+    <div style="text-align:left;margin-bottom:14px;">
+      <label style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:6px;">Password</label>
+      <input type="password" id="cc-auth-input" placeholder="••••••••"
+        style="width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;font-size:14px;outline:none;font-family:var(--font-body);box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter')ccAuthSubmit()" />
+    </div>
+    <div id="cc-auth-error" style="display:none;background:#fff5f5;border:1px solid rgba(220,53,69,0.2);border-radius:4px;padding:10px 14px;color:#c0392b;font-size:13px;margin-bottom:14px;text-align:left;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="ccAuthSubmit()" id="cc-auth-btn"
+        style="flex:1;padding:11px;background:var(--navy);border:none;border-radius:3px;color:var(--cream);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">
+        Unlock
+      </button>
+      <button onclick="ccAuthCancel()"
+        style="padding:11px 18px;background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--gray);font-family:var(--font-body);font-size:13px;cursor:pointer;">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-const CC_URL = 'https://aicnfrbafeydlrkvsprd.supabase.co';
-const CC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
+const CC_URL  = 'https://aicnfrbafeydlrkvsprd.supabase.co';
+const CC_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
+
+// ── AUTH STATE ────────────────────────────────────────────────────
+let ccIsAdmin   = false;
+let ccServiceKey = null; // set after successful auth
+
+function ccActiveKey()   { return ccIsAdmin && ccServiceKey ? ccServiceKey : CC_ANON; }
+function ccActiveTable() { return ccIsAdmin ? 'projects' : 'projects_demo'; }
+
+// ── LOCK BUTTON ───────────────────────────────────────────────────
+function ccLockClick() {
+  if (ccIsAdmin) {
+    // Already admin — clicking lock logs out
+    ccIsAdmin    = false;
+    ccServiceKey = null;
+    sessionStorage.removeItem('cc_admin_token');
+    sessionStorage.removeItem('cc_service_key');
+    ccUpdateAdminUI();
+    ccLoad();
+  } else {
+    // Show auth modal
+    document.getElementById('cc-auth-overlay').style.display = 'flex';
+    document.getElementById('cc-auth-input').value = '';
+    document.getElementById('cc-auth-error').style.display = 'none';
+    setTimeout(() => document.getElementById('cc-auth-input').focus(), 100);
+  }
+}
+
+async function ccAuthSubmit() {
+  const pw  = document.getElementById('cc-auth-input').value;
+  const btn = document.getElementById('cc-auth-btn');
+  const err = document.getElementById('cc-auth-error');
+  if (!pw) return;
+
+  btn.textContent = 'Checking…'; btn.disabled = true;
+  err.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Incorrect password');
+
+    // Store token + service key in sessionStorage (clears on tab close)
+    ccIsAdmin    = true;
+    ccServiceKey = data.serviceKey;
+    sessionStorage.setItem('cc_admin_token',  data.token);
+    sessionStorage.setItem('cc_service_key',  data.serviceKey);
+
+    document.getElementById('cc-auth-overlay').style.display = 'none';
+    ccUpdateAdminUI();
+    ccLoad();
+
+  } catch(e) {
+    err.textContent = e.message;
+    err.style.display = 'block';
+    document.getElementById('cc-auth-input').value = '';
+    document.getElementById('cc-auth-input').focus();
+  }
+
+  btn.textContent = 'Unlock'; btn.disabled = false;
+}
+
+function ccAuthCancel() {
+  document.getElementById('cc-auth-overlay').style.display = 'none';
+}
+
+function ccUpdateAdminUI() {
+  const lockBtn  = document.getElementById('cc-lock-btn');
+  const parkBtn  = document.getElementById('cc-park-btn');
+  const demoBadge = document.getElementById('cc-demo-badge');
+
+  if (ccIsAdmin) {
+    lockBtn.textContent = '🔓';
+    lockBtn.classList.add('unlocked');
+    lockBtn.title = 'Admin — click to lock';
+    parkBtn.style.display = 'inline-flex';
+    demoBadge.style.display = 'none';
+  } else {
+    lockBtn.textContent = '🔒';
+    lockBtn.classList.remove('unlocked');
+    lockBtn.title = 'Admin login';
+    parkBtn.style.display = 'none';
+    demoBadge.style.display = 'inline-block';
+  }
+}
+
+// Restore session if tab is still open
+(function ccRestoreSession() {
+  const token = sessionStorage.getItem('cc_admin_token');
+  const key   = sessionStorage.getItem('cc_service_key');
+  if (token && key) {
+    ccIsAdmin    = true;
+    ccServiceKey = key;
+  }
+})();
 
 const CC_CATS = {
   SeaLegs:  { color: '#334155', bg: 'rgba(51,65,85,0.08)'   },
@@ -2309,8 +2447,9 @@ function ccBuildingSVG() {
 
 // ── SUPABASE ──────────────────────────────────────────────────────
 async function ccApi(path, opts={}) {
+  const key = ccActiveKey();
   const r = await fetch(`${CC_URL}/rest/v1/${path}`, {
-    headers:{ 'apikey':CC_KEY, 'Authorization':`Bearer ${CC_KEY}`,
+    headers:{ 'apikey':key, 'Authorization':`Bearer ${key}`,
       'Content-Type':'application/json', 'Prefer':'return=representation', ...opts.headers },
     ...opts
   });
@@ -2319,8 +2458,13 @@ async function ccApi(path, opts={}) {
 }
 
 async function ccLoad() {
+  document.getElementById('cc-loading').style.display = 'block';
+  document.getElementById('cc-loading').textContent = 'Loading projects…';
+  document.getElementById('cc-lot-view').style.display  = 'none';
+  document.getElementById('cc-list-view').style.display = 'none';
+  ccUpdateAdminUI();
   try {
-    ccProjects = await ccApi('projects?order=created_at.asc');
+    ccProjects = await ccApi(ccActiveTable()+'?order=created_at.asc');
     ccRender();
   } catch(e) {
     document.getElementById('cc-loading').textContent = 'Could not connect — check console.';
@@ -2334,7 +2478,7 @@ async function ccSaveProject() {
   const btn = document.getElementById('cc-save-btn');
   btn.disabled=true; btn.textContent='Saving…';
   try {
-    const rows = await ccApi('projects', { method:'POST', body: JSON.stringify({
+    const rows = await ccApi(ccActiveTable(), { method:'POST', body: JSON.stringify({
       name,
       category:   document.getElementById('cc-f-cat').value,
       status:     document.getElementById('cc-f-status').value,
@@ -2349,7 +2493,7 @@ async function ccSaveProject() {
 
 async function ccMove(id, status) {
   try {
-    await ccApi(`projects?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status}) });
+    await ccApi(`${ccActiveTable()}?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status}) });
     ccProjects = ccProjects.map(p => p.id===id ? {...p,status} : p);
     ccRender();
   } catch(e) { console.error('CC Move:',e); }
@@ -2470,15 +2614,20 @@ function ccCard(p) {
   const isOpen = !!ccExpanded[p.id];
   const score  = ccScore(p);
   const barColor = ccProgressColor(p.completion);
-  const moves = [
+  const moves = ccIsAdmin ? [
     p.status!=='building' ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','building');event.stopPropagation()">→ Building</button>` : '',
     p.status!=='priority' ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','priority');event.stopPropagation()">→ Priority</button>` : '',
     p.status!=='lot'      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','lot');event.stopPropagation()">→ Lot</button>` : ''
-  ].filter(Boolean).join('');
+  ].filter(Boolean).join('') : '';
+  const iconBtns = ccIsAdmin ? `
+    <div class="cc-icon-btns">
+      <button class="cc-icon-btn edit"  title="Edit"   onclick="ccEditProject('${p.id}');event.stopPropagation()">✏️</button>
+      <button class="cc-icon-btn trash" title="Delete" onclick="ccDeleteProject('${p.id}');event.stopPropagation()">🗑️</button>
+    </div>` : '';
   return `
     <div class="cc-card"
-      draggable="true"
-      ondragstart="ccDragStart(event,'${p.id}')"
+      draggable="${ccIsAdmin}"
+      ondragstart="${ccIsAdmin ? `ccDragStart(event,'${p.id}')` : 'return false'}"
       ondragend="ccDragEnd(event)"
       onclick="ccToggle('${p.id}')">
       <div class="cc-card-top">
@@ -2491,10 +2640,7 @@ function ccCard(p) {
         </div>
         <div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0;">
           <div class="cc-card-pct">${p.completion}%</div>
-          <div class="cc-icon-btns">
-            <button class="cc-icon-btn edit"  title="Edit"   onclick="ccEditProject('${p.id}');event.stopPropagation()">✏️</button>
-            <button class="cc-icon-btn trash" title="Delete" onclick="ccDeleteProject('${p.id}');event.stopPropagation()">🗑️</button>
-          </div>
+          ${iconBtns}
         </div>
       </div>
       <div class="cc-progress">
@@ -2529,7 +2675,7 @@ async function ccUpdateProject(id) {
   const btn = document.getElementById('cc-save-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    await ccApi('projects?id=eq.'+id, { method:'PATCH', body: JSON.stringify({
+    await ccApi(`${ccActiveTable()}?id=eq.`+id, { method:'PATCH', body: JSON.stringify({
       name:       document.getElementById('cc-f-name').value.trim(),
       category:   document.getElementById('cc-f-cat').value,
       status:     document.getElementById('cc-f-status').value,
@@ -2561,7 +2707,7 @@ async function ccDeleteProject(id) {
   if (!p) return;
   if (!confirm('Delete "'+p.name+'"? This cannot be undone.')) return;
   try {
-    await ccApi('projects?id=eq.'+id, { method:'DELETE', headers:{'Prefer':'return=minimal'} });
+    await ccApi(`${ccActiveTable()}?id=eq.`+id, { method:'DELETE', headers:{'Prefer':'return=minimal'} });
     ccProjects = ccProjects.filter(x=>x.id!==id);
     ccRender();
   } catch(e) { console.error('CC Delete:',e); alert('Delete failed — check console.'); }
