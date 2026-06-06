@@ -270,11 +270,11 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
         <!-- Honeypot: hidden from humans, bots fill it, submissions with a value are dropped server-side -->
         <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off">
         <div class="frow">
-          <div class="fg"><label>First Name</label><input type="text" name="first_name" placeholder="Brian" required></div>
-          <div class="fg"><label>Last Name</label><input type="text" name="last_name" placeholder="Hartmann" required></div>
+          <div class="fg"><label>First Name</label><input type="text" name="first_name" required></div>
+          <div class="fg"><label>Last Name</label><input type="text" name="last_name" required></div>
         </div>
-        <div class="fg"><label>Work Email</label><input type="email" name="email" placeholder="brian@yourcompany.com" required></div>
-        <div class="fg"><label>Company Name</label><input type="text" name="company_name" placeholder="Acme Corp" required></div>
+        <div class="fg"><label>Work Email</label><input type="email" name="email" required></div>
+        <div class="fg"><label>Company Name</label><input type="text" name="company_name" required></div>
         <div class="frow">
           <div class="fg">
             <label>Company Size</label>
@@ -312,7 +312,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
         </div>
         <div class="fg">
           <label>Biggest pain point with your current stack?</label>
-          <textarea name="pain_point" placeholder="Too many tools doing the same thing, no one knows what's connected to what…"></textarea>
+          <textarea name="pain_point"></textarea>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;font-size:16px;padding:16px;" id="submit-btn">Request Free Stack Audit</button>
         <p class="form-note">Or book directly on Calendly — <a href="https://calendly.com" target="_blank">pick a time →</a></p>
