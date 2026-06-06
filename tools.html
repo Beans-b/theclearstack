@@ -2295,7 +2295,7 @@ let ccIsAdmin   = false;
 let ccServiceKey = null; // set after successful auth
 
 function ccActiveKey()   { return ccIsAdmin && ccServiceKey ? ccServiceKey : CC_ANON; }
-function ccActiveTable() { return ccIsAdmin ? 'projects' : 'projects_demo'; }
+function ccActiveTable() { return ccIsAdmin && ccServiceKey ? 'projects' : 'projects_demo'; }
 
 // ── LOCK BUTTON ───────────────────────────────────────────────────
 function ccLockClick() {
@@ -2626,8 +2626,8 @@ function ccCard(p) {
     </div>` : '';
   return `
     <div class="cc-card"
-      draggable="${ccIsAdmin}"
-      ondragstart="${ccIsAdmin ? `ccDragStart(event,'${p.id}')` : 'return false'}"
+      draggable="true"
+      ondragstart="if(ccIsAdmin)ccDragStart(event,'${p.id}')"
       ondragend="ccDragEnd(event)"
       onclick="ccToggle('${p.id}')">
       <div class="cc-card-top">
