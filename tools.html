@@ -963,20 +963,16 @@
 <!-- ── APP NAV STRIP ── -->
 <div style="background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;position:sticky;top:64px;z-index:99;">
   <div style="max-width:1100px;margin:0 auto;display:flex;gap:0;align-items:stretch;">
-    <a href="#job-search-tool"
-      onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
-      style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;
-      border-bottom:2px solid var(--navy);font-family:var(--font-mono);font-size:10px;
-      font-weight:700;letter-spacing:0.1em;color:var(--navy);text-decoration:none;
-      text-transform:uppercase;white-space:nowrap;transition:all 0.15s;">
+    <a href="#job-search-tool" onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
+      style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;border-bottom:2px solid var(--navy);
+      font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--navy);
+      text-decoration:none;text-transform:uppercase;white-space:nowrap;">
       ⚡&nbsp; Job Search Agent
     </a>
-    <a href="#cc-wrap"
-      onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
-      style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;
-      border-bottom:2px solid transparent;font-family:var(--font-mono);font-size:10px;
-      font-weight:700;letter-spacing:0.1em;color:var(--gray);text-decoration:none;
-      text-transform:uppercase;white-space:nowrap;transition:all 0.15s;"
+    <a href="#cc-wrap" onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
+      style="display:flex;align-items:center;gap:8px;padding:13px 22px 11px;border-bottom:2px solid transparent;
+      font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--gray);
+      text-decoration:none;text-transform:uppercase;white-space:nowrap;transition:all 0.15s;"
       onmouseover="this.style.color='var(--navy)';this.style.borderBottomColor='var(--border2)'"
       onmouseout="this.style.color='var(--gray)';this.style.borderBottomColor='transparent'">
       🅿&nbsp; Project Command Center
@@ -1919,6 +1915,20 @@ document.getElementById('burger').addEventListener('click', () => document.getEl
   border-color: rgba(11,31,74,0.22);
   box-shadow: 0 2px 12px rgba(11,31,74,0.07);
 }
+.cc-card[draggable="true"] { cursor: grab; }
+.cc-card.cc-dragging {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+.cc-zone-inner.cc-drag-over {
+  outline: 2px dashed var(--navy);
+  outline-offset: -2px;
+  background: rgba(11,31,74,0.04) !important;
+}
+.cc-lot-floor.cc-drag-over {
+  outline: 2px dashed rgba(11,31,74,0.3);
+  outline-offset: -2px;
+}
 
 .cc-card-top {
   display: flex;
@@ -2376,7 +2386,7 @@ function ccRenderLot(building, priority, lot) {
     <!-- BUILDING -->
     <div class="cc-zone cc-zone-building">
       <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Active — In The Building</div></div>
-      <div class="cc-zone-inner" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+      <div class="cc-zone-inner" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'building')">
         <div style="width:180px;flex-shrink:0;text-align:center;">
           ${ccBuildingSVG()}
           <div style="font-family:var(--font-mono);font-size:8px;color:#4a9e6b;letter-spacing:0.14em;margin-top:6px;text-transform:uppercase;">Active Now</div>
@@ -2396,7 +2406,7 @@ function ccRenderLot(building, priority, lot) {
     <!-- PRIORITY -->
     <div class="cc-zone cc-zone-priority">
       <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Next Up — Priority Parking</div></div>
-      <div class="cc-zone-inner">
+      <div class="cc-zone-inner" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'priority')">
         ${priority.length===0
           ? '<div class="cc-empty">Priority empty — promote from the lot</div>'
           : `<div class="cc-grid">${priority.map(p=>`
@@ -2417,7 +2427,7 @@ function ccRenderLot(building, priority, lot) {
           ).join('')}
         </div>
       </div>
-      <div class="cc-lot-floor">
+      <div class="cc-lot-floor" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'lot')">
         ${filtered.length===0
           ? '<div class="cc-empty">Lot empty for this filter</div>'
           : `<div class="cc-grid">${ccSorted(filtered).map((p,i)=>`
@@ -2466,7 +2476,11 @@ function ccCard(p) {
     p.status!=='lot'      ? `<button class="cc-move-btn" onclick="ccMove('${p.id}','lot');event.stopPropagation()">→ Lot</button>` : ''
   ].filter(Boolean).join('');
   return `
-    <div class="cc-card" onclick="ccToggle('${p.id}')">
+    <div class="cc-card"
+      draggable="true"
+      ondragstart="ccDragStart(event,'${p.id}')"
+      ondragend="ccDragEnd(event)"
+      onclick="ccToggle('${p.id}')">
       <div class="cc-card-top">
         <div style="flex:1;">
           <div>
@@ -2553,6 +2567,49 @@ async function ccDeleteProject(id) {
   } catch(e) { console.error('CC Delete:',e); alert('Delete failed — check console.'); }
 }
 
+// ── DRAG AND DROP ────────────────────────────────────────────────
+let ccDragId = null;
+
+function ccDragStart(e, id) {
+  ccDragId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  // slight delay so the card renders as dragging after grabbing
+  setTimeout(() => {
+    const el = e.target.closest('.cc-card');
+    if (el) el.classList.add('cc-dragging');
+  }, 0);
+}
+
+function ccDragEnd(e) {
+  ccDragId = null;
+  document.querySelectorAll('.cc-dragging').forEach(el => el.classList.remove('cc-dragging'));
+  document.querySelectorAll('.cc-drag-over').forEach(el => el.classList.remove('cc-drag-over'));
+}
+
+function ccDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('cc-drag-over');
+}
+
+function ccDragLeave(e) {
+  // only remove if leaving the zone entirely, not entering a child
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('cc-drag-over');
+  }
+}
+
+function ccDrop(e, targetStatus) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('cc-drag-over');
+  const id = ccDragId || e.dataTransfer.getData('text/plain');
+  if (!id) return;
+  const project = ccProjects.find(p => p.id === id);
+  if (!project || project.status === targetStatus) return;
+  ccMove(id, targetStatus);
+}
+
 function ccToggle(id) { ccExpanded[id]=!ccExpanded[id]; ccRender(); }
 function ccSetView(v,btn) {
   ccView=v;
@@ -2589,26 +2646,20 @@ ccLoad();
   <div style="max-width:1100px;margin:0 auto;">
     <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:0.18em;color:rgba(247,244,239,0.35);text-transform:uppercase;margin-bottom:16px;">Available Tools</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <a href="#job-search-tool"
-        onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
+      <a href="#job-search-tool" onclick="document.getElementById('job-search-tool').scrollIntoView({behavior:'smooth'});return false;"
         style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(255,255,255,0.05);
-        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;
-        transition:all 0.2s;flex:1;min-width:200px;"
-        onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.2)'"
-        onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)'">
+        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;transition:all 0.2s;flex:1;min-width:200px;"
+        onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
         <span style="font-size:22px;">⚡</span>
         <div>
           <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(247,244,239,0.9);text-transform:uppercase;">Job Search Agent</div>
           <div style="font-family:var(--font-body);font-size:12px;color:rgba(247,244,239,0.4);margin-top:2px;">AI resume tailoring + cover letter</div>
         </div>
       </a>
-      <a href="#cc-wrap"
-        onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
+      <a href="#cc-wrap" onclick="document.getElementById('cc-wrap').scrollIntoView({behavior:'smooth'});return false;"
         style="display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(255,255,255,0.05);
-        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;
-        transition:all 0.2s;flex:1;min-width:200px;"
-        onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.borderColor='rgba(255,255,255,0.2)'"
-        onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.1)'">
+        border:1px solid rgba(255,255,255,0.1);border-radius:4px;text-decoration:none;transition:all 0.2s;flex:1;min-width:200px;"
+        onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
         <span style="font-size:22px;">🅿</span>
         <div>
           <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(247,244,239,0.9);text-transform:uppercase;">Project Command Center</div>
