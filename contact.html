@@ -161,7 +161,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
       <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
       <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
     </svg>
-            <div class="logo-wm">
+    <div class="logo-wm">
       <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
       <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
     </div>
@@ -266,17 +266,19 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
       <div class="urg-bar"><div class="u-dot"></div>Currently accepting Q3 2026 engagements — limited slots</div>
       <h3>Book your free audit</h3>
       <p>30 minutes. No prep needed. We handle the agenda.</p>
-      <form onsubmit="handleSubmit(event)">
+      <form id="contactForm">
+        <!-- Honeypot: hidden from humans, bots fill it, submissions with a value are dropped server-side -->
+        <input type="text" name="_hp" style="display:none" tabindex="-1" autocomplete="off">
         <div class="frow">
-          <div class="fg"><label>First Name</label><input type="text" placeholder="Brian" required></div>
-          <div class="fg"><label>Last Name</label><input type="text" placeholder="Hartmann" required></div>
+          <div class="fg"><label>First Name</label><input type="text" name="first_name" placeholder="Brian" required></div>
+          <div class="fg"><label>Last Name</label><input type="text" name="last_name" placeholder="Hartmann" required></div>
         </div>
-        <div class="fg"><label>Work Email</label><input type="email" placeholder="brian@yourcompany.com" required></div>
-        <div class="fg"><label>Company Name</label><input type="text" placeholder="Acme Corp" required></div>
+        <div class="fg"><label>Work Email</label><input type="email" name="email" placeholder="brian@yourcompany.com" required></div>
+        <div class="fg"><label>Company Name</label><input type="text" name="company_name" placeholder="Acme Corp" required></div>
         <div class="frow">
           <div class="fg">
             <label>Company Size</label>
-            <select required>
+            <select name="company_size" required>
               <option value="">Select…</option>
               <option>Under 50 employees</option>
               <option>50–150 employees</option>
@@ -287,7 +289,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
           </div>
           <div class="fg">
             <label>Industry</label>
-            <select required>
+            <select name="industry" required>
               <option value="">Select…</option>
               <option>Professional Services</option>
               <option>Financial Services</option>
@@ -300,7 +302,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
         </div>
         <div class="fg">
           <label>Rough monthly AI spend (optional)</label>
-          <select>
+          <select name="monthly_ai_spend">
             <option value="">Not sure / prefer not to say</option>
             <option>Under $2,000/mo</option>
             <option>$2,000–$10,000/mo</option>
@@ -310,7 +312,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
         </div>
         <div class="fg">
           <label>Biggest pain point with your current stack?</label>
-          <textarea placeholder="Too many tools doing the same thing, no one knows what's connected to what…"></textarea>
+          <textarea name="pain_point" placeholder="Too many tools doing the same thing, no one knows what's connected to what…"></textarea>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;font-size:16px;padding:16px;" id="submit-btn">Request Free Stack Audit</button>
         <p class="form-note">Or book directly on Calendly — <a href="https://calendly.com" target="_blank">pick a time →</a></p>
@@ -360,13 +362,28 @@ window.addEventListener('scroll',()=>document.getElementById('nav').classList.to
 document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
 const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-function handleSubmit(e){
+
+document.getElementById('contactForm').addEventListener('submit',async function(e){
   e.preventDefault();
   const btn=document.getElementById('submit-btn');
-  btn.textContent='✓ Request received — we\'ll be in touch within one business day';
-  btn.style.background='#1a4a1a';
+  const orig=btn.textContent;
+  btn.textContent='Sending…';
   btn.disabled=true;
-}
+  const payload=Object.fromEntries(new FormData(this).entries());
+  try{
+    const res=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.success){
+      this.innerHTML='<div style="text-align:center;padding:2rem 0;"><h3 style="font-family:\'Cormorant Garamond\',serif;color:var(--navy);margin-bottom:12px;">You\'re on the list.</h3><p style="font-size:14px;">We\'ll review your details and reach out within one business day to schedule your free audit call.</p></div>';
+    }else{
+      btn.textContent=orig;btn.disabled=false;
+      alert(data.error||'Something went wrong. Please try again.');
+    }
+  }catch{
+    btn.textContent=orig;btn.disabled=false;
+    alert('Network error. Please check your connection and try again.');
+  }
+});
 </script>
 </body>
 </html>
