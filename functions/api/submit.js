@@ -7,8 +7,9 @@
  * validates input, and fires the Make.com inbound lead webhook.
  * Make.com handles all downstream actions: Supabase, HubSpot, Brian notification, T2 Research trigger.
  *
- * REQUIRED environment variable (set in Cloudflare Pages dashboard → Settings → Environment Variables):
+ * REQUIRED environment variables (set in Cloudflare Pages dashboard → Settings → Environment Variables):
  *   MAKECOM_INBOUND_WEBHOOK_URL — your Make.com webhook URL (treat as a secret)
+ *   MAKECOM_WEBHOOK_API_KEY     — API key sent as x-make-apikey header to authenticate with Make.com
  */
 
 export async function onRequestPost(context) {
@@ -83,8 +84,9 @@ export async function onRequestPost(context) {
 
   // --- Fire Make.com webhook ---
   const webhookUrl = env.MAKECOM_INBOUND_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.error("MAKECOM_INBOUND_WEBHOOK_URL is not set.");
+  const webhookApiKey = env.MAKECOM_WEBHOOK_API_KEY;
+  if (!webhookUrl || !webhookApiKey) {
+    console.error("Missing MAKECOM_INBOUND_WEBHOOK_URL or MAKECOM_WEBHOOK_API_KEY env var.");
     return new Response(
       JSON.stringify({ success: false, error: "Server configuration error." }),
       { status: 500, headers }
@@ -94,7 +96,10 @@ export async function onRequestPost(context) {
   try {
     const makeResponse = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-make-apikey": webhookApiKey,
+      },
       body: JSON.stringify(payload),
     });
 
