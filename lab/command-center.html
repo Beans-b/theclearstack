@@ -727,7 +727,7 @@ async function ccSaveProject() {
 
 async function ccMove(id, status) {
   try {
-    await ccApi(`${ccActiveTable()}?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status}) });
+    await ccApi(`${ccActiveTable()}?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status, updated_at: new Date().toISOString()}) });
     ccProjects = ccProjects.map(p => p.id===id ? {...p,status} : p);
     ccRender();
   } catch(e) { console.error('CC Move:',e); }
@@ -911,7 +911,8 @@ async function ccUpdateProject(id) {
       notes:      document.getElementById('cc-f-notes').value.trim()||null,
       revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
       completion: parseInt(document.getElementById('cc-f-pct').value)||0,
-      effort:     parseInt(document.getElementById('cc-f-eff').value)||3
+      effort:     parseInt(document.getElementById('cc-f-eff').value)||3,
+      updated_at: new Date().toISOString()
     })});
     ccProjects = ccProjects.map(p => p.id===id ? {
       ...p,
