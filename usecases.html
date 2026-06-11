@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Use Cases — The Clear Stack</title>
+<meta name="description" content="AI stack consolidation for mid-market companies across professional services, financial services, healthcare, and logistics. See the problems we solve.">
+<link rel="canonical" href="https://theclearstack.com/usecases.html">
+<!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -20,8 +25,6 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 .btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
 .btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
 .btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
-.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
-.btn-ghost:hover{border-color:rgba(247,244,239,.5);color:#fff;}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
 .reveal.in{opacity:1;transform:none;}
 
@@ -29,25 +32,11 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 #nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
 #nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
 .nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
-.nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
-/* ── LOGO WORDMARK ── */
-.logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
-.logo-name {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 19px;
-  font-weight: 600;
-  color: #F7F4EF;
-  letter-spacing: 0.01em;
-}
-.logo-name .logo-the { font-weight: 600; color: #F7F4EF; }
-.logo-name em { font-style: normal; font-weight: 700; color: var(--orange); }
-.logo-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 6.5px;
-  letter-spacing: 0.14em;
-  color: #FFFFFF;
-  text-transform: uppercase;
-}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:0.01em;}
+.logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+.logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+.logo-tag{font-family:'DM Mono',monospace;font-size:6.5px;letter-spacing:0.14em;color:#FFFFFF;text-transform:uppercase;}
 .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
 .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
 .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
@@ -62,7 +51,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
 .d-cta{color:var(--orange)!important;font-weight:700!important;}
 
-/* PAGE HERO — white */
+/* PAGE HERO */
 .ph{background:var(--white);padding:72px 48px 64px;border-bottom:1px solid var(--line);}
 .ph-inner{max-width:1160px;margin:0 auto;}
 .ph h1{font-size:clamp(38px,4.5vw,62px);font-weight:700;color:var(--navy);margin-bottom:18px;line-height:1.08;}
@@ -71,23 +60,25 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 .sec{padding:88px 48px;}
 .si{max-width:1160px;margin:0 auto;}
 
-/* NUMBERS */
-.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
-.num-item{background:var(--white);padding:40px 28px;text-align:center;transition:background .25s;}
-.num-item:hover{background:var(--cream);}
-.num-big{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:700;color:var(--orange);line-height:1;margin-bottom:8px;}
-.num-lbl{font-size:13px;color:var(--gray);font-weight:300;line-height:1.5;}
+/* STATUS BANNER */
+.status-banner{background:rgba(224,123,42,.07);border:1px solid rgba(224,123,42,.2);border-radius:6px;padding:28px 32px;display:flex;align-items:flex-start;gap:18px;margin-bottom:64px;}
+.sb-dot{width:10px;height:10px;background:var(--orange);border-radius:50%;flex-shrink:0;margin-top:5px;animation:pulse 2.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sb-text h4{font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.sb-text p{font-size:14px;color:var(--gray);margin:0;}
 
-/* CASES */
-.cases{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-.case{background:var(--cream);border-radius:6px;padding:44px 40px;border-left:3px solid var(--navy);transition:border-color .25s,transform .25s;}
-.case:hover{border-left-color:var(--orange);transform:translateY(-4px);}
-.case-ind{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;display:block;}
-.case h3{margin-bottom:14px;font-size:20px;}
-.case p{font-size:14px;margin-bottom:16px;}
-.cq{border-left:2px solid var(--orange);padding-left:14px;margin:16px 0;font-size:14px;font-style:italic;color:var(--navy);line-height:1.65;}
-.cr{display:inline-flex;align-items:center;gap:9px;background:var(--white);border-radius:3px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--navy);}
-.pip{width:7px;height:7px;background:var(--orange);border-radius:50%;flex-shrink:0;}
+/* PATTERN CARDS */
+.patterns{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.pattern{background:var(--cream);border-radius:6px;padding:44px 40px;border-left:3px solid var(--navy);transition:border-color .25s,transform .25s;}
+.pattern:hover{border-left-color:var(--orange);transform:translateY(-3px);}
+.p-ind{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;display:block;}
+.pattern h3{margin-bottom:14px;font-size:20px;}
+.pattern p{font-size:14px;margin-bottom:14px;}
+.p-what{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);}
+.p-what-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:10px;display:block;}
+.p-what ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.p-what li{font-size:13px;color:var(--gray);padding-left:16px;position:relative;line-height:1.6;}
+.p-what li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;background:var(--orange);border-radius:50%;}
 
 /* CTA CLOSE */
 .cta-close{background:var(--navy-deep);padding:88px 48px;position:relative;overflow:hidden;}
@@ -115,9 +106,9 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
   .burger{display:flex;}
   .drawer{display:block;}
   .ph,.sec,.cta-close,#footer{padding-left:24px;padding-right:24px;}
-  .nums{grid-template-columns:1fr 1fr;}
-  .cases{grid-template-columns:1fr;}
+  .patterns{grid-template-columns:1fr;}
   .fi{flex-direction:column;gap:16px;}
+  #footer{padding:32px 24px;}
 }
 </style>
 </head>
@@ -128,16 +119,13 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="buc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2550A8"/>
-          <stop offset="100%" stop-color="#193C82"/>
+          <stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/>
         </linearGradient>
         <linearGradient id="muc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
         </linearGradient>
         <linearGradient id="tuc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
         </linearGradient>
       </defs>
       <polygon points="4,50 32,36 60,50 32,64" fill="url(#buc)"/>
@@ -168,7 +156,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
   <ul>
     <li><a href="index.html">What We Do</a></li>
     <li><a href="method.html">How It Works</a></li>
-    <li><a href="usecases.html" class="active">Use Cases</a></li>
+    <li><a href="usecases.html">Use Cases</a></li>
     <li><a href="lab/index.html">Lab</a></li>
     <li><a href="contact.html" class="d-cta">Work With Us →</a></li>
   </ul>
@@ -177,68 +165,97 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 <div class="ph">
   <div class="ph-inner">
     <span class="tag">Use Cases</span>
-    <h1>Where we've cleared<br>the stack.</h1>
-    <p>Mid-market operators across industries are running too many tools. Here's what consolidation looks like when it's done — with real outcomes, real savings, and real client words.</p>
+    <h1>The patterns we see.<br>The problems we solve.</h1>
+    <p>Mid-market companies across industries are running too many AI tools with too little connection between them. Here's what that looks like — and what consolidation fixes.</p>
   </div>
 </div>
 
-<!-- NUMBERS -->
-<section class="sec" style="background:var(--white);padding-top:72px;padding-bottom:72px;">
+<section class="sec" style="background:var(--white);">
 <div class="si">
-  <div class="nums reveal">
-    <div class="num-item"><div class="num-big">$634K</div><div class="num-lbl">Total client savings identified in last 12 months</div></div>
-    <div class="num-item"><div class="num-big">47</div><div class="num-lbl">Redundant tools eliminated across active engagements</div></div>
-    <div class="num-item"><div class="num-big">90d</div><div class="num-lbl">Average engagement length from audit to handoff</div></div>
-    <div class="num-item"><div class="num-big">100%</div><div class="num-lbl">Of clients report stack clarity within 2 weeks of Catalog</div></div>
-  </div>
-</div>
-</section>
 
-<!-- CASES -->
-<section class="sec" style="background:var(--light);border-top:1px solid var(--line);">
-<div class="si">
+  <div class="status-banner reveal">
+    <div class="sb-dot"></div>
+    <div class="sb-text">
+      <h4>Case studies in progress</h4>
+      <p>We're documenting results from our first client engagements now. Check back in Q3 2026 — or <a href="contact.html" style="color:var(--navy);font-weight:600;">book a free audit call</a> and we'll tell you exactly what we find in your stack.</p>
+    </div>
+  </div>
+
   <div style="margin-bottom:48px;" class="reveal">
-    <span class="tag">Case Studies</span>
-    <h2>Four engagements.<br>Real outcomes.</h2>
+    <span class="tag">What We Find</span>
+    <h2>Four industries.<br>The same root problem.</h2>
+    <p style="max-width:560px;">Stack complexity compounds quietly. By the time it's visible, it's expensive. These are the patterns we see repeatedly — across industries, across company sizes.</p>
   </div>
-  <div class="cases">
-    <div class="case reveal">
-      <span class="case-ind">Professional Services · Law Firm · 200 Staff</span>
-      <h3>9 AI tools — 4 doing the exact same thing</h3>
-      <p>A regional law firm had accumulated Clio, Harvey AI, Lexis+ AI, CoCounsel, and five more subscriptions approved by different partners. Legal ops couldn't tell you which tool was authoritative for which task. Billing, intake, and research were split across platforms with no handoffs between them.</p>
-      <p>We cataloged the full stack in week one, identified four direct redundancies, and built an intake-to-billing automation that replaced three manual handoff steps with zero-touch data flow.</p>
-      <p class="cq">"They were quick to notify us when scope shifted and made every adjustment without friction. I've never had a vendor feel this much like part of our own team." — Director of Legal Operations</p>
-      <div class="cr"><div class="pip"></div>$180K/yr saved · 40% faster case intake · 4 tools eliminated</div>
+
+  <div class="patterns">
+
+    <div class="pattern reveal">
+      <span class="p-ind">Professional Services · Law Firms · 100–500 Staff</span>
+      <h3>Multiple tools doing the same job — purchased by different partners</h3>
+      <p>Most firms accumulate 8–12 AI tools across billing, research, intake, and documentation — purchased by different partners over different years with no cross-department view. Three to five tools are doing the same job. Nobody knows it because nobody has mapped it.</p>
+      <p>Billing, intake, and research run on separate platforms with no handoffs between them. Manual re-entry is the integration layer.</p>
+      <div class="p-what">
+        <span class="p-what-lbl">What consolidation looks like</span>
+        <ul>
+          <li>One intake-to-billing workflow — zero manual handoffs</li>
+          <li>Shadow subscriptions surfaced and cancelled</li>
+          <li>Single source of truth for client records</li>
+          <li>Annual savings typically $80K–$200K for firms in this bracket</li>
+        </ul>
+      </div>
     </div>
-    <div class="case reveal">
-      <span class="case-ind">Manufacturing &amp; Logistics · Distribution · 850 Employees</span>
-      <h3>22 shadow AI subscriptions — zero connected</h3>
-      <p>A mid-market distribution company discovered 22 unsanctioned AI subscriptions purchased on corporate cards by individual managers. None were approved by IT, none were connected to each other, and several duplicated tools the company already paid for at the enterprise level.</p>
-      <p>Our Depth agent pre-mapped the likely stack before the first call. The Catalog audit confirmed it. We consolidated, built a governance policy, and delivered a shadow stack prevention framework their IT team now uses for every new tool request.</p>
-      <p class="cq">"We had 22 islands. None of them were talking. The Clear Stack made sense of the chaos and had us organized in 30 days." — VP of Operations</p>
-      <div class="cr"><div class="pip"></div>$94K recovered · 22 shadow tools cataloged · Governance deployed</div>
+
+    <div class="pattern reveal">
+      <span class="p-ind">Manufacturing &amp; Logistics · Distribution · 200–1,000 Staff</span>
+      <h3>Shadow AI on every manager's corporate card — none connected</h3>
+      <p>Individual managers buy AI subscriptions to solve immediate problems. Nobody approves them centrally. Several duplicate tools the company already pays for at the enterprise level. None are connected to each other or to existing systems.</p>
+      <p>The cost is invisible until someone runs the audit. Then it's usually shocking.</p>
+      <div class="p-what">
+        <span class="p-what-lbl">What consolidation looks like</span>
+        <ul>
+          <li>Full shadow stack surfaced — every subscription, every card</li>
+          <li>Governance policy deployed so it doesn't happen again</li>
+          <li>Approved tools connected to ERP and ops systems</li>
+          <li>Tool request framework your IT team owns going forward</li>
+        </ul>
+      </div>
     </div>
-    <div class="case reveal">
-      <span class="case-ind">Financial Services · RIA Firm · $800M AUM</span>
-      <h3>Three CRMs running simultaneously — zero data shared</h3>
-      <p>A registered investment advisory firm had Salesforce, Wealthbox, and Redtail all active, with client data spread across all three. Onboarding a new client required manual entry into two systems. Reporting pulled from three sources that never agreed with each other.</p>
-      <p>We identified the migration path to a single platform, automated the onboarding workflow, and built client data reconciliation logic that eliminated the duplicate-entry problem permanently.</p>
-      <p class="cq">"Brian's team found $140K in waste on day one. By week eight we had one source of truth for every client. The clarity alone was worth the fee." — Managing Partner</p>
-      <div class="cr"><div class="pip"></div>$140K identified · Single CRM · 60% less manual entry</div>
+
+    <div class="pattern reveal">
+      <span class="p-ind">Financial Services · RIA &amp; Wealth Management · $100M–$2B AUM</span>
+      <h3>Two or three CRMs running simultaneously — client data split between all of them</h3>
+      <p>Onboarding a new client requires manual entry into two systems. Reporting pulls from sources that never agree with each other. The firm knows it's a problem but a migration feels too risky to start.</p>
+      <p>The risk calculation usually looks different after a full audit.</p>
+      <div class="p-what">
+        <span class="p-what-lbl">What consolidation looks like</span>
+        <ul>
+          <li>Migration path to one platform — sequenced, low-risk</li>
+          <li>Automated onboarding workflow built before cutover</li>
+          <li>Client data reconciliation that eliminates duplicate entry</li>
+          <li>Single reporting source that compliance actually trusts</li>
+        </ul>
+      </div>
     </div>
-    <div class="case reveal">
-      <span class="case-ind">Healthcare Operations · Multi-Site Medical Group · 15 Locations</span>
-      <h3>11 AI pilots in 18 months — none reached production</h3>
-      <p>A 15-location medical group had run eleven AI pilot programs across clinical documentation, scheduling, billing, and patient communication. Each was evaluated in isolation with no defined deployment path. They were paying pilot pricing on tools they'd already decided to keep — but the decision had never been operationalized.</p>
-      <p>We evaluated all eleven against actual workflow needs, identified two with clear ROI, built deployment workflows for both, and created an evaluation framework so future pilots come with a deployment plan from day one.</p>
-      <p class="cq">"We had been paying for potential for 18 months. Now we're paying for results." — Chief Operating Officer</p>
-      <div class="cr"><div class="pip"></div>$220K freed · 2 tools company-wide · 9 pilots retired cleanly</div>
+
+    <div class="pattern reveal">
+      <span class="p-ind">Healthcare Operations · Multi-Site Medical Groups · 5–20 Locations</span>
+      <h3>AI pilots that never reached production — paid for indefinitely</h3>
+      <p>Most multi-site medical groups have run 6–12 AI pilot programs across clinical documentation, scheduling, billing, and patient communication. Each was evaluated in isolation. Many are still running at pilot pricing — on tools that were either approved and never deployed, or quietly abandoned but never cancelled.</p>
+      <div class="p-what">
+        <span class="p-what-lbl">What consolidation looks like</span>
+        <ul>
+          <li>All pilots evaluated against actual workflow needs — not vendor demos</li>
+          <li>Keepers deployed properly with documented workflows</li>
+          <li>Non-performers cancelled cleanly</li>
+          <li>Pilot evaluation framework so future tools come with a deployment plan</li>
+        </ul>
+      </div>
     </div>
+
   </div>
 </div>
 </section>
 
-<!-- CTA -->
 <div class="cta-close">
   <div class="cta-bot"></div>
   <div class="cta-inner">
@@ -255,16 +272,13 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     <a href="index.html" class="flogo"><svg width="20" height="23" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="fbuc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2550A8"/>
-          <stop offset="100%" stop-color="#193C82"/>
+          <stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/>
         </linearGradient>
         <linearGradient id="fmuc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
         </linearGradient>
         <linearGradient id="ftuc" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
         </linearGradient>
       </defs>
       <polygon points="4,50 32,36 60,50 32,64" fill="url(#fbuc)"/>
@@ -277,7 +291,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
       <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
       <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
     </svg><span>the <em>clear</em> stack</span></a>
-    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html" class="active">Use Cases</a></li><li><a href="lab/index.html">Lab</a></li><li><a href="contact.html">Contact</a></li></ul>
+    <ul class="fnav"><li><a href="index.html">Services</a></li><li><a href="method.html">Method</a></li><li><a href="usecases.html">Use Cases</a></li><li><a href="lab/index.html">Lab</a></li><li><a href="contact.html">Contact</a></li></ul>
     <span class="fcopy">© 2026 The Clear Stack · theclearstack.com</span>
   </div>
 </footer>
