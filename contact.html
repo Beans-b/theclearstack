@@ -33,6 +33,14 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 .book-direct p{font-size:14px;margin-bottom:14px;}
 .or-div{display:flex;align-items:center;gap:14px;margin:20px 0;color:var(--gray);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;}
 .or-div::before,.or-div::after{content:"";flex:1;height:1px;background:var(--line);}
+/* BOOKING MODAL */
+.bk-overlay{display:none;position:fixed;inset:0;z-index:2000;background:rgba(7,21,47,.72);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;}
+.bk-overlay.open{display:flex;}
+.bk-panel{position:relative;width:min(760px,100%);height:min(640px,92vh);background:var(--white);border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.35);overflow:hidden;}
+.bk-panel iframe{width:100%;height:100%;border:0;}
+.bk-close{position:absolute;top:10px;right:10px;z-index:2;width:34px;height:34px;border:none;border-radius:50%;background:var(--navy);color:#fff;font-size:20px;line-height:1;cursor:pointer;transition:background .2s;}
+.bk-close:hover{background:var(--orange);}
+body.bk-lock{overflow:hidden;}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
 .reveal.in{opacity:1;transform:none;}
 
@@ -277,8 +285,8 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
       <div class="urg-bar"><div class="u-dot"></div>Currently accepting Q3 2026 engagements — limited slots</div>
       <h3>Book your free audit</h3>
       <div class="book-direct">
-        <p><strong style="color:var(--navy);">Ready now?</strong> Pick a time that works — 30 minutes, no prep needed, Google Meet invite sent instantly.</p>
-        <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener" class="btn btn-primary" onclick="gtag('event','booking_click',{event_label:'contact_booking_button'})">Book a 30-Minute Slot &rarr;</a>
+        <p><strong style="color:var(--navy);">Ready now?</strong> Pick a time that works &mdash; 30 minutes, no prep needed, Google Meet invite sent instantly. Meet runs in your browser &mdash; nothing to install.</p>
+        <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" class="btn btn-primary" onclick="return openBooking('contact_booking_button')">Book a 30-Minute Slot &rarr;</a>
       </div>
       <div class="or-div">or</div>
       <p>Prefer we review your situation first? Tell us about your stack below.</p>
@@ -339,6 +347,15 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 </div>
 </section>
 
+<!-- BOOKING MODAL — booking happens on-page, prospect never leaves the site -->
+<div id="bookModal" class="bk-overlay" role="dialog" aria-modal="true" aria-label="Book a 30-minute slot">
+  <div class="bk-panel">
+    <button class="bk-close" onclick="closeBooking()" aria-label="Close booking window">&times;</button>
+    <!-- VERIFY-ME: if the calendar doesn't load, replace the data-src URL below with the one from Google Calendar > Booking pages > Options > Sharing options > Website embed > Inline booking page -->
+    <iframe id="bookFrame" data-src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0MzynIEcHS9XsfYLnqZWkxYo64CzJAj0iw5IioJPKhfnbhxvFHwpsCv-_necFGJtWoMUt3Czd1?gv=true" title="Free Stack Audit booking calendar"></iframe>
+  </div>
+</div>
+
 <footer id="footer">
   <div class="fi">
     <a href="index.html" class="flogo"><svg width="20" height="23" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
@@ -378,6 +395,21 @@ document.getElementById('burger').addEventListener('click',()=>document.getEleme
 const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}}),{threshold:.08});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
+function openBooking(label){
+  try{gtag('event','booking_click',{event_label:label});}catch(e){}
+  const f=document.getElementById('bookFrame');
+  if(!f.src)f.src=f.dataset.src;
+  document.getElementById('bookModal').classList.add('open');
+  document.body.classList.add('bk-lock');
+  return false;
+}
+function closeBooking(){
+  document.getElementById('bookModal').classList.remove('open');
+  document.body.classList.remove('bk-lock');
+}
+document.getElementById('bookModal').addEventListener('click',function(e){if(e.target===this)closeBooking();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeBooking();});
+
 document.getElementById('contactForm').addEventListener('submit',async function(e){
   e.preventDefault();
   const btn=document.getElementById('submit-btn');
@@ -389,7 +421,7 @@ document.getElementById('contactForm').addEventListener('submit',async function(
     const res=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
     if(data.success){
-      this.innerHTML='<div style="text-align:center;padding:2rem 0;"><h3 style="font-family:\'Cormorant Garamond\',serif;color:var(--navy);margin-bottom:12px;">You\'re on the list.</h3><p style="font-size:14px;margin-bottom:20px;">Want to skip the wait? Grab your slot now — it takes 30 seconds.</p><a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener" class="btn btn-primary" onclick="gtag(\'event\',\'booking_click\',{event_label:\'post_form_success\'})">Book a 30-Minute Slot &rarr;</a></div>';
+      this.innerHTML='<div style="text-align:center;padding:2rem 0;"><h3 style="font-family:\'Cormorant Garamond\',serif;color:var(--navy);margin-bottom:12px;">You\'re on the list.</h3><p style="font-size:14px;margin-bottom:20px;">Want to skip the wait? Grab your slot now — it takes 30 seconds.</p><a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" class="btn btn-primary" onclick="return openBooking(\'post_form_success\')">Book a 30-Minute Slot &rarr;</a></div>';
     }else{
       btn.textContent=orig;btn.disabled=false;
       alert(data.error||'Something went wrong. Please try again.');
