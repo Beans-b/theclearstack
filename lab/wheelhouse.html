@@ -116,8 +116,25 @@
     .wh-tag-demo,.wh-tag-wired{font-family:var(--font-mono);font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:9px;}
     .wh-tag-wired{background:rgba(74,158,107,.1);color:#2f7a4f;border:1px solid rgba(74,158,107,.25);}
     .wh-tag-demo{background:rgba(11,31,74,.05);color:var(--gray);border:1px solid var(--border);}
-    .wh-board{display:grid;gap:18px;grid-template-columns:1fr;}
-    @media(min-width:1100px){.wh-board{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);align-items:start;}.wh-network-panel{position:sticky;top:80px;}}
+    /* WORKSPACE — floating-window canvas */
+    .wh-workspace{position:relative;width:100%;height:calc(100vh - 150px);min-height:560px;overflow:hidden;}
+    .wh-win{position:absolute;background:var(--white);border:1px solid var(--border2);border-radius:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;max-height:calc(100% - 12px);overflow:hidden;}
+    .wh-win.hidden{display:none;}
+    .wh-win[data-win="network"]{box-shadow:var(--shadow2);}
+    .wh-win-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--cream);border-bottom:1px solid var(--border);cursor:grab;user-select:none;touch-action:none;flex-shrink:0;}
+    .wh-win-bar:active{cursor:grabbing;}
+    .wh-win-grip{color:var(--border2);font-size:12px;letter-spacing:-1px;flex-shrink:0;}
+    .wh-win-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wh-win-tools{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;}
+    .wh-win-ctl{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--white);border-radius:5px;color:var(--gray);font-size:13px;line-height:1;padding:0;flex-shrink:0;transition:all .15s;}
+    .wh-win-ctl:hover{border-color:var(--navy);color:var(--navy);}
+    .wh-win-ctl.close:hover{border-color:#b42828;color:#b42828;background:rgba(180,40,40,.06);}
+    .wh-win-body{padding:14px 16px 16px;overflow:auto;flex:1;min-height:0;}
+    .wh-win.collapsed .wh-win-body{display:none;}
+    .wh-win[data-win="network"] .wh-win-body{padding:2px 6px 0;overflow:visible;}
+    .wh-win[data-win="kpis"] .wh-win-body{padding:12px;}
+    .wh-net-top{display:flex;justify-content:flex-end;padding:2px 2px 0;}
+    .wh-pf-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
     .wh-stack{display:flex;flex-direction:column;min-width:0;}
     .wh-hidden{display:none!important;}
     /* NETWORK */
@@ -345,6 +362,33 @@
       .wh-sidebar{display:none;}.wh-bottombar{display:flex;}.wh-main{padding-bottom:78px;}
       .footer-cta,footer{padding-left:20px;padding-right:20px;}
     }
+    /* launcher item state (sidebar = window manager) */
+    .wh-nav-item .wh-ni-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);margin-left:auto;flex-shrink:0;transition:background .15s;}
+    .wh-nav-item.on .wh-ni-dot{background:var(--live);}
+    .wh-nav-item.on{color:var(--navy);}
+    .wh-sidebar.collapsed .wh-ni-dot{display:none;}
+    .wh-side-actions{display:flex;flex-direction:column;gap:6px;}
+    .wh-side-btn{display:flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);border:1px solid var(--border2);background:transparent;border-radius:6px;padding:8px;transition:all .15s;}
+    .wh-side-btn:hover{border-color:var(--navy);color:var(--navy);}
+    .wh-sidebar.collapsed .wh-side-btn span{display:none;}
+    /* window-body grid overrides */
+    .wh-win[data-win="kpis"] .wh-kpis{grid-template-columns:1fr 1fr;gap:10px;margin:0;}
+    .wh-win[data-win="kpis"] .wh-kpi{padding:12px 13px;}
+    .wh-win[data-win="kpis"] .wh-kpi-val{font-size:23px;}
+    .wh-win[data-win="marketing"] .wh-mkt-grid{grid-template-columns:1fr;gap:10px;}
+    /* MOBILE: collapse the canvas into a clean stack (drag off, show/hide on) */
+    @media(max-width:979px){
+      .wh-workspace{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:16px;}
+      .wh-win{position:static!important;width:auto!important;max-height:none!important;z-index:auto!important;}
+      .wh-win-bar{cursor:default;}.wh-win-grip{display:none;}
+      .wh-win[data-win="network"] .wh-win-body{overflow-x:auto;}
+      .wh-win[data-win="kpis"] .wh-kpis{grid-template-columns:repeat(4,1fr);}
+      .wh-win[data-win="marketing"] .wh-mkt-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:520px){
+      .wh-win[data-win="kpis"] .wh-kpis{grid-template-columns:1fr 1fr;}
+      .wh-win[data-win="marketing"] .wh-mkt-grid{grid-template-columns:1fr;}
+    }
   </style>
 </head>
 <body>
@@ -399,11 +443,17 @@
 <section id="wh-app"><div class="wh-shell">
   <aside class="wh-sidebar" id="wh-sidebar">
     <div class="wh-side-head">
-      <span class="wh-side-title">SeaLegs OS</span>
+      <span class="wh-side-title">Windows</span>
       <button class="wh-collapse" id="wh-collapse" onclick="whToggleSidebar()" title="Collapse" aria-label="Collapse sidebar">‹</button>
     </div>
     <nav id="wh-nav"></nav>
-    <div class="wh-side-foot"><div class="wh-icp">ICP · 150–500-employee Shopify Plus consumer brands. Cut 20–30% of tool spend; wire the survivors into one system.</div></div>
+    <div class="wh-side-foot">
+      <div class="wh-side-actions">
+        <button class="wh-side-btn" onclick="whTidy()" title="Snap visible windows around the network">▦ <span>Tidy</span></button>
+        <button class="wh-side-btn" onclick="whResetLayout()" title="Reset to the default layout">↺ <span>Reset</span></button>
+      </div>
+      <div class="wh-icp" style="margin-top:10px">ICP · 150–500-employee Shopify Plus consumer brands.</div>
+    </div>
   </aside>
 
   <main class="wh-main">
@@ -420,86 +470,113 @@
       <button class="cc-lock-btn" id="cc-lock-btn" onclick="ccLockClick()" title="Admin login" aria-label="Admin login">🔒</button>
     </div>
 
-    <!-- KPI CARDS — WIRED (computed) + 1 DEMO hero -->
-    <div class="wh-kpis" data-views="overview projects pipeline">
-      <div class="wh-kpi"><div class="wh-kpi-lbl">Total Projects</div><div class="wh-kpi-val" id="wh-kpi-total">—</div><div class="wh-kpi-sub">across all categories</div></div>
-      <div class="wh-kpi"><div class="wh-kpi-lbl">In The Building</div><div class="wh-kpi-val" id="wh-kpi-active">—</div><div class="wh-kpi-sub">active right now</div></div>
-      <div class="wh-kpi"><div class="wh-kpi-lbl">Avg Completion</div><div class="wh-kpi-val" id="wh-kpi-avg">—</div><div class="wh-kpi-sub">portfolio progress</div></div>
-      <div class="wh-kpi hero editable" onclick="whEditPipelineValue()" title="Admin: click to edit"><div class="wh-kpi-lbl">Pipeline Value</div><div class="wh-kpi-val" id="wh-kpi-pipeline">$180K</div><div class="wh-kpi-sub" id="wh-kpi-pipeline-sub">3 active opportunities</div></div>
-    </div>
+    <!-- WORKSPACE: drag windows around the network, hide what you don't need -->
+    <div class="wh-workspace" id="wh-workspace">
 
-    <div class="wh-board">
-      <!-- ⭐ SEALEGS NEURAL NETWORK (always present) -->
-      <section class="wh-panel wh-network-panel" data-views="overview projects workforce pipeline marketing timelines settings">
-        <div class="wh-phead">
-          <div class="wh-ph-l"><div class="wh-ph-eye">Agentic system · live</div><div class="wh-ph-name">SeaLegs <em>neural network</em></div></div>
-          <div class="wh-net-tools"><button class="wh-motion" id="wh-motion-btn" onclick="whToggleMotion()" aria-pressed="true"><span class="wh-m-dot"></span><span id="wh-motion-lbl">Motion</span></button></div>
+      <!-- ⭐ SEALEGS NEURAL NETWORK -->
+      <section class="wh-win" data-win="network" id="win-network">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'network')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">SeaLegs network</span>
+          <div class="wh-win-tools">
+            <button class="wh-win-ctl" onclick="whWinCollapse('network')" title="Collapse">–</button>
+            <button class="wh-win-ctl close" onclick="whWinHide('network')" title="Close">×</button>
+          </div>
         </div>
-        <div class="wh-net-wrap wh-graph" id="wh-graph">
-          <svg class="wh-net-svg" id="wh-net-svg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="SeaLegs agent network. Tap a node for detail."></svg>
-        </div>
-        <div class="wh-net-legend">
-          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--navy)"></span>Revenue chain</div>
-          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--ops)"></span>Operations chain</div>
-          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--live)"></span>Live agent</div>
-          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--border2)"></span>Planned</div>
-          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--orange)"></span>Brian / human</div>
-          <span class="wh-net-note">Make.com orchestrates · Claude reasons</span>
+        <div class="wh-win-body">
+          <div class="wh-net-top"><button class="wh-motion" id="wh-motion-btn" onclick="whToggleMotion()" aria-pressed="true"><span class="wh-m-dot"></span><span id="wh-motion-lbl">Motion</span></button></div>
+          <div class="wh-net-wrap wh-graph" id="wh-graph">
+            <svg class="wh-net-svg" id="wh-net-svg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="SeaLegs agent network. Tap a node for detail."></svg>
+          </div>
+          <div class="wh-net-legend">
+            <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--navy)"></span>Revenue chain</div>
+            <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--ops)"></span>Operations chain</div>
+            <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--live)"></span>Live agent</div>
+            <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--border2)"></span>Planned</div>
+            <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--orange)"></span>Brian / human</div>
+          </div>
         </div>
       </section>
 
-      <div class="wh-stack">
-        <!-- PROJECT PORTFOLIO — WIRED -->
-        <section class="wh-panel wh-portfolio" data-views="overview projects pipeline timelines">
-          <div class="wh-phead">
-            <div class="wh-ph-l"><div class="wh-ph-eye">Portfolio <span class="wh-tag-wired" id="wh-pf-tag">Wired · Supabase</span></div><div class="wh-ph-name">Project <em>portfolio</em></div></div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <div class="wh-pf-toggle">
-                <button class="active" id="wh-pf-tl" onclick="ccSetPortfolioView('timeline',this)">▭ Timeline</button>
-                <button id="wh-pf-bd" onclick="ccSetPortfolioView('board',this)">▥ Board</button>
-              </div>
-              <button class="cc-move-btn" id="cc-park-btn" onclick="ccOpenModal()" style="display:none;padding:6px 12px;">+ New Project</button>
-            </div>
+      <!-- VITALS (KPIs) — WIRED -->
+      <section class="wh-win" data-win="kpis" id="win-kpis">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'kpis')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Vitals</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('kpis')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('kpis')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body">
+          <div class="wh-kpis">
+            <div class="wh-kpi"><div class="wh-kpi-lbl">Total Projects</div><div class="wh-kpi-val" id="wh-kpi-total">—</div><div class="wh-kpi-sub">all categories</div></div>
+            <div class="wh-kpi"><div class="wh-kpi-lbl">In The Building</div><div class="wh-kpi-val" id="wh-kpi-active">—</div><div class="wh-kpi-sub">active now</div></div>
+            <div class="wh-kpi"><div class="wh-kpi-lbl">Avg Completion</div><div class="wh-kpi-val" id="wh-kpi-avg">—</div><div class="wh-kpi-sub">progress</div></div>
+            <div class="wh-kpi hero editable" onclick="whEditPipelineValue()" title="Admin: click to edit"><div class="wh-kpi-lbl">Pipeline Value</div><div class="wh-kpi-val" id="wh-kpi-pipeline">$180K</div><div class="wh-kpi-sub" id="wh-kpi-pipeline-sub">3 opportunities</div></div>
           </div>
-          <div class="wh-pbody">
-            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><div class="cc-filters" id="wh-filters"></div></div>
-            <div class="cc-empty" id="cc-loading">Loading projects…</div>
-            <div id="wh-pf-view"></div>
-            <div class="wh-legend" id="wh-pf-legend"></div>
+        </div>
+      </section>
+
+      <!-- PROJECT PORTFOLIO — WIRED -->
+      <section class="wh-win" data-win="portfolio" id="win-portfolio">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'portfolio')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Project portfolio</span><span class="wh-tag-wired" id="wh-pf-tag">Wired · Supabase</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('portfolio')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('portfolio')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body">
+          <div class="wh-pf-top">
+            <div class="wh-pf-toggle"><button class="active" id="wh-pf-tl" onclick="ccSetPortfolioView('timeline',this)">▭ Timeline</button><button id="wh-pf-bd" onclick="ccSetPortfolioView('board',this)">▥ Board</button></div>
+            <div class="cc-filters" id="wh-filters" style="margin-left:auto"></div>
+            <button class="cc-move-btn" id="cc-park-btn" onclick="ccOpenModal()" style="display:none">+ New</button>
           </div>
-        </section>
+          <div class="cc-empty" id="cc-loading">Loading projects…</div>
+          <div id="wh-pf-view"></div>
+          <div class="wh-legend" id="wh-pf-legend"></div>
+        </div>
+      </section>
 
-        <!-- AI WORKFORCE — DEMO-SEEDED (roster real; task text editable in admin) -->
-        <section class="wh-panel wh-workforce" data-views="overview workforce marketing">
-          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Agent tasks <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">AI <em>workforce</em></div></div></div>
-          <div class="wh-pbody" id="wh-workforce-body" style="padding-top:6px;"></div>
-        </section>
+      <!-- AI WORKFORCE — DEMO-SEEDED -->
+      <section class="wh-win" data-win="workforce" id="win-workforce">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'workforce')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">AI workforce</span><span class="wh-tag-demo">Demo</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('workforce')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('workforce')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-workforce-body"></div>
+      </section>
 
-        <!-- TEAM — DEMO-SEEDED.  // TODO: wire team + project_assignments tables -->
-        <section class="wh-panel wh-team" data-views="overview projects workforce">
-          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">On active projects <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">The <em>crew</em></div></div><span class="wh-team-cap">Capacity · 2–3 concurrent DFY</span></div>
-          <div class="wh-pbody" id="wh-team-body"></div>
-        </section>
+      <!-- CREW — DEMO-SEEDED.  // TODO: wire team + project_assignments tables -->
+      <section class="wh-win" data-win="crew" id="win-crew">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'crew')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">The crew</span><span class="wh-tag-demo">Demo</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('crew')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('crew')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-team-body"></div>
+      </section>
 
-        <!-- PIPELINE FUNNEL — DEMO-SEEDED (pipeline view) -->
-        <section class="wh-panel wh-pipeline wh-hidden" data-views="pipeline">
-          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Revenue funnel <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">Pipeline <em>flow</em></div></div></div>
-          <div class="wh-pbody" id="wh-pipeline-body"></div>
-        </section>
+      <!-- PIPELINE FUNNEL — DEMO-SEEDED -->
+      <section class="wh-win" data-win="pipeline" id="win-pipeline">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'pipeline')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Pipeline flow</span><span class="wh-tag-demo">Demo</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('pipeline')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('pipeline')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-pipeline-body"></div>
+      </section>
 
-        <!-- SETTINGS -->
-        <section class="wh-panel wh-settings wh-hidden" data-views="settings">
-          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Cockpit settings</div><div class="wh-ph-name"><em>Settings</em></div></div></div>
-          <div class="wh-pbody" id="wh-settings-body"></div>
-        </section>
-      </div>
+      <!-- GROWTH / MARKETING — DEMO-SEEDED -->
+      <section class="wh-win" data-win="marketing" id="win-marketing">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'marketing')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Growth levers</span><span class="wh-tag-demo">Demo</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('marketing')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('marketing')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body"><div class="wh-mkt-grid" id="wh-mkt-grid"></div></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="wh-win" data-win="settings" id="win-settings">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'settings')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Settings</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('settings')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('settings')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-settings-body"></div>
+      </section>
+
     </div>
-
-    <!-- MARKETING / GROWTH STRIP — DEMO-SEEDED -->
-    <section class="wh-panel wh-marketing" data-views="overview marketing pipeline">
-      <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Go-to-market <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">Growth <em>levers</em></div></div><span class="wh-net-note">Drag a card, it patches Supabase live — SeaLegs in production.</span></div>
-      <div class="wh-pbody"><div class="wh-mkt-grid" id="wh-mkt-grid"></div></div>
-    </section>
   </main>
 </div>
 <nav class="wh-bottombar" id="wh-bottombar"></nav>
@@ -814,7 +891,7 @@ function whHideTip(){ document.getElementById('wh-tip').classList.remove('show')
 function whNodeClick(id){
   const n=WH_BY_ID[id]; if(!n) return;
   whHideTip(); whSetActiveNode(id); whOpenPop(id);
-  if(n.tier!=='T3' && n.view) whSetView(n.view,{fromNode:true});
+  if(n.view) whWinFocus(whViewToWin(n.view));
 }
 function whSetActiveNode(id){
   whActiveNode=id;
@@ -837,7 +914,7 @@ function whOpenPop(id){
     const deep=n.scenario?`<a class="wh-pop-btn" href="${WH_MAKE_BASE}${n.scenario}" target="_blank" rel="noopener">Open in Make ↗</a>`:'';
     admin=`<div class="wh-pop-admin">${toggle}${deep}</div>`;
   }
-  const nav=(n.view&&n.view!==WH_VIEW)?`<button class="wh-pop-btn primary" onclick="whSetView('${n.view}');whClosePop();">Open ${whViewLabel(n.view)} →</button>`:'';
+  const winId=n.view?whViewToWin(n.view):''; const nav=winId?`<button class="wh-pop-btn primary" onclick="whWinFocus('${winId}');whClosePop();">Open ${whViewLabel(n.view)} →</button>`:'';
   pop.innerHTML=`<button class="wh-pop-close" onclick="whClosePop()" aria-label="Close">×</button>
     <div class="wh-pop-eye">${n.tier==='core'?'Orchestration core':n.tier+(n.chain&&n.chain!=='core'?' · '+n.chain:'')}</div>
     <div class="wh-pop-name">${whEsc(n.label)}</div>
@@ -853,14 +930,19 @@ function whOpenPop(id){
 function whToggleNodeStatus(id){ if(!ccIsAdmin)return; const n=WH_BY_ID[id]; if(!n)return; n.status=n.status==='live'?'planned':'live'; whBuildNetwork(); whApplyMotion(); whClearActive(); whClosePop(); /* in-page demo only */ }
 function whEditBrainLabel(){ if(!ccIsAdmin)return; const n=WH_BY_ID['brain']; const v=prompt('Core label:',n.label); if(v!=null){ n.label=v.trim()||n.label; whBuildNetwork(); whApplyMotion(); whClosePop(); } }
 
-/* ════ VIEWS / NAV / SIDEBAR ════ */
-const WH_VIEWS=[
-  {id:'overview',label:'Overview',icon:'grid'},{id:'projects',label:'Projects',icon:'folder'},
-  {id:'workforce',label:'AI Workforce',icon:'cpu'},{id:'pipeline',label:'Pipeline',icon:'flow'},
-  {id:'marketing',label:'Marketing',icon:'mega'},{id:'timelines',label:'Timelines',icon:'cal'},
-  {id:'settings',label:'Settings',icon:'gear'}
+/* ════ WINDOW WORKSPACE (drag · collapse · hide · persist) ════ */
+const WH_WINS=[
+  {id:'network',label:'Network',icon:'flow',def:true},
+  {id:'kpis',label:'Vitals',icon:'grid',def:true},
+  {id:'portfolio',label:'Portfolio',icon:'folder',def:true},
+  {id:'workforce',label:'Workforce',icon:'cpu',def:true},
+  {id:'marketing',label:'Growth',icon:'mega',def:true},
+  {id:'crew',label:'Crew',icon:'people',def:false},
+  {id:'pipeline',label:'Pipeline',icon:'flow',def:false},
+  {id:'settings',label:'Settings',icon:'gear',def:false}
 ];
-let WH_VIEW='overview';
+const WH_WIN_STORE='wh_wins_v1';
+let whWinState={}, whTopZ=20;
 function whIcon(name){
   const p={
     grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
@@ -868,30 +950,78 @@ function whIcon(name){
     cpu:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>',
     flow:'<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M5 8v3a4 4 0 0 0 4 4h1M19 8v3a4 4 0 0 1-4 4h-1"/>',
     mega:'<path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
-    cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
-    gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+    people:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9" r="2.2"/><path d="M16.5 20a5 5 0 0 1 4.5-5"/>'
   }[name]||'';
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 }
-function whViewLabel(v){ const o=WH_VIEWS.find(x=>x.id===v); return o?o.label:v; }
-function whBuildNav(){
-  document.getElementById('wh-nav').innerHTML=WH_VIEWS.map(v=>`<button class="wh-nav-item" data-view="${v.id}" onclick="whSetView('${v.id}')"><span class="wh-ni-ic">${whIcon(v.icon)}</span><span class="wh-ni-lbl">${v.label}</span></button>`).join('');
-  document.getElementById('wh-bottombar').innerHTML=WH_VIEWS.filter(v=>['overview','projects','workforce','marketing','settings'].includes(v.id)).map(v=>`<button class="wh-bb-item" data-view="${v.id}" onclick="whSetView('${v.id}')">${whIcon(v.icon)}<span>${v.label.split(' ')[0]}</span></button>`).join('');
+function whViewLabel(v){ return {pipeline:'Pipeline',projects:'Portfolio',marketing:'Growth',workforce:'Workforce',overview:'Vitals'}[v]||v; }
+function whViewToWin(v){ return {pipeline:'pipeline',projects:'portfolio',marketing:'marketing',workforce:'workforce',overview:'kpis'}[v]||'portfolio'; }
+function whCanDrag(){ return window.matchMedia('(min-width:980px)').matches; }
+function whWsSize(){ const w=document.getElementById('wh-workspace'); return {W:w.clientWidth,H:w.clientHeight}; }
+function whDefaultLayout(){
+  const s=whWsSize(), W=s.W, H=s.H, netW=Math.min(540,Math.max(420,W*0.42)), L={};
+  L.network ={x:(W-netW)/2,y:Math.max(8,(H-netW*0.82)/2-6),w:netW,bodyMax:99999};
+  L.kpis     ={x:12,y:12,w:264,bodyMax:99999};
+  L.portfolio={x:12,y:208,w:Math.min(372,Math.max(300,W*0.27)),bodyMax:360};
+  L.workforce={x:W-348,y:12,w:336,bodyMax:300};
+  L.marketing={x:W-392,y:H-326,w:380,bodyMax:300};
+  L.crew     ={x:W-348,y:322,w:320,bodyMax:240};
+  L.pipeline ={x:12,y:H-282,w:300,bodyMax:240};
+  L.settings ={x:Math.max(12,(W-330)/2),y:Math.max(12,(H-300)/2),w:330,bodyMax:280};
+  return L;
+}
+function whLoadWins(){ try{ return JSON.parse(localStorage.getItem(WH_WIN_STORE)||'{}')||{}; }catch(e){ return {}; } }
+function whSaveWins(){ try{ const o={}; WH_WINS.forEach(w=>{const s=whWinState[w.id];o[w.id]={x:s.x,y:s.y,w:s.w,hidden:s.hidden,collapsed:s.collapsed,z:s.z};}); localStorage.setItem(WH_WIN_STORE,JSON.stringify(o)); }catch(e){} }
+function whInitWins(){
+  const def=whDefaultLayout(), saved=whLoadWins();
+  WH_WINS.forEach(w=>{
+    const d=def[w.id]||{x:20,y:20,w:320,bodyMax:300}, s=saved[w.id]||{};
+    whWinState[w.id]={ x:s.x!=null?s.x:d.x, y:s.y!=null?s.y:d.y, w:s.w!=null?s.w:d.w, bodyMax:d.bodyMax,
+      hidden:s.hidden!=null?s.hidden:!w.def, collapsed:s.collapsed!=null?s.collapsed:false, z:s.z||(++whTopZ) };
+    whApplyWin(w.id);
+    const el=document.getElementById('win-'+w.id); if(el) el.addEventListener('pointerdown',()=>whWinFront(w.id));
+  });
+}
+function whApplyWin(id){
+  const el=document.getElementById('win-'+id), st=whWinState[id]; if(!el||!st) return;
+  el.classList.toggle('hidden',!!st.hidden);
+  el.classList.toggle('collapsed',!!st.collapsed);
+  const body=el.querySelector('.wh-win-body');
+  if(whCanDrag()){ el.style.left=st.x+'px'; el.style.top=st.y+'px'; el.style.width=st.w+'px'; el.style.zIndex=st.z; if(body) body.style.maxHeight=st.bodyMax<99999?st.bodyMax+'px':''; }
+  else{ el.style.left=el.style.top=el.style.width=el.style.zIndex=''; if(body) body.style.maxHeight=''; }
+}
+function whApplyAll(){ WH_WINS.forEach(w=>whApplyWin(w.id)); }
+function whWinFront(id){ const st=whWinState[id]; if(!st)return; st.z=++whTopZ; const el=document.getElementById('win-'+id); if(el&&whCanDrag()) el.style.zIndex=st.z; }
+function whWinDown(e,id){
+  whWinFront(id); whBuildLauncher();
+  if(!whCanDrag()) return;
+  if(e.target.closest('.wh-win-ctl,button,a,input,select,.wh-pf-toggle,.wh-motion')) return;
+  e.preventDefault();
+  const st=whWinState[id], sx=e.clientX, sy=e.clientY, ox=st.x, oy=st.y, sz=whWsSize();
+  const el=document.getElementById('win-'+id), ew=el.offsetWidth;
+  function mv(ev){ st.x=Math.max(-ew+80,Math.min(sz.W-80,ox+(ev.clientX-sx))); st.y=Math.max(0,Math.min(sz.H-34,oy+(ev.clientY-sy))); el.style.left=st.x+'px'; el.style.top=st.y+'px'; }
+  function up(){ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); whSaveWins(); }
+  window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+}
+function whWinHide(id){ whWinState[id].hidden=true; whApplyWin(id); whSaveWins(); whBuildLauncher(); }
+function whWinShow(id){
+  const st=whWinState[id]; st.hidden=false;
+  const sz=whWsSize(); if(st.x<0||st.y<0||st.x>sz.W-60||st.y>sz.H-30){ const d=whDefaultLayout()[id]; if(d){st.x=d.x;st.y=d.y;} }
+  whWinFront(id); whApplyWin(id); whSaveWins(); whBuildLauncher();
+}
+function whWinToggle(id){ whWinState[id].hidden?whWinShow(id):whWinHide(id); }
+function whWinCollapse(id){ whWinState[id].collapsed=!whWinState[id].collapsed; whApplyWin(id); whSaveWins(); }
+function whWinFocus(id){ if(!whWinState[id])return; if(whWinState[id].hidden){ whWinShow(id); } else { whWinFront(id); whBuildLauncher(); } }
+function whTidy(){ const def=whDefaultLayout(); WH_WINS.forEach(w=>{ const d=def[w.id], st=whWinState[w.id]; if(d&&!st.hidden){ st.x=d.x; st.y=d.y; st.w=d.w; } }); whApplyAll(); whSaveWins(); }
+function whResetLayout(){ try{localStorage.removeItem(WH_WIN_STORE);}catch(e){} whWinState={}; whTopZ=20; whInitWins(); whBuildLauncher(); }
+function whBuildLauncher(){
+  document.getElementById('wh-nav').innerHTML=WH_WINS.map(w=>{ const vis=whWinState[w.id]&&!whWinState[w.id].hidden;
+    return `<button class="wh-nav-item ${vis?'on':''}" onclick="whWinToggle('${w.id}')" title="${vis?'Hide':'Show'} ${w.label}"><span class="wh-ni-ic">${whIcon(w.icon)}</span><span class="wh-ni-lbl">${w.label}</span><span class="wh-ni-dot"></span></button>`; }).join('');
+  document.getElementById('wh-bottombar').innerHTML=WH_WINS.map(w=>{ const vis=whWinState[w.id]&&!whWinState[w.id].hidden;
+    return `<button class="wh-bb-item ${vis?'active':''}" onclick="whWinToggle('${w.id}')">${whIcon(w.icon)}<span>${w.label}</span></button>`; }).join('');
 }
 function syncPfButtons(){ document.getElementById('wh-pf-tl').classList.toggle('active',ccPortfolioView==='timeline'); document.getElementById('wh-pf-bd').classList.toggle('active',ccPortfolioView==='board'); }
-function whSetView(view,opts){
-  opts=opts||{}; WH_VIEW=view;
-  document.querySelectorAll('#wh-nav .wh-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  document.querySelectorAll('#wh-bottombar .wh-bb-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={overview:'The <em>Wheelhouse</em>',projects:'<em>Projects</em>',workforce:'AI <em>Workforce</em>',pipeline:'<em>Pipeline</em>',marketing:'<em>Marketing</em>',timelines:'<em>Timelines</em>',settings:'<em>Settings</em>'};
-  document.getElementById('wh-view-title').innerHTML=titles[view]||'The <em>Wheelhouse</em>';
-  document.querySelectorAll('[data-views]').forEach(el=>{ el.classList.toggle('wh-hidden',!el.getAttribute('data-views').split(' ').includes(view)); });
-  if(view==='timelines'&&ccPortfolioView!=='timeline'){ ccPortfolioView='timeline'; syncPfButtons(); }
-  if(view==='settings') whRenderSettings();
-  if(view==='pipeline') whRenderPipeline();
-  if(!opts.fromNode) whClearActive();
-  whRenderPortfolio();
-}
 function whToggleSidebar(){ const sb=document.getElementById('wh-sidebar'); sb.classList.toggle('collapsed'); document.getElementById('wh-collapse').textContent=sb.classList.contains('collapsed')?'›':'‹'; }
 
 /* ════ MOTION (default ON unless reduced-motion; persisted) ════ */
@@ -1129,12 +1259,14 @@ function ccRender(){
   whRenderKPIs(); whRenderFilters(); whRenderPortfolio(); whRenderLegend(); whRenderTeam();
 }
 function whInit(){
-  whBuildNav(); whBuildNetwork(); whBindNetwork(); whInitMotion();
+  whBuildNetwork(); whBindNetwork(); whInitMotion();
   whRenderWorkforce(); whRenderTeam(); whRenderMarketing(); whRenderPipeline(); whRenderChips(); whRenderSettings();
-  whSetView('overview'); ccLoad();
+  whInitWins(); whBuildLauncher();
+  ccLoad();
   document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
   document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this)ccCloseModal(); });
   window.addEventListener('scroll',()=>{ whHideTip(); whClosePop(); },{passive:true});
+  let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(whApplyAll,180); });
 }
 document.addEventListener('DOMContentLoaded',whInit);
 </script>
