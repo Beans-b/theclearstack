@@ -775,6 +775,21 @@ async function ccReadPublic(){
     return rows.length?rows:CC_DEMO_SEED;
   }catch(e){ console.warn('Public read failed; using demo seed:',e); return CC_DEMO_SEED; }
 }
+/* ── METRICS read (public, aggregate-only view — no PII). Mutates the
+   WH_PIPELINE_* / WH_FUNNEL constants in place; on failure leaves the
+   hardcoded fallbacks so a public screen-share is never blank. ── */
+async function whReadMetrics(){
+  try{
+    const r=await fetch(`${CC_URL}/rest/v1/wheelhouse_metrics?select=*`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    if(!r.ok) throw new Error(await r.text());
+    const t=await r.text(); const rows=t?JSON.parse(t):[];
+    if(!rows.length) return;                 // empty view → keep hardcoded fallbacks
+    const m=rows[0];                          // snapshot table holds 1 current row
+    if(m.pipeline_value!=null) WH_PIPELINE_VALUE=m.pipeline_value;
+    if(m.pipeline_sub!=null)   WH_PIPELINE_SUB=m.pipeline_sub;
+    if(m.seeded!=null) WH_FUNNEL=[['Seeded',m.seeded|0],['Scanned',m.scanned|0],['Enriched',m.enriched|0],['Outreach',m.outreach|0],['Booked',m.booked|0]];
+  }catch(e){ console.warn('Metrics read failed; using hardcoded fallback:',e); }
+}
 async function ccProxy(op,payload={}){
   const r=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ccToken||''}`},body:JSON.stringify({op,...payload})});
   if(r.status===401){ ccIsAdmin=false; ccToken=null; sessionStorage.removeItem('cc_token'); ccUpdateAdminUI(); throw new Error('Session expired — please log in again.'); }
@@ -796,7 +811,7 @@ function ccReadFields(){
 async function ccLoad(){
   const ld=document.getElementById('cc-loading'); ld.style.display='block'; ld.textContent='Loading projects…';
   ccUpdateAdminUI();
-  try{ ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic(); ccRender(); }
+  try{ await whReadMetrics(); ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic(); ccRender(); whRenderMarketing(); whRenderPipeline(); }
   catch(e){ ld.textContent=ccIsAdmin?'Admin load failed — deploy functions/api/projects.js & set env vars (see console).':'Could not connect — check console.'; console.error('CC Load:',e); }
 }
 async function ccSaveProject(){
