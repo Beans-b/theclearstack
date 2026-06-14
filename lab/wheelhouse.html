@@ -68,9 +68,20 @@
     .wh-collapse{width:26px;height:26px;border:1px solid var(--border);background:transparent;border-radius:4px;color:var(--gray);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
     .wh-collapse:hover{border-color:var(--navy);color:var(--navy);}
     .wh-nav-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:5px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--gray);font-size:13px;font-weight:500;transition:all .14s;white-space:nowrap;}
+    #wh-nav{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    #wh-nav .wh-nav-item{background:transparent;}
+    #wh-nav .wh-nav-item.on{background:transparent;}
+    #wh-nav .wh-nav-item:hover{background:var(--light);}
     .wh-nav-item:hover{background:var(--light);color:var(--navy);}
     .wh-nav-item.active{background:var(--cream);color:var(--navy);border-color:var(--border);font-weight:600;}
     .wh-nav-item.active .wh-ni-ic{color:var(--navy);}
+    .wh-nav-sec{font-family:var(--font-mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);padding:12px 10px 5px;}
+    .wh-nav-sec:first-child{padding-top:2px;}
+    .wh-nav-empty{font-size:11px;color:var(--gray);padding:4px 10px 6px;opacity:.7;}
+    .wh-ni-x{width:17px;height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:var(--gray);opacity:0;transition:opacity .12s,background .12s,color .12s;flex-shrink:0;margin-left:auto;}
+    .wh-nav-item:hover .wh-ni-x{opacity:1;}
+    .wh-ni-x:hover{background:var(--border);color:var(--navy);}
+    .wh-sidebar.collapsed .wh-nav-sec,.wh-sidebar.collapsed .wh-nav-empty,.wh-sidebar.collapsed .wh-ni-x{display:none;}
     .wh-ni-ic{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--gray);}
     .wh-ni-ic svg{width:18px;height:18px;}
     .wh-ni-lbl{overflow:hidden;}
@@ -372,6 +383,7 @@
     }
     /* launcher item state (sidebar = window manager) */
     .wh-nav-item .wh-ni-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);margin-left:auto;flex-shrink:0;transition:background .15s;}
+    .wh-ni-x + .wh-ni-dot{margin-left:6px;}
     .wh-nav-item.on .wh-ni-dot{background:var(--live);}
     .wh-nav-item.on{color:var(--navy);}
     .wh-sidebar.collapsed .wh-ni-dot{display:none;}
@@ -1118,10 +1130,22 @@ function whWinFocus(id){ if(!whWinState[id])return; if(whWinState[id].hidden){ w
 function whTidy(){ const def=whDefaultLayout(); WH_WINS.forEach(w=>{ const d=def[w.id], st=whWinState[w.id]; if(d&&!st.hidden){ st.x=d.x; st.y=d.y; st.w=d.w; st.h=d.h; } }); whApplyAll(); whSaveWins(); }
 function whResetLayout(){ try{localStorage.removeItem(WH_WIN_STORE);}catch(e){} whWinState={}; whTopZ=20; whInitWins(); whBuildLauncher(); }
 function whBuildLauncher(){
-  document.getElementById('wh-nav').innerHTML=WH_WINS.map(w=>{ const vis=whWinState[w.id]&&!whWinState[w.id].hidden;
-    return `<button class="wh-nav-item ${vis?'on':''}" onclick="whWinToggle('${w.id}')" title="${vis?'Hide':'Show'} ${w.label}"><span class="wh-ni-ic">${whIcon(w.icon)}</span><span class="wh-ni-lbl">${w.label}</span><span class="wh-ni-dot"></span></button>`; }).join('');
+  const open=[], closed=[];
+  WH_WINS.forEach(w=>{ const st=whWinState[w.id]; if(!st)return; (st.hidden?closed:open).push(w); });
+  const openRows=open.map(w=>
+    `<button class="wh-nav-item on" onclick="whWinFocus('${w.id}')" title="Show ${whEsc(w.label)}">
+      <span class="wh-ni-ic">${whIcon(w.icon)}</span><span class="wh-ni-lbl">${whEsc(w.label)}</span>
+      <span class="wh-ni-x" onclick="event.stopPropagation();whWinHide('${w.id}')" title="Close ${whEsc(w.label)}" role="button" aria-label="Close ${whEsc(w.label)}">×</span>
+      <span class="wh-ni-dot"></span></button>`).join('');
+  const closedRows=closed.map(w=>
+    `<button class="wh-nav-item" onclick="whWinShow('${w.id}')" title="Open ${whEsc(w.label)}">
+      <span class="wh-ni-ic">${whIcon(w.icon)}</span><span class="wh-ni-lbl">${whEsc(w.label)}</span>
+      <span class="wh-ni-dot"></span></button>`).join('');
+  document.getElementById('wh-nav').innerHTML=
+    `<div class="wh-nav-sec">Open</div>${openRows||'<div class="wh-nav-empty">No open windows</div>'}`+
+    (closed.length?`<div class="wh-nav-sec">Closed</div>${closedRows}`:'');
   document.getElementById('wh-bottombar').innerHTML=WH_WINS.map(w=>{ const vis=whWinState[w.id]&&!whWinState[w.id].hidden;
-    return `<button class="wh-bb-item ${vis?'active':''}" onclick="whWinToggle('${w.id}')">${whIcon(w.icon)}<span>${w.label}</span></button>`; }).join('');
+    return `<button class="wh-bb-item ${vis?'active':''}" onclick="whWinToggle('${w.id}')">${whIcon(w.icon)}<span>${whEsc(w.label)}</span></button>`; }).join('');
 }
 function syncPfButtons(){ document.getElementById('wh-pf-tl').classList.toggle('active',ccPortfolioView==='timeline'); document.getElementById('wh-pf-bd').classList.toggle('active',ccPortfolioView==='board'); }
 function whToggleSidebar(){ const sb=document.getElementById('wh-sidebar'); sb.classList.toggle('collapsed'); document.getElementById('wh-collapse').textContent=sb.classList.contains('collapsed')?'›':'‹'; }
