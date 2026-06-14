@@ -83,6 +83,13 @@
     @media(max-width:560px){.wh-main{padding:16px 14px 32px;}}
     /* TOPBAR */
     .wh-topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+    .wh-updated{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);white-space:nowrap;}
+    .wh-refresh-btn{width:30px;height:30px;border:1px solid var(--border2);background:var(--white);border-radius:50%;color:var(--gray);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+    .wh-refresh-btn:hover{border-color:var(--navy);color:var(--navy);}
+    .wh-refresh-btn:disabled{opacity:.55;cursor:default;}
+    .wh-refresh-btn svg{width:15px;height:15px;}
+    .wh-refresh-btn.spinning svg{animation:wh-spin .7s linear infinite;}
+    @keyframes wh-spin{to{transform:rotate(360deg);}}
     .wh-tb-titles{flex:1;min-width:180px;}
     .wh-tb-eyebrow{font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);}
     .wh-tb-title{font-family:var(--font-head);font-size:clamp(26px,3.4vw,38px);font-weight:700;color:var(--navy);line-height:1.05;margin-top:2px;}
@@ -500,6 +507,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="wh-search" type="search" placeholder="Search projects…" oninput="ccRender()" aria-label="Search projects" />
       </div>
+      <span class="wh-updated" id="wh-updated">Updated …</span>
+      <button class="wh-refresh-btn" id="wh-refresh-btn" onclick="whRefreshMetrics()" title="Get current data" aria-label="Refresh metrics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
       <span class="wh-badge demo" id="cc-demo-badge">Demo Mode</span>
       <button class="cc-lock-btn" id="cc-lock-btn" onclick="ccLockClick()" title="Admin login" aria-label="Admin login">🔒</button>
     </div>
@@ -778,6 +789,7 @@ async function ccReadPublic(){
 /* ── METRICS read (public, aggregate-only view — no PII). Mutates the
    WH_PIPELINE_* / WH_FUNNEL constants in place; on failure leaves the
    hardcoded fallbacks so a public screen-share is never blank. ── */
+let WH_METRICS_AT=null;   // ISO string of last server refresh (refreshed_at)
 async function whReadMetrics(){
   try{
     const r=await fetch(`${CC_URL}/rest/v1/wheelhouse_metrics?select=*`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
@@ -788,7 +800,29 @@ async function whReadMetrics(){
     if(m.pipeline_value!=null) WH_PIPELINE_VALUE=m.pipeline_value;
     if(m.pipeline_sub!=null)   WH_PIPELINE_SUB=m.pipeline_sub;
     if(m.seeded!=null) WH_FUNNEL=[['Seeded',m.seeded|0],['Scanned',m.scanned|0],['Enriched',m.enriched|0],['Outreach',m.outreach|0],['Booked',m.booked|0]];
+    if(m.refreshed_at) WH_METRICS_AT=m.refreshed_at;
   }catch(e){ console.warn('Metrics read failed; using hardcoded fallback:',e); }
+}
+/* Manual "get current data": trigger the server-side recompute (same RPC
+   the Make.com scenario fires), then re-read + re-render. Public anon RPC. */
+async function whRefreshMetrics(){
+  const btn=document.getElementById('wh-refresh-btn');
+  if(btn){ btn.disabled=true; btn.classList.add('spinning'); }
+  try{
+    await fetch(`${CC_URL}/rest/v1/rpc/refresh_wheelhouse_metrics`,{method:'POST',headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`,'Content-Type':'application/json'},body:'{}'});
+  }catch(e){ console.warn('Metrics refresh RPC failed:',e); }
+  await whReadMetrics(); whRenderKPIs(); whRenderMarketing(); whRenderPipeline(); whRenderUpdated();
+  if(btn){ btn.disabled=false; btn.classList.remove('spinning'); }
+}
+/* "Updated …" stamp — relative if recent, else local time. */
+function whRenderUpdated(){
+  const el=document.getElementById('wh-updated'); if(!el) return;
+  if(!WH_METRICS_AT){ el.textContent='Updated · demo data'; return; }
+  const d=new Date(WH_METRICS_AT), diff=(Date.now()-d.getTime())/1000;
+  let s; if(diff<90) s='just now'; else if(diff<3600) s=Math.round(diff/60)+'m ago';
+  else if(diff<86400) s=Math.round(diff/3600)+'h ago';
+  else s=d.toLocaleDateString([], {month:'short',day:'numeric'})+' '+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  el.textContent='Updated '+s;
 }
 async function ccProxy(op,payload={}){
   const r=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ccToken||''}`},body:JSON.stringify({op,...payload})});
@@ -811,7 +845,7 @@ function ccReadFields(){
 async function ccLoad(){
   const ld=document.getElementById('cc-loading'); ld.style.display='block'; ld.textContent='Loading projects…';
   ccUpdateAdminUI();
-  try{ await whReadMetrics(); ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic(); ccRender(); whRenderMarketing(); whRenderPipeline(); }
+  try{ await whReadMetrics(); ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic(); ccRender(); whRenderMarketing(); whRenderPipeline(); whRenderUpdated(); }
   catch(e){ ld.textContent=ccIsAdmin?'Admin load failed — deploy functions/api/projects.js & set env vars (see console).':'Could not connect — check console.'; console.error('CC Load:',e); }
 }
 async function ccSaveProject(){
