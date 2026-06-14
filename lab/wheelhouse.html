@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Wheelhouse — The Clear Stack Lab</title>
+  <!-- Google Analytics 4 (unchanged) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+  <meta name="description" content="The Wheelhouse — the live cockpit for SeaLegs OS, the autonomous system that runs The Clear Stack." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1F4A; --navy2:#07152F; --orange:#E07B2A;
+      --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+      --charcoal:#1A1A1A; --gray:#5A6478; --slate:#334155;
+      --rev:#2550A8; --ops:#3E7C8C; --live:#4A9E6B;
+      --border:rgba(11,31,74,0.10); --border2:rgba(11,31,74,0.18);
+      --shadow:0 2px 24px rgba(11,31,74,0.08); --shadow2:0 8px 48px rgba(11,31,74,0.13);
+      --radius:4px;
+      --font-head:'Cormorant Garamond',serif; --font-body:'Outfit',sans-serif; --font-mono:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--light);color:var(--charcoal);font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:var(--font-body);cursor:pointer;}
+    :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+    /* NAV */
+    nav{background:var(--navy);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .nav-logo{display:flex;align-items:center;gap:11px;}
+    .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+    .logo-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em;}
+    .logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+    .logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+    .logo-tag{font-family:var(--font-mono);font-size:6.5px;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+    .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+    .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+    .nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;transition:background .2s;}
+    .nav-cta:hover{background:#C96A1A!important;}
+    .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px;}
+    .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+    .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+    .drawer.open{transform:none;display:block;}
+    .drawer ul{list-style:none;}
+    .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);border-bottom:1px solid rgba(255,255,255,.07);}
+    .d-cta{color:var(--orange)!important;font-weight:700!important;}
+    /* BREADCRUMB */
+    .breadcrumb{background:var(--white);border-bottom:1px solid var(--border);padding:0 40px;}
+    .breadcrumb-inner{max-width:1480px;margin:0 auto;display:flex;align-items:center;gap:8px;height:40px;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--gray);}
+    .breadcrumb a{color:var(--gray);transition:color .15s;}
+    .breadcrumb a:hover{color:var(--navy);}
+    .breadcrumb-sep{color:var(--border2);}
+    .breadcrumb-current{color:var(--charcoal);}
+    /* SHELL */
+    #wh-app{background:var(--light);}
+    .wh-shell{display:flex;max-width:1480px;margin:0 auto;min-height:70vh;}
+    .wh-sidebar{width:214px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:64px;align-self:flex-start;height:calc(100vh - 64px);transition:width .2s ease;}
+    .wh-sidebar.collapsed{width:62px;}
+    .wh-side-head{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 12px;margin-bottom:6px;border-bottom:1px solid var(--border);}
+    .wh-side-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);white-space:nowrap;overflow:hidden;}
+    .wh-sidebar.collapsed .wh-side-title{opacity:0;width:0;}
+    .wh-collapse{width:26px;height:26px;border:1px solid var(--border);background:transparent;border-radius:4px;color:var(--gray);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+    .wh-collapse:hover{border-color:var(--navy);color:var(--navy);}
+    .wh-nav-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:5px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--gray);font-size:13px;font-weight:500;transition:all .14s;white-space:nowrap;}
+    .wh-nav-item:hover{background:var(--light);color:var(--navy);}
+    .wh-nav-item.active{background:var(--cream);color:var(--navy);border-color:var(--border);font-weight:600;}
+    .wh-nav-item.active .wh-ni-ic{color:var(--navy);}
+    .wh-ni-ic{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--gray);}
+    .wh-ni-ic svg{width:18px;height:18px;}
+    .wh-ni-lbl{overflow:hidden;}
+    .wh-sidebar.collapsed .wh-ni-lbl{opacity:0;width:0;}
+    .wh-sidebar.collapsed .wh-nav-item{justify-content:center;padding:9px 0;}
+    .wh-side-foot{margin-top:auto;padding:10px 8px 2px;border-top:1px solid var(--border);}
+    .wh-side-foot .wh-icp{font-family:var(--font-mono);font-size:8.5px;line-height:1.7;letter-spacing:.04em;color:var(--gray);}
+    .wh-sidebar.collapsed .wh-side-foot{display:none;}
+    .wh-main{flex:1;min-width:0;padding:20px 26px 40px;}
+    @media(max-width:560px){.wh-main{padding:16px 14px 32px;}}
+    /* TOPBAR */
+    .wh-topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+    .wh-tb-titles{flex:1;min-width:180px;}
+    .wh-tb-eyebrow{font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);}
+    .wh-tb-title{font-family:var(--font-head);font-size:clamp(26px,3.4vw,38px);font-weight:700;color:var(--navy);line-height:1.05;margin-top:2px;}
+    .wh-tb-title em{font-style:italic;font-weight:500;}
+    .wh-search{position:relative;flex-shrink:0;}
+    .wh-search input{width:200px;max-width:42vw;background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:8px 14px 8px 32px;font-size:13px;font-family:var(--font-body);color:var(--charcoal);outline:none;transition:border .15s,box-shadow .15s;}
+    .wh-search input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,31,74,.06);}
+    .wh-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--gray);}
+    .wh-badge{font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;border-radius:11px;padding:4px 10px;white-space:nowrap;}
+    .wh-badge.demo{background:rgba(224,123,42,.12);color:var(--orange);border:1px solid rgba(224,123,42,.3);}
+    .wh-badge.admin{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35);}
+    .cc-lock-btn{background:transparent;border:1px solid var(--border2);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;flex-shrink:0;}
+    .cc-lock-btn:hover{background:var(--white);border-color:var(--navy);}
+    .cc-lock-btn.unlocked{border-color:var(--live);background:rgba(74,158,107,.07);}
+    /* KPI */
+    .wh-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+    @media(max-width:880px){.wh-kpis{grid-template-columns:repeat(2,1fr);}}
+    .wh-kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+    .wh-kpi-lbl{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);}
+    .wh-kpi-val{font-family:var(--font-mono);font-size:30px;font-weight:500;line-height:1.05;color:var(--navy);margin-top:8px;letter-spacing:-.02em;}
+    .wh-kpi-sub{font-family:var(--font-body);font-size:11px;color:var(--gray);margin-top:4px;}
+    .wh-kpi.hero .wh-kpi-val{color:var(--orange);}
+    .wh-kpi.hero::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(224,123,42,.10),transparent 70%);}
+    .wh-kpi.hero.editable{cursor:pointer;}
+    /* PANEL */
+    .wh-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px;}
+    .wh-phead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 18px;background:var(--cream);border-bottom:1px solid var(--border);}
+    .wh-ph-l .wh-ph-eye{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);}
+    .wh-ph-l .wh-ph-name{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--navy);margin-top:1px;}
+    .wh-ph-l .wh-ph-name em{font-style:italic;font-weight:400;}
+    .wh-pbody{padding:18px;}
+    .wh-tag-demo,.wh-tag-wired{font-family:var(--font-mono);font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:9px;}
+    .wh-tag-wired{background:rgba(74,158,107,.1);color:#2f7a4f;border:1px solid rgba(74,158,107,.25);}
+    .wh-tag-demo{background:rgba(11,31,74,.05);color:var(--gray);border:1px solid var(--border);}
+    .wh-board{display:grid;gap:18px;grid-template-columns:1fr;}
+    @media(min-width:1100px){.wh-board{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);align-items:start;}.wh-network-panel{position:sticky;top:80px;}}
+    .wh-stack{display:flex;flex-direction:column;min-width:0;}
+    .wh-hidden{display:none!important;}
+    /* NETWORK */
+    .wh-net-wrap{position:relative;padding:6px 6px 2px;background:radial-gradient(circle at 50% 46%,rgba(37,80,168,.05),transparent 60%);}
+    .wh-net-svg{width:100%;height:auto;display:block;touch-action:manipulation;}
+    .wh-net-tools{display:flex;align-items:center;gap:8px;}
+    .wh-motion{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);background:var(--white);border:1px solid var(--border2);border-radius:20px;padding:5px 11px;transition:all .15s;}
+    .wh-motion:hover{border-color:var(--navy);color:var(--navy);}
+    .wh-motion .wh-m-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background .2s;}
+    .wh-motion.on .wh-m-dot{background:var(--live);box-shadow:0 0 0 3px rgba(74,158,107,.18);}
+    .wh-net-legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:10px 18px 16px;border-top:1px solid var(--border);}
+    .wh-nl{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray);}
+    .wh-nl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .wh-net-note{font-family:var(--font-mono);font-size:8.5px;color:var(--gray);margin-left:auto;}
+    .wh-node,.wh-hit{cursor:pointer;}
+    .wh-nlabel{font-family:var(--font-body);font-size:12px;font-weight:600;fill:var(--navy);pointer-events:none;}
+    .wh-nid{font-family:var(--font-mono);font-size:9px;fill:var(--gray);pointer-events:none;}
+    .wh-node.t3 .wh-nlabel{font-size:10px;font-weight:500;fill:var(--slate);}
+    .wh-node.is-planned .wh-core{opacity:.5;}
+    .wh-node.is-planned .wh-nlabel{fill:var(--gray);font-style:italic;}
+    .wh-edge{stroke-width:1.4;fill:none;}
+    .wh-edge.planned{stroke-dasharray:3 5;opacity:.5;}
+    .wh-edge-flow{stroke-width:1.6;fill:none;stroke-dasharray:2 12;stroke-linecap:round;opacity:.85;}
+    .wh-glyph,.wh-brain-core{pointer-events:none;}
+    @keyframes whBreath{0%,100%{opacity:.16;transform:scale(1);}50%{opacity:.34;transform:scale(1.14);}}
+    @keyframes whFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+    @keyframes whFlow{to{stroke-dashoffset:-140;}}
+    @keyframes whBrainPulse{0%,100%{opacity:.85;}50%{opacity:1;}}
+    @keyframes whDot{0%,100%{box-shadow:0 0 0 0 rgba(74,158,107,.35);}50%{box-shadow:0 0 0 4px rgba(74,158,107,0);}}
+    .wh-graph.motion-on .wh-aura{transform-box:fill-box;transform-origin:center;animation:whBreath 4.4s ease-in-out infinite;}
+    .wh-graph.motion-on .wh-float{animation:whFloat 6.5s ease-in-out infinite;}
+    .wh-graph.motion-on .wh-edge-flow{animation:whFlow 3.2s linear infinite;}
+    .wh-graph.motion-on .wh-brain-core{animation:whBrainPulse 3s ease-in-out infinite;}
+    .wh-graph.motion-off .wh-aura{opacity:.20;}
+    .wh-graph.motion-off .wh-edge-flow{opacity:.4;}
+    .wh-graph.has-active .wh-node{opacity:.28;transition:opacity .25s;}
+    .wh-graph.has-active .wh-edge,.wh-graph.has-active .wh-edge-flow{opacity:.12;transition:opacity .25s;}
+    .wh-graph.has-active .wh-node.is-active{opacity:1;}
+    .wh-graph.has-active .wh-edge.is-active{opacity:.7;}
+    .wh-graph.has-active .wh-edge-flow.is-active{opacity:.9;}
+    .wh-node.is-active .wh-core{stroke-width:3;}
+    .wh-tip{position:fixed;z-index:1500;pointer-events:none;background:var(--navy2);color:#fff;border-radius:7px;padding:9px 12px;max-width:230px;box-shadow:0 12px 40px rgba(7,21,47,.34);opacity:0;transition:opacity .12s;font-size:12px;}
+    .wh-tip.show{opacity:1;}
+    .wh-tip b{font-family:var(--font-head);font-size:14px;font-weight:600;display:block;}
+    .wh-tip .wh-tip-meta{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.06em;color:rgba(255,255,255,.6);margin:2px 0 4px;text-transform:uppercase;}
+    .wh-tip .wh-tip-role{color:rgba(255,255,255,.82);font-size:11.5px;line-height:1.45;}
+    .wh-pop{position:fixed;z-index:1600;width:min(280px,92vw);background:var(--white);border:1px solid var(--border2);border-radius:10px;box-shadow:var(--shadow2);padding:16px;display:none;}
+    .wh-pop.show{display:block;}
+    .wh-pop-close{position:absolute;top:9px;right:11px;background:none;border:none;color:var(--gray);font-size:16px;line-height:1;}
+    .wh-pop-eye{font-family:var(--font-mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);}
+    .wh-pop-name{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--navy);line-height:1.1;margin:2px 0 8px;}
+    .wh-pop-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:5px 0;border-top:1px solid var(--border);}
+    .wh-pop-row span:first-child{font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);}
+    .wh-pop-row span:last-child{color:var(--charcoal);font-weight:500;text-align:right;}
+    .wh-st-pill{font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:9px;}
+    .wh-st-live{background:rgba(74,158,107,.13);color:#2f7a4f;}
+    .wh-st-planned{background:rgba(11,31,74,.06);color:var(--gray);}
+    .wh-pop-role{font-size:12px;color:var(--gray);line-height:1.5;margin:10px 0 0;}
+    .wh-pop-act{display:flex;flex-direction:column;gap:7px;margin-top:13px;}
+    .wh-pop-btn{display:block;text-align:center;padding:9px;border-radius:5px;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--navy);transition:all .15s;}
+    .wh-pop-btn.primary{background:var(--navy);color:var(--cream);border-color:var(--navy);}
+    .wh-pop-btn.primary:hover{background:var(--navy2);}
+    .wh-pop-btn:hover{border-color:var(--navy);}
+    .wh-pop-admin{margin-top:11px;padding-top:11px;border-top:1px dashed var(--border2);display:flex;flex-direction:column;gap:7px;}
+  </style>
+  <style>
+    /* PORTFOLIO */
+    .wh-pf-toggle{display:inline-flex;background:var(--light);border:1px solid var(--border);border-radius:20px;padding:2px;}
+    .wh-pf-toggle button{font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border:none;background:transparent;color:var(--gray);border-radius:16px;transition:all .15s;}
+    .wh-pf-toggle button.active{background:var(--navy);color:var(--cream);}
+    .cc-filters{display:flex;gap:5px;flex-wrap:wrap;}
+    .cc-filter-btn{font-family:var(--font-body);font-size:11px;font-weight:500;padding:3px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--gray);transition:all .15s;}
+    .cc-filter-btn.active{background:var(--navy);border-color:var(--navy);color:var(--cream);}
+    .wh-tl-head{display:grid;grid-template-columns:1.7fr 3fr;gap:12px;padding:0 4px 8px;font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);border-bottom:1px solid var(--border);}
+    .wh-tl-group{margin-top:14px;}
+    .wh-tl-glabel{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;}
+    .wh-tl-glabel.building{color:var(--navy);font-weight:700;}
+    .wh-tl-row{display:grid;grid-template-columns:1.7fr 3fr;gap:12px;align-items:center;padding:9px 4px;border-radius:5px;transition:background .12s;}
+    .wh-tl-row:hover{background:var(--light);}
+    .wh-tl-meta{min-width:0;}
+    .wh-tl-name{font-size:13.5px;font-weight:600;color:var(--charcoal);line-height:1.3;display:flex;align-items:center;gap:7px;}
+    .wh-tl-tags{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
+    .wh-cat{font-size:10.5px;font-weight:500;padding:1px 8px;border-radius:11px;}
+    .wh-score{font-family:var(--font-mono);font-size:9px;color:var(--gray);}
+    .wh-stpill{font-family:var(--font-mono);font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:9px;}
+    .wh-stpill.building{background:rgba(74,158,107,.13);color:#2f7a4f;}
+    .wh-stpill.priority{background:rgba(37,80,168,.1);color:var(--rev);}
+    .wh-stpill.lot{background:rgba(11,31,74,.05);color:var(--gray);}
+    .wh-gantt{position:relative;height:26px;background:var(--light);border-radius:13px;overflow:hidden;display:flex;align-items:center;}
+    .wh-gantt-fill{height:100%;border-radius:13px;display:flex;align-items:center;justify-content:flex-end;padding-right:9px;min-width:34px;transition:width .5s ease;}
+    .wh-gantt-pct{font-family:var(--font-mono);font-size:9px;font-weight:500;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);}
+    .wh-tl-owner{font-family:var(--font-mono);font-size:9px;color:var(--gray);margin-top:4px;}
+    .wh-tl-owner b{color:var(--slate);font-weight:500;}
+    .wh-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    @media(max-width:760px){.wh-cols{grid-template-columns:1fr;}}
+    .wh-col-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .wh-col-lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+    .wh-col.building .wh-col-lbl{color:var(--navy);font-weight:700;}
+    .wh-col-count{font-family:var(--font-mono);font-size:9px;color:var(--gray);}
+    .wh-col-inner{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:10px;min-height:80px;display:flex;flex-direction:column;gap:9px;}
+    .wh-col.building .wh-col-inner{background:var(--cream);border:1.5px solid var(--live);}
+    .wh-col-hint{font-family:var(--font-mono);font-size:8px;color:var(--gray);margin-top:5px;letter-spacing:.04em;font-style:italic;}
+    .cc-empty{font-family:var(--font-mono);font-size:10px;color:var(--border2);padding:14px 0;text-align:center;letter-spacing:.06em;}
+    .wh-pcard{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:11px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+    .wh-pcard:hover{border-color:rgba(11,31,74,.22);box-shadow:0 2px 12px rgba(11,31,74,.07);}
+    .wh-pcard.cc-dragging{opacity:.32;}
+    .wh-pc-top{display:flex;align-items:flex-start;gap:8px;}
+    .wh-pc-name{font-size:13px;font-weight:600;color:var(--charcoal);line-height:1.3;margin-top:3px;}
+    .wh-pc-pct{font-family:var(--font-mono);font-size:15px;font-weight:500;color:var(--navy);flex-shrink:0;}
+    .wh-pc-prog{height:4px;background:var(--border);border-radius:2px;margin-top:9px;overflow:hidden;}
+    .wh-pc-prog i{display:block;height:100%;border-radius:2px;transition:width .4s ease;}
+    .cc-drag-handle{width:20px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin:-1px 2px 0 -2px;border-radius:3px;color:var(--navy);cursor:grab;flex-shrink:0;touch-action:none;user-select:none;font-size:12px;}
+    .cc-drag-handle:hover{background:rgba(11,31,74,.06);}
+    .cc-drag-handle:active{cursor:grabbing;}
+    .cc-drag-ghost{position:fixed;top:0;left:0;z-index:5000;pointer-events:none;opacity:.92;box-shadow:0 14px 44px rgba(11,31,74,.30);border-radius:5px;}
+    [data-cc-zone].cc-drag-over{outline:2px dashed var(--navy);outline-offset:-2px;background:rgba(11,31,74,.05)!important;}
+    .cc-icon-btns{display:flex;gap:4px;flex-shrink:0;}
+    .cc-icon-btn{width:25px;height:25px;display:flex;align-items:center;justify-content:center;border-radius:3px;border:1px solid var(--border);background:transparent;font-size:12px;line-height:1;padding:0;transition:all .15s;}
+    .cc-icon-btn.edit:hover{background:rgba(11,31,74,.07);border-color:var(--navy);}
+    .cc-icon-btn.trash:hover{background:rgba(180,40,40,.07);border-color:#b42828;}
+    .wh-pc-exp{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);}
+    .wh-pc-exp.open{display:block;}
+    .wh-pc-notes{font-size:12px;color:var(--gray);font-weight:300;line-height:1.55;margin-bottom:9px;}
+    .cc-move-btns{display:flex;gap:5px;flex-wrap:wrap;}
+    .cc-move-btn{font-family:var(--font-mono);font-size:8.5px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:3px;border:1px solid var(--border2);background:transparent;color:var(--gray);transition:all .15s;}
+    .cc-move-btn:hover{background:var(--navy);color:var(--cream);border-color:var(--navy);}
+    .wh-legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:13px;border-top:1px solid var(--border);}
+    .wh-leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray);}
+    .wh-leg-dot{width:7px;height:7px;border-radius:50%;}
+    .wh-score-note{font-family:var(--font-mono);font-size:8.5px;color:var(--gray);margin-left:auto;}
+    /* WORKFORCE */
+    .wh-wf-row{display:grid;grid-template-columns:1.6fr 2fr auto;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border);}
+    .wh-wf-row:last-child{border-bottom:none;}
+    @media(max-width:640px){.wh-wf-row{grid-template-columns:1fr auto;}.wh-wf-task{grid-column:1 / -1;order:3;}}
+    .wh-wf-name{font-size:12.5px;font-weight:600;color:var(--charcoal);display:flex;align-items:center;gap:7px;}
+    .wh-tierchip{font-family:var(--font-mono);font-size:7.5px;font-weight:500;letter-spacing:.04em;padding:1px 6px;border-radius:7px;background:rgba(11,31,74,.06);color:var(--slate);}
+    .wh-wf-cad{font-family:var(--font-mono);font-size:8.5px;color:var(--gray);margin-top:3px;letter-spacing:.03em;}
+    .wh-wf-task{font-size:12px;color:var(--gray);line-height:1.4;}
+    .wh-wf-task.editable{cursor:text;border-bottom:1px dashed transparent;}
+    .wh-wf-task.editable:hover{border-bottom-color:var(--border2);}
+    .wh-wf-right{display:flex;align-items:center;gap:8px;justify-self:end;}
+    .wh-stat{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:8.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);}
+    .wh-stat .d{width:7px;height:7px;border-radius:50%;}
+    .wh-stat.active .d{background:var(--live);}
+    .wh-graph.motion-on ~ * .wh-stat.active .d,.wh-stat.active .d{animation:whDot 2.4s ease-in-out infinite;}
+    .wh-stat.idle .d{background:#c9a23a;animation:none;}
+    .wh-stat.planned .d{background:var(--border2);animation:none;}
+    .wh-pri{font-family:var(--font-mono);font-size:7.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:9px;}
+    .wh-pri.high{background:rgba(224,123,42,.13);color:#b65f1c;}
+    .wh-pri.medium{background:rgba(37,80,168,.1);color:var(--rev);}
+    .wh-pri.low{background:rgba(11,31,74,.05);color:var(--gray);}
+    /* TEAM */
+    .wh-team-cap{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.06em;color:var(--gray);}
+    .wh-team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+    .wh-tm{display:flex;align-items:center;gap:10px;padding:10px;background:var(--light);border:1px solid var(--border);border-radius:6px;}
+    .wh-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;font-weight:500;color:#fff;}
+    .wh-tm-meta{min-width:0;}
+    .wh-tm-name{font-size:12.5px;font-weight:600;color:var(--charcoal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wh-tm-role{font-size:10.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wh-tm-kind{font-family:var(--font-mono);font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);}
+    /* MARKETING */
+    .wh-mkt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    @media(max-width:980px){.wh-mkt-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.wh-mkt-grid{grid-template-columns:1fr;}}
+    .wh-mkt-tile{background:var(--light);border:1px solid var(--border);border-radius:6px;padding:14px;}
+    .wh-mkt-eye{font-family:var(--font-mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);}
+    .wh-mkt-tile h4{font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--navy);margin:7px 0;line-height:1.35;}
+    .wh-week{display:flex;gap:5px;margin-top:8px;}
+    .wh-week i{width:18px;height:6px;border-radius:3px;background:var(--border2);}
+    .wh-week i.done{background:var(--live);}
+    .wh-funnel{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+    .wh-fn{display:flex;align-items:center;gap:8px;}
+    .wh-fn-lbl{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.04em;color:var(--gray);width:62px;flex-shrink:0;}
+    .wh-fn-bar{flex:1;height:8px;background:var(--white);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+    .wh-fn-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--rev),var(--navy));}
+    .wh-fn-n{font-family:var(--font-mono);font-size:9px;color:var(--slate);width:26px;text-align:right;}
+    .wh-aeo{font-family:var(--font-head);font-size:17px;font-weight:600;font-style:italic;color:var(--navy);line-height:1.3;margin-top:8px;cursor:pointer;}
+    .wh-mkt-offer{display:inline-flex;align-items:center;gap:7px;margin-top:10px;background:var(--orange);color:#fff;font-size:12px;font-weight:600;padding:8px 14px;border-radius:4px;transition:background .2s;}
+    .wh-mkt-offer:hover{background:#C96A1A;}
+    .wh-mkt-live{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#2f7a4f;margin-top:8px;}
+    .wh-mkt-live .d{width:7px;height:7px;border-radius:50%;background:var(--live);}
+    /* CHIPS / SETTINGS / BOTTOMBAR */
+    .wh-chips{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+    .wh-chip{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;color:rgba(255,255,255,.35);}
+    .wh-chip.on{color:rgba(255,255,255,.7);}
+    .wh-set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--border);}
+    .wh-set-row:last-child{border-bottom:none;}
+    .wh-set-l b{display:block;font-size:13px;font-weight:600;color:var(--charcoal);}
+    .wh-set-l span{font-size:11.5px;color:var(--gray);}
+    .wh-bottombar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy);z-index:120;padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));justify-content:space-around;border-top:1px solid rgba(255,255,255,.08);}
+    .wh-bb-item{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:rgba(247,244,239,.55);padding:5px 8px;flex:1;}
+    .wh-bb-item svg{width:19px;height:19px;}
+    .wh-bb-item span{font-family:var(--font-mono);font-size:7px;letter-spacing:.04em;text-transform:uppercase;}
+    .wh-bb-item.active{color:var(--orange);}
+    /* MODAL */
+    #cc-modal-overlay{display:none;position:fixed;inset:0;background:rgba(7,21,47,.5);z-index:2000;align-items:center;justify-content:center;padding:16px;}
+    #cc-modal-overlay.open{display:flex;}
+    #cc-modal{background:var(--white);border:1px solid var(--border2);border-radius:10px;padding:28px;width:min(480px,94vw);max-height:88vh;overflow-y:auto;box-shadow:var(--shadow2);}
+    .cc-modal-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+    .cc-modal-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--gray);margin-bottom:20px;}
+    .cc-field-lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:5px;margin-top:14px;}
+    .cc-finput{width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;color:var(--charcoal);padding:9px 12px;font-size:13px;font-family:var(--font-body);outline:none;transition:border .15s;}
+    .cc-finput:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,31,74,.06);}
+    .cc-num-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;}
+    .cc-modal-actions{display:flex;gap:10px;margin-top:24px;}
+    .cc-btn-save{flex:1;padding:11px;background:var(--navy);border:none;border-radius:3px;color:var(--cream);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:background .2s;}
+    .cc-btn-save:hover:not(:disabled){background:var(--navy2);}
+    .cc-btn-save:disabled{opacity:.4;cursor:not-allowed;}
+    .cc-btn-cancel{padding:11px 20px;background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--gray);font-size:13px;transition:border-color .15s;}
+    .cc-btn-cancel:hover{border-color:var(--navy);color:var(--navy);}
+    /* FOOTER */
+    .footer-cta{background:var(--navy);padding:56px 40px;text-align:center;}
+    .footer-cta h2{font-family:var(--font-head);font-size:clamp(28px,4vw,42px);font-weight:600;color:var(--white);margin-bottom:12px;}
+    .footer-cta p{color:rgba(255,255,255,.55);font-size:15px;margin-bottom:28px;font-weight:300;}
+    .btn-primary{display:inline-block;background:var(--orange);color:#fff;padding:13px 30px;border-radius:4px;font-size:14px;font-weight:600;transition:background .2s;}
+    .btn-primary:hover{background:#C96A1A;}
+    .footer-cta-note{margin-top:16px;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:rgba(255,255,255,.4);}
+    footer{background:var(--navy2);padding:22px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;font-size:12px;color:rgba(255,255,255,.5);}
+    footer a{color:rgba(255,255,255,.6);transition:color .15s;}
+    footer a:hover{color:#fff;}
+    @media(max-width:1100px){.wh-sidebar{width:62px;}.wh-sidebar .wh-side-title,.wh-sidebar .wh-ni-lbl,.wh-sidebar .wh-side-foot{opacity:0;width:0;display:none;}.wh-sidebar .wh-nav-item{justify-content:center;padding:9px 0;}}
+    @media(max-width:760px){
+      nav{padding:0 18px;}.breadcrumb{padding:0 18px;}
+      .burger{display:flex;}.nav-links,.nav-cta{display:none;}
+      .wh-sidebar{display:none;}.wh-bottombar{display:flex;}.wh-main{padding-bottom:78px;}
+      .footer-cta,footer{padding-left:20px;padding-right:20px;}
+    }
+  </style>
+</head>
+<body>
+<!-- NAV (preserved) -->
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html" class="active">Lab</a></li>
+  </ul>
+  <a href="../contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html">Lab</a></li>
+    <li><a href="../contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+<!-- BREADCRUMB -->
+<div class="breadcrumb"><div class="breadcrumb-inner">
+  <a href="../lab/index.html">Lab</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">The Wheelhouse</span>
+</div></div>
+
+<!-- THE WHEELHOUSE -->
+<section id="wh-app"><div class="wh-shell">
+  <aside class="wh-sidebar" id="wh-sidebar">
+    <div class="wh-side-head">
+      <span class="wh-side-title">SeaLegs OS</span>
+      <button class="wh-collapse" id="wh-collapse" onclick="whToggleSidebar()" title="Collapse" aria-label="Collapse sidebar">‹</button>
+    </div>
+    <nav id="wh-nav"></nav>
+    <div class="wh-side-foot"><div class="wh-icp">ICP · 150–500-employee Shopify Plus consumer brands. Cut 20–30% of tool spend; wire the survivors into one system.</div></div>
+  </aside>
+
+  <main class="wh-main">
+    <div class="wh-topbar">
+      <div class="wh-tb-titles">
+        <div class="wh-tb-eyebrow">Live cockpit · SeaLegs OS</div>
+        <h1 class="wh-tb-title" id="wh-view-title">The <em>Wheelhouse</em></h1>
+      </div>
+      <div class="wh-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="wh-search" type="search" placeholder="Search projects…" oninput="ccRender()" aria-label="Search projects" />
+      </div>
+      <span class="wh-badge demo" id="cc-demo-badge">Demo Mode</span>
+      <button class="cc-lock-btn" id="cc-lock-btn" onclick="ccLockClick()" title="Admin login" aria-label="Admin login">🔒</button>
+    </div>
+
+    <!-- KPI CARDS — WIRED (computed) + 1 DEMO hero -->
+    <div class="wh-kpis" data-views="overview projects pipeline">
+      <div class="wh-kpi"><div class="wh-kpi-lbl">Total Projects</div><div class="wh-kpi-val" id="wh-kpi-total">—</div><div class="wh-kpi-sub">across all categories</div></div>
+      <div class="wh-kpi"><div class="wh-kpi-lbl">In The Building</div><div class="wh-kpi-val" id="wh-kpi-active">—</div><div class="wh-kpi-sub">active right now</div></div>
+      <div class="wh-kpi"><div class="wh-kpi-lbl">Avg Completion</div><div class="wh-kpi-val" id="wh-kpi-avg">—</div><div class="wh-kpi-sub">portfolio progress</div></div>
+      <div class="wh-kpi hero editable" onclick="whEditPipelineValue()" title="Admin: click to edit"><div class="wh-kpi-lbl">Pipeline Value</div><div class="wh-kpi-val" id="wh-kpi-pipeline">$180K</div><div class="wh-kpi-sub" id="wh-kpi-pipeline-sub">3 active opportunities</div></div>
+    </div>
+
+    <div class="wh-board">
+      <!-- ⭐ SEALEGS NEURAL NETWORK (always present) -->
+      <section class="wh-panel wh-network-panel" data-views="overview projects workforce pipeline marketing timelines settings">
+        <div class="wh-phead">
+          <div class="wh-ph-l"><div class="wh-ph-eye">Agentic system · live</div><div class="wh-ph-name">SeaLegs <em>neural network</em></div></div>
+          <div class="wh-net-tools"><button class="wh-motion" id="wh-motion-btn" onclick="whToggleMotion()" aria-pressed="true"><span class="wh-m-dot"></span><span id="wh-motion-lbl">Motion</span></button></div>
+        </div>
+        <div class="wh-net-wrap wh-graph" id="wh-graph">
+          <svg class="wh-net-svg" id="wh-net-svg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid meet" role="img" aria-label="SeaLegs agent network. Tap a node for detail."></svg>
+        </div>
+        <div class="wh-net-legend">
+          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--navy)"></span>Revenue chain</div>
+          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--ops)"></span>Operations chain</div>
+          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--live)"></span>Live agent</div>
+          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--border2)"></span>Planned</div>
+          <div class="wh-nl"><span class="wh-nl-dot" style="background:var(--orange)"></span>Brian / human</div>
+          <span class="wh-net-note">Make.com orchestrates · Claude reasons</span>
+        </div>
+      </section>
+
+      <div class="wh-stack">
+        <!-- PROJECT PORTFOLIO — WIRED -->
+        <section class="wh-panel wh-portfolio" data-views="overview projects pipeline timelines">
+          <div class="wh-phead">
+            <div class="wh-ph-l"><div class="wh-ph-eye">Portfolio <span class="wh-tag-wired" id="wh-pf-tag">Wired · Supabase</span></div><div class="wh-ph-name">Project <em>portfolio</em></div></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div class="wh-pf-toggle">
+                <button class="active" id="wh-pf-tl" onclick="ccSetPortfolioView('timeline',this)">▭ Timeline</button>
+                <button id="wh-pf-bd" onclick="ccSetPortfolioView('board',this)">▥ Board</button>
+              </div>
+              <button class="cc-move-btn" id="cc-park-btn" onclick="ccOpenModal()" style="display:none;padding:6px 12px;">+ New Project</button>
+            </div>
+          </div>
+          <div class="wh-pbody">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><div class="cc-filters" id="wh-filters"></div></div>
+            <div class="cc-empty" id="cc-loading">Loading projects…</div>
+            <div id="wh-pf-view"></div>
+            <div class="wh-legend" id="wh-pf-legend"></div>
+          </div>
+        </section>
+
+        <!-- AI WORKFORCE — DEMO-SEEDED (roster real; task text editable in admin) -->
+        <section class="wh-panel wh-workforce" data-views="overview workforce marketing">
+          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Agent tasks <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">AI <em>workforce</em></div></div></div>
+          <div class="wh-pbody" id="wh-workforce-body" style="padding-top:6px;"></div>
+        </section>
+
+        <!-- TEAM — DEMO-SEEDED.  // TODO: wire team + project_assignments tables -->
+        <section class="wh-panel wh-team" data-views="overview projects workforce">
+          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">On active projects <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">The <em>crew</em></div></div><span class="wh-team-cap">Capacity · 2–3 concurrent DFY</span></div>
+          <div class="wh-pbody" id="wh-team-body"></div>
+        </section>
+
+        <!-- PIPELINE FUNNEL — DEMO-SEEDED (pipeline view) -->
+        <section class="wh-panel wh-pipeline wh-hidden" data-views="pipeline">
+          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Revenue funnel <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">Pipeline <em>flow</em></div></div></div>
+          <div class="wh-pbody" id="wh-pipeline-body"></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="wh-panel wh-settings wh-hidden" data-views="settings">
+          <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Cockpit settings</div><div class="wh-ph-name"><em>Settings</em></div></div></div>
+          <div class="wh-pbody" id="wh-settings-body"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- MARKETING / GROWTH STRIP — DEMO-SEEDED -->
+    <section class="wh-panel wh-marketing" data-views="overview marketing pipeline">
+      <div class="wh-phead"><div class="wh-ph-l"><div class="wh-ph-eye">Go-to-market <span class="wh-tag-demo">Demo-seeded</span></div><div class="wh-ph-name">Growth <em>levers</em></div></div><span class="wh-net-note">Drag a card, it patches Supabase live — SeaLegs in production.</span></div>
+      <div class="wh-pbody"><div class="wh-mkt-grid" id="wh-mkt-grid"></div></div>
+    </section>
+  </main>
+</div>
+<nav class="wh-bottombar" id="wh-bottombar"></nav>
+</section>
+
+<!-- FOOTER CTA (preserved) -->
+<section class="footer-cta">
+  <h2>This is what AI clarity looks like.</h2>
+  <p>We become part of your team — and we don't leave until it works.</p>
+  <a href="../contact.html" class="btn-primary">Book a Free Audit →</a>
+  <div class="footer-cta-note">Currently accepting Q3 2026 engagements — limited slots per month</div>
+</section>
+<!-- FOOTER (preserved) -->
+<footer>
+  <span>© 2026 The Clear Stack · theclearstack.com</span>
+  <div class="wh-chips" id="wh-footer-chips"></div>
+  <div style="display:flex;gap:24px;align-items:center;"><a href="../index.html">Home</a><a href="../method.html">Method</a><a href="../contact.html">Contact</a></div>
+</footer>
+
+<!-- ADD/EDIT PROJECT MODAL (preserved IDs) -->
+<div id="cc-modal-overlay"><div id="cc-modal">
+  <div class="cc-modal-title">New Project</div>
+  <div class="cc-modal-sub">Capture · Score · Park</div>
+  <label class="cc-field-lbl">Project Name</label>
+  <input class="cc-finput" id="cc-f-name" placeholder="What's the idea?" />
+  <label class="cc-field-lbl">Category</label>
+  <select class="cc-finput" id="cc-f-cat"><option value="SeaLegs">SeaLegs</option><option value="TCS" selected>TCS</option><option value="Client">Client</option><option value="Personal">Personal</option></select>
+  <label class="cc-field-lbl">Status</label>
+  <select class="cc-finput" id="cc-f-status"><option value="lot">The Lot — Parked</option><option value="priority">Next Up — Priority</option><option value="building">In The Building — Active</option></select>
+  <label class="cc-field-lbl">Notes</label>
+  <textarea class="cc-finput" id="cc-f-notes" rows="3" placeholder="What's known so far?"></textarea>
+  <div class="cc-num-row">
+    <div><label class="cc-field-lbl">Revenue (1–5)</label><input class="cc-finput" id="cc-f-rev" type="number" min="1" max="5" value="3" /></div>
+    <div><label class="cc-field-lbl">Done %</label><input class="cc-finput" id="cc-f-pct" type="number" min="0" max="100" value="0" /></div>
+    <div><label class="cc-field-lbl">Effort (1–5)</label><input class="cc-finput" id="cc-f-eff" type="number" min="1" max="5" value="3" /></div>
+  </div>
+  <label class="cc-field-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="cc-f-public" style="width:auto;margin:0;accent-color:var(--orange);" /> Show on public site</label>
+  <div class="cc-modal-actions"><button class="cc-btn-save" id="cc-save-btn" onclick="ccSaveProject()">Park It →</button><button class="cc-btn-cancel" onclick="ccCloseModal()">Cancel</button></div>
+</div></div>
+
+<!-- ADMIN AUTH MODAL (preserved IDs + flow) -->
+<div id="cc-auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(7,21,47,0.85);align-items:center;justify-content:center;z-index:2400;padding:20px;">
+  <div style="background:var(--white);border-radius:14px;padding:32px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(7,21,47,0.3);">
+    <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+    <div style="font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:8px;">Admin Access</div>
+    <div style="color:var(--gray);font-size:13px;margin-bottom:20px;">Enter the admin password to unlock full edit access.</div>
+    <div style="text-align:left;margin-bottom:14px;">
+      <label style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:6px;">Password</label>
+      <input type="password" id="cc-auth-input" placeholder="••••••••" style="width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;font-size:14px;outline:none;font-family:var(--font-body);box-sizing:border-box;" onkeydown="if(event.key==='Enter')ccAuthSubmit()" />
+    </div>
+    <div id="cc-auth-error" style="display:none;background:#fff5f5;border:1px solid rgba(220,53,69,0.2);border-radius:4px;padding:10px 14px;color:#c0392b;font-size:13px;margin-bottom:14px;text-align:left;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="ccAuthSubmit()" id="cc-auth-btn" style="flex:1;padding:11px;background:var(--navy);border:none;border-radius:3px;color:var(--cream);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Unlock</button>
+      <button onclick="ccAuthCancel()" style="padding:11px 18px;background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--gray);font-family:var(--font-body);font-size:13px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="wh-tip" id="wh-tip"></div>
+<div class="wh-pop" id="wh-pop"></div>
+<script>
+/* ════ THE WHEELHOUSE — SeaLegs OS cockpit ════
+   Production plumbing (constants, auth, proxy, ops, scoring, schema,
+   drag) preserved from command-center.html. Only wiring change: public
+   read targets projects_demo (CC_PUBLIC_TABLE), with a demo-seed
+   fallback so a public screen-share is never blank. */
+
+/* ── SUPABASE CONSTANTS (unchanged — anon key is public + RLS-gated) ── */
+const CC_URL  = 'https://aicnfrbafeydlrkvsprd.supabase.co';
+const CC_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
+/* PUBLIC read target. Was 'projects'; security doc designates
+   'projects_demo' (public, SELECT-only). Flip back to 'projects' if
+   projects_demo is not yet created. */
+const CC_PUBLIC_TABLE = 'projects_demo';
+const WH_MAKE_BASE = 'https://us2.make.com/2390559/scenarios/';
+const WH_BOOKING   = 'https://calendar.app.google/xwjtMtmxEiw68Qpo8';
+
+/* ── AUTH STATE — browser NEVER holds the service_role key ── */
+let ccIsAdmin = false, ccToken = null;
+function ccLockClick(){
+  if(ccIsAdmin){ ccIsAdmin=false; ccToken=null; sessionStorage.removeItem('cc_token'); ccUpdateAdminUI(); ccLoad(); }
+  else{
+    document.getElementById('cc-auth-overlay').style.display='flex';
+    document.getElementById('cc-auth-input').value='';
+    document.getElementById('cc-auth-error').style.display='none';
+    setTimeout(()=>document.getElementById('cc-auth-input').focus(),100);
+  }
+}
+async function ccAuthSubmit(){
+  const pw=document.getElementById('cc-auth-input').value;
+  const btn=document.getElementById('cc-auth-btn'), err=document.getElementById('cc-auth-error');
+  if(!pw) return;
+  btn.textContent='Checking…'; btn.disabled=true; err.style.display='none';
+  try{
+    const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    let data={}; try{data=await res.json();}catch(_){}
+    if(!res.ok||!data.token) throw new Error(data.error||(res.status===404?'Login endpoint not found — deploy functions/api/auth.js':'Incorrect password'));
+    ccIsAdmin=true; ccToken=data.token; sessionStorage.setItem('cc_token',data.token);
+    document.getElementById('cc-auth-overlay').style.display='none';
+    ccUpdateAdminUI(); ccLoad();
+  }catch(e){
+    err.textContent=e.message; err.style.display='block';
+    document.getElementById('cc-auth-input').value=''; document.getElementById('cc-auth-input').focus();
+  }
+  btn.textContent='Unlock'; btn.disabled=false;
+}
+function ccAuthCancel(){ document.getElementById('cc-auth-overlay').style.display='none'; }
+function ccUpdateAdminUI(){
+  const lockBtn=document.getElementById('cc-lock-btn'), parkBtn=document.getElementById('cc-park-btn');
+  const demoBadge=document.getElementById('cc-demo-badge'), pfTag=document.getElementById('wh-pf-tag');
+  if(ccIsAdmin){
+    lockBtn.textContent='🔓'; lockBtn.classList.add('unlocked'); lockBtn.title='Admin — click to lock';
+    parkBtn.style.display='inline-flex';
+    demoBadge.textContent='Admin'; demoBadge.className='wh-badge admin';
+    if(pfTag) pfTag.textContent='Wired · live (projects)';
+  }else{
+    lockBtn.textContent='🔒'; lockBtn.classList.remove('unlocked'); lockBtn.title='Admin login';
+    parkBtn.style.display='none';
+    demoBadge.textContent='Demo Mode'; demoBadge.className='wh-badge demo';
+    if(pfTag) pfTag.textContent='Wired · Supabase';
+  }
+  whRenderSettings(); whRenderWorkforce(); whRenderMarketing();
+}
+(function ccRestoreSession(){ const t=sessionStorage.getItem('cc_token'); if(t){ccIsAdmin=true;ccToken=t;} })();
+
+/* ── CATEGORIES + SCORING (unchanged) ── */
+const CC_CATS={
+  SeaLegs:{color:'#334155',bg:'rgba(51,65,85,0.08)'},
+  TCS:{color:'#0B1F4A',bg:'rgba(11,31,74,0.07)'},
+  Client:{color:'#2550A8',bg:'rgba(37,80,168,0.08)'},
+  Personal:{color:'#5A6478',bg:'rgba(90,100,120,0.06)'}
+};
+let ccProjects=[], ccPortfolioView='timeline', ccFilter='ALL', ccExpanded={};
+function ccScore(p){ return (p.revenue*2)+(p.completion/20)-p.effort; }
+function ccSorted(arr){ return [...arr].sort((a,b)=>ccScore(b)-ccScore(a)); }
+function ccProgressColor(pct){ let r,g,b=0; if(pct<=50){r=200;g=Math.round(pct*3.6);} else{r=Math.round(200-(pct-50)*3.2);g=180;} return `rgb(${r},${g},${b})`; }
+function whEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ── DEMO SEED (public fallback). Maps to real schema; fictional brands ── */
+const CC_DEMO_SEED=[
+  {id:'demo-1',name:'Harbor & Hyde — DTC Stack Audit',category:'Client',status:'building',revenue:5,completion:64,effort:3,notes:'90-day DFY engagement. Catalog complete; consolidating 31 overlapping apps down to a connected core.',is_public:true,created_at:'2026-05-02T10:00:00Z'},
+  {id:'demo-2',name:'T3 Signal Puller — Build',category:'SeaLegs',status:'priority',revenue:4,completion:20,effort:3,notes:'Awaiting Apollo Basic tier to unlock LinkedIn/Apollo signal pulling under T2 Research.',is_public:true,created_at:'2026-05-09T10:00:00Z'},
+  {id:'demo-3',name:'Playbook PDF v2 — E-commerce',category:'TCS',status:'priority',revenue:3,completion:35,effort:2,notes:'Top-of-funnel $49 download. Rewritten for the e-commerce / Shopify Plus ICP.',is_public:true,created_at:'2026-05-15T10:00:00Z'},
+  {id:'demo-4',name:'Maris & Co — Retention Rewire',category:'Client',status:'lot',revenue:5,completion:0,effort:4,notes:'Lifecycle + retention stack consolidation. Scoping first call.',is_public:true,created_at:'2026-05-20T10:00:00Z'},
+  {id:'demo-5',name:'SeaLegs Market — First Template',category:'SeaLegs',status:'lot',revenue:4,completion:10,effort:3,notes:'First marketplace template — productize the outreach loop.',is_public:true,created_at:'2026-05-24T10:00:00Z'},
+  {id:'demo-6',name:'Q3 Coaching Cohort — Launch',category:'TCS',status:'lot',revenue:3,completion:15,effort:3,notes:'$997–$2,500 cohort. Curriculum outline in progress.',is_public:true,created_at:'2026-05-28T10:00:00Z'}
+];
+/* owner per project (DEMO-SEEDED, in-page).  // TODO: project_assignments table */
+let whOwners={
+  'Harbor & Hyde — DTC Stack Audit':'Brian + T1 Helm','T3 Signal Puller — Build':'T2 Research',
+  'Playbook PDF v2 — E-commerce':'T2 Content','Maris & Co — Retention Rewire':'Unassigned',
+  'SeaLegs Market — First Template':'Brian','Q3 Coaching Cohort — Launch':'T2 Content'
+};
+
+/* ── DATA LAYER (contracts unchanged) ── */
+async function ccReadPublic(){
+  try{
+    const r=await fetch(`${CC_URL}/rest/v1/${CC_PUBLIC_TABLE}?select=*&order=created_at.asc`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    if(!r.ok) throw new Error(await r.text());
+    const t=await r.text(); const rows=t?JSON.parse(t):[];
+    return rows.length?rows:CC_DEMO_SEED;
+  }catch(e){ console.warn('Public read failed; using demo seed:',e); return CC_DEMO_SEED; }
+}
+async function ccProxy(op,payload={}){
+  const r=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ccToken||''}`},body:JSON.stringify({op,...payload})});
+  if(r.status===401){ ccIsAdmin=false; ccToken=null; sessionStorage.removeItem('cc_token'); ccUpdateAdminUI(); throw new Error('Session expired — please log in again.'); }
+  if(!r.ok) throw new Error(await r.text());
+  const t=await r.text(); return t?JSON.parse(t):[];
+}
+function ccReadFields(){
+  return {
+    name:document.getElementById('cc-f-name').value.trim(),
+    category:document.getElementById('cc-f-cat').value,
+    status:document.getElementById('cc-f-status').value,
+    notes:document.getElementById('cc-f-notes').value.trim()||null,
+    revenue:parseInt(document.getElementById('cc-f-rev').value)||3,
+    completion:parseInt(document.getElementById('cc-f-pct').value)||0,
+    effort:parseInt(document.getElementById('cc-f-eff').value)||3,
+    is_public:document.getElementById('cc-f-public').checked
+  };
+}
+async function ccLoad(){
+  const ld=document.getElementById('cc-loading'); ld.style.display='block'; ld.textContent='Loading projects…';
+  ccUpdateAdminUI();
+  try{ ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic(); ccRender(); }
+  catch(e){ ld.textContent=ccIsAdmin?'Admin load failed — deploy functions/api/projects.js & set env vars (see console).':'Could not connect — check console.'; console.error('CC Load:',e); }
+}
+async function ccSaveProject(){
+  if(!ccIsAdmin) return;
+  const name=document.getElementById('cc-f-name').value.trim(); if(!name){document.getElementById('cc-f-name').focus();return;}
+  const btn=document.getElementById('cc-save-btn'); btn.disabled=true; btn.textContent='Saving…';
+  try{ const rows=await ccProxy('insert',{row:ccReadFields()}); if(rows&&rows[0]) ccProjects.push(rows[0]); ccCloseModal(); ccRender(); }
+  catch(e){ btn.textContent='Error — try again'; btn.disabled=false; console.error('CC Save:',e); }
+}
+async function ccUpdateProject(id){
+  if(!ccIsAdmin) return;
+  const btn=document.getElementById('cc-save-btn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const fields=ccReadFields();
+    await ccProxy('update',{id,patch:{...fields,updated_at:new Date().toISOString()}});
+    ccProjects=ccProjects.map(p=>p.id===id?{...p,...fields}:p);
+    ccCloseModal(); const b=document.getElementById('cc-save-btn'); b.onclick=ccSaveProject; ccRender();
+  }catch(e){ btn.textContent='Error — try again'; btn.disabled=false; console.error('CC Update:',e); }
+}
+async function ccDeleteProject(id){
+  if(!ccIsAdmin) return;
+  const p=ccProjects.find(x=>x.id===id); if(!p) return;
+  if(!confirm('Delete "'+p.name+'"? This cannot be undone.')) return;
+  try{ await ccProxy('delete',{id}); ccProjects=ccProjects.filter(x=>x.id!==id); ccRender(); }
+  catch(e){ console.error('CC Delete:',e); alert('Delete failed — '+e.message); }
+}
+async function ccMove(id,status){
+  if(!ccIsAdmin) return;
+  try{ await ccProxy('update',{id,patch:{status,updated_at:new Date().toISOString()}}); ccProjects=ccProjects.map(p=>p.id===id?{...p,status}:p); ccRender(); }
+  catch(e){ console.error('CC Move:',e); alert(e.message); }
+}
+
+/* ════ SEALEGS AGENT ROSTER (real system) → neural network ════ */
+const WH_AGENTS=[
+  {id:'brain',label:'SeaLegs OS',full:'SeaLegs OS — orchestration core',tier:'core',kind:'brain',status:'live',chain:'core',view:'overview',role:'The autonomous operating system. Routes work between the revenue and operations chains.',x:500,y:350,r:38,delay:0},
+  {id:'brian',label:'Brian',full:'Brian Burge — Strategy & Exceptions',tier:'T0',kind:'human',status:'live',chain:'core',view:'overview',role:'Founder & CRO. Sets strategy and handles exceptions only — the system runs the rest.',x:500,y:118,r:25,delay:.3},
+  {id:'inbound',label:'Inbound',full:'Inbound Lead Handler',tier:'Standalone',kind:'std',status:'live',chain:'Revenue',view:'pipeline',scenario:'5305500',role:'Watches the inbound form + email and routes new leads into the revenue chain.',x:500,y:602,r:16,delay:.9},
+  {id:'bridge',label:'Bridge',full:'T1 Bridge — Revenue Super Agent',tier:'T1',kind:'agent',status:'live',chain:'Revenue',view:'pipeline',scenario:'5328623',role:'Orchestrates revenue ops. Monitors pipeline; delegates to Research and Outreach. Never executes.',x:335,y:350,r:23,delay:.2},
+  {id:'research',label:'Research',full:'T2 Research — Market Intelligence',tier:'T2',kind:'agent',status:'live',chain:'Revenue',view:'pipeline',scenario:'5313062',role:'Prospect intelligence and stack discovery for qualified domains.',x:208,y:232,r:19,delay:.5},
+  {id:'outreach',label:'Outreach',full:'T2 Outreach — Business Development',tier:'T2',kind:'agent',status:'live',chain:'Revenue',view:'pipeline',scenario:'5331882',role:'Executes outreach sequences and books discovery calls.',x:208,y:470,r:19,delay:.6},
+  {id:'scanner',label:'Stack Scanner',full:'T3 Stack Scanner — WebReveal',tier:'T3',kind:'worker',status:'live',chain:'Revenue',view:'pipeline',scenario:'5294059',role:'One task: pull a prospect\u2019s live tech stack via WebReveal.',x:80,y:150,r:12,delay:.8},
+  {id:'enricher',label:'Enricher',full:'T3 Enricher — Apollo',tier:'T3',kind:'worker',status:'live',chain:'Revenue',view:'pipeline',scenario:'5310700',role:'One task: enrich a contact/company via the Apollo API.',x:80,y:230,r:12,delay:1.0},
+  {id:'signal',label:'Signal Puller',full:'T3 Signal Puller — LinkedIn/Apollo',tier:'T3',kind:'worker',status:'planned',chain:'Revenue',view:'pipeline',role:'Planned: pull buying signals from LinkedIn/Apollo. Unlocks at Apollo Basic tier.',x:80,y:310,r:12,delay:1.2},
+  {id:'seqwriter',label:'Seq Writer',full:'T3 Sequence Writer — Claude',tier:'T3',kind:'worker',status:'live',chain:'Revenue',view:'pipeline',role:'One task: draft outreach sequence copy with the Claude API.',x:80,y:410,r:12,delay:1.3},
+  {id:'reply',label:'Reply Router',full:'Reply Router / Intake',tier:'T3',kind:'worker',status:'live',chain:'Revenue',view:'pipeline',scenario:'5339905',role:'One task: classify inbound replies and route them for action.',x:80,y:490,r:12,delay:1.1},
+  {id:'executor',label:'Executor',full:'T3 Executor — Approved Send (Gmail)',tier:'T3',kind:'worker',status:'live',chain:'Revenue',view:'pipeline',scenario:'5373796',role:'One task: send only human-approved messages via Gmail, capped \u2264 50/day.',x:80,y:570,r:12,delay:.9},
+  {id:'helm',label:'Helm',full:'T1 Helm — Operations Super Agent',tier:'T1',kind:'agent',status:'live',chain:'Operations',view:'projects',scenario:'5343547',role:'Orchestrates delivery, content, and support. Delegates to Content and Support.',x:665,y:350,r:23,delay:.25},
+  {id:'content',label:'Content',full:'T2 Content — Brand & Authority',tier:'T2',kind:'agent',status:'live',chain:'Operations',view:'marketing',scenario:'5341843',role:'LinkedIn posts, newsletters, and case-study drafts.',x:792,y:232,r:19,delay:.55},
+  {id:'support',label:'Support',full:'T2 Support — Client Success',tier:'T2',kind:'agent',status:'live',chain:'Operations',view:'projects',scenario:'5342796',role:'Inbound inquiries and client communications.',x:792,y:470,r:19,delay:.65},
+  {id:'draftwriter',label:'Draft Writer',full:'T3 Draft Writer — Claude (LinkedIn)',tier:'T3',kind:'worker',status:'live',chain:'Operations',view:'marketing',role:'One task: draft LinkedIn posts with the Claude API.',x:920,y:185,r:12,delay:1.0},
+  {id:'publisher',label:'Publisher',full:'T3 Publisher — LinkedIn',tier:'T3',kind:'worker',status:'planned',chain:'Operations',view:'marketing',role:'Planned: publish approved posts to LinkedIn. Manual for now.',x:920,y:285,r:12,delay:1.3},
+  {id:'intake',label:'Intake',full:'T3 Intake / Response Drafter',tier:'T3',kind:'worker',status:'live',chain:'Operations',view:'projects',role:'One task: draft client responses for review.',x:920,y:470,r:12,delay:1.1}
+];
+const WH_BY_ID={}; WH_AGENTS.forEach(a=>WH_BY_ID[a.id]=a);
+const WH_EDGES=[
+  ['brain','brian'],['brain','bridge'],['brain','helm'],['brain','inbound'],
+  ['bridge','research'],['bridge','outreach'],
+  ['research','scanner'],['research','enricher'],['research','signal'],
+  ['outreach','seqwriter'],['outreach','reply'],['outreach','executor'],
+  ['helm','content'],['helm','support'],
+  ['content','draftwriter'],['content','publisher'],['support','intake']
+];
+const WH_CHILDREN={}; WH_EDGES.forEach(([p,c])=>{(WH_CHILDREN[p]=WH_CHILDREN[p]||[]).push(c);});
+function whSubtree(id){ const set=new Set([id]),stack=[id]; while(stack.length){const n=stack.pop();(WH_CHILDREN[n]||[]).forEach(c=>{if(!set.has(c)){set.add(c);stack.push(c);}});} return set; }
+
+function whNodePalette(n){
+  if(n.kind==='brain') return {fill:'#0B1F4A',ring:'#2550A8',aura:'rgba(37,80,168,.30)'};
+  if(n.kind==='human') return {fill:'#E07B2A',ring:'#C96A1A',aura:'rgba(224,123,42,.30)'};
+  const liveAura=n.chain==='Operations'?'rgba(62,124,140,.30)':'rgba(37,80,168,.28)';
+  return {fill:n.chain==='Operations'?'#334155':'#0B1F4A',ring:n.status==='live'?'#4A9E6B':'rgba(11,31,74,0.18)',aura:n.status==='live'?liveAura:'transparent'};
+}
+function whGlyph(n){
+  if(n.kind==='brain') return '<g class="wh-glyph" stroke="#cfe0ff" stroke-width="2" fill="none" opacity=".9"><path d="M-9,-4 a5,5 0 0 1 9,-3 a5,5 0 0 1 9,3 v8 a5,5 0 0 1 -9,3 a5,5 0 0 1 -9,-3 z"/><path d="M0,-7 v17" stroke-width="1.6"/><circle cx="-5" cy="2" r="1.4" fill="#cfe0ff" stroke="none"/><circle cx="5" cy="-2" r="1.4" fill="#cfe0ff" stroke="none"/></g>';
+  if(n.kind==='human') return '<g class="wh-glyph" fill="#fff" opacity=".95"><circle cx="0" cy="-4" r="4.2"/><path d="M-7,9 a7,6 0 0 1 14,0 z"/></g>';
+  return '';
+}
+function whNodeSVG(n){
+  const p=whNodePalette(n), planned=n.status==='planned', tierCls=n.tier==='T3'?'t3':'';
+  let core;
+  if(n.kind==='brain'){
+    const hx=n.r,hy=n.r*0.92;
+    core=`<polygon class="wh-core" points="0,${-hy} ${hx},${-hy*0.5} ${hx},${hy*0.5} 0,${hy} ${-hx},${hy*0.5} ${-hx},${-hy*0.5}" fill="${p.fill}" stroke="${p.ring}" stroke-width="2.4"/>`;
+  }else{
+    core=`<circle class="wh-core" r="${n.r}" fill="${p.fill}" stroke="${p.ring}" stroke-width="2" ${planned?'stroke-dasharray="4 4"':''}/>`;
+  }
+  return `<g class="wh-node ${tierCls} ${planned?'is-planned':''}" data-id="${n.id}" transform="translate(${n.x},${n.y})" tabindex="0" role="button" aria-label="${whEsc(n.full)}">
+    <g class="wh-float" style="animation-delay:${n.delay}s">
+      <circle class="wh-aura" r="${n.r+14}" fill="${p.aura}" style="animation-delay:${n.delay}s"></circle>
+      ${core}${whGlyph(n)}
+      ${n.kind==='brain'?'<circle class="wh-brain-core" r="5" cy="0" fill="#E07B2A"></circle>':''}
+    </g>
+    <circle class="wh-hit" r="${n.r+9}" fill="transparent"></circle>
+    <text class="wh-nlabel" y="${n.r+16}" text-anchor="middle">${n.label}</text>
+    ${n.scenario?`<text class="wh-nid" y="${n.r+30}" text-anchor="middle">#${n.scenario}</text>`:''}
+  </g>`;
+}
+function whEdgeSVG(e){
+  const a=WH_BY_ID[e[0]],b=WH_BY_ID[e[1]];
+  const ops=(b.chain==='Operations'||a.chain==='Operations'), planned=(a.status==='planned'||b.status==='planned');
+  const base=ops?'rgba(51,65,85,0.30)':'rgba(11,31,74,0.30)', flow=ops?'#3E7C8C':'#2550A8';
+  return `<line class="wh-edge ${planned?'planned':''}" data-edge="${e[0]}_${e[1]}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${base}"></line>
+    <line class="wh-edge-flow" data-edge="${e[0]}_${e[1]}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${flow}" ${planned?'opacity="0.35"':''}></line>`;
+}
+function whBuildNetwork(){ document.getElementById('wh-net-svg').innerHTML = WH_EDGES.map(whEdgeSVG).join('') + WH_AGENTS.map(whNodeSVG).join(''); }
+
+/* ── network interaction ── */
+let whActiveNode=null;
+function whBindNetwork(){
+  const svg=document.getElementById('wh-net-svg');
+  svg.addEventListener('click',e=>{const g=e.target.closest('.wh-node');if(g)whNodeClick(g.dataset.id);});
+  svg.addEventListener('mouseover',e=>{const g=e.target.closest('.wh-node');if(g)whNodeTip(g.dataset.id,g);});
+  svg.addEventListener('mouseout',e=>{const g=e.target.closest('.wh-node');if(g)whHideTip();});
+  svg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('.wh-node');if(g){e.preventDefault();whNodeClick(g.dataset.id);}}});
+  document.addEventListener('click',e=>{const pop=document.getElementById('wh-pop');if(pop.classList.contains('show')&&!e.target.closest('#wh-pop')&&!e.target.closest('.wh-node'))whClosePop();});
+}
+function whNodeTip(id,g){
+  const n=WH_BY_ID[id]; if(!n) return;
+  const tip=document.getElementById('wh-tip');
+  tip.innerHTML=`<b>${whEsc(n.full)}</b><div class="wh-tip-meta">${n.tier==='core'?'CORE':n.tier} · ${n.scenario?('#'+n.scenario+' · '):''}${n.status.toUpperCase()}</div><div class="wh-tip-role">${whEsc(n.role)}</div>`;
+  const r=g.getBoundingClientRect();
+  tip.classList.add('show');
+  tip.style.left=Math.min(window.innerWidth-244,Math.max(8,r.left+r.width/2-115))+'px';
+  tip.style.top=(r.top-tip.offsetHeight-10)+'px';
+  requestAnimationFrame(()=>{ tip.style.top=(r.top-tip.offsetHeight-10)+'px'; });
+}
+function whHideTip(){ document.getElementById('wh-tip').classList.remove('show'); }
+function whNodeClick(id){
+  const n=WH_BY_ID[id]; if(!n) return;
+  whHideTip(); whSetActiveNode(id); whOpenPop(id);
+  if(n.tier!=='T3' && n.view) whSetView(n.view,{fromNode:true});
+}
+function whSetActiveNode(id){
+  whActiveNode=id;
+  const graph=document.getElementById('wh-graph'), svg=document.getElementById('wh-net-svg');
+  if(id==='brain'||!id){ graph.classList.remove('has-active'); svg.querySelectorAll('.is-active').forEach(el=>el.classList.remove('is-active')); return; }
+  const sub=whSubtree(id);
+  graph.classList.add('has-active');
+  svg.querySelectorAll('.wh-node').forEach(el=>el.classList.toggle('is-active',sub.has(el.dataset.id)));
+  svg.querySelectorAll('.wh-edge,.wh-edge-flow').forEach(el=>{const p=(el.dataset.edge||'').split('_');el.classList.toggle('is-active',sub.has(p[0])&&sub.has(p[1]));});
+}
+function whClearActive(){ whActiveNode=null; document.getElementById('wh-graph').classList.remove('has-active'); document.getElementById('wh-net-svg').querySelectorAll('.is-active').forEach(el=>el.classList.remove('is-active')); }
+function whTierMeaning(t){ return {core:'Orchestration core',T0:'Strategy + exceptions',T1:'Orchestrates · delegates',T2:'Department work',T3:'One task · one API',Standalone:'Standalone trigger'}[t]||t; }
+function whClosePop(){ document.getElementById('wh-pop').classList.remove('show'); }
+function whOpenPop(id){
+  const n=WH_BY_ID[id]; if(!n) return;
+  const pop=document.getElementById('wh-pop'), stCls=n.status==='live'?'wh-st-live':'wh-st-planned';
+  let admin='';
+  if(ccIsAdmin){
+    const toggle=n.tier==='core'?'<button class="wh-pop-btn" onclick="whEditBrainLabel()">Rename core label</button>':`<button class="wh-pop-btn" onclick="whToggleNodeStatus('${id}')">Set ${n.status==='live'?'planned':'live'}</button>`;
+    const deep=n.scenario?`<a class="wh-pop-btn" href="${WH_MAKE_BASE}${n.scenario}" target="_blank" rel="noopener">Open in Make ↗</a>`:'';
+    admin=`<div class="wh-pop-admin">${toggle}${deep}</div>`;
+  }
+  const nav=(n.view&&n.view!==WH_VIEW)?`<button class="wh-pop-btn primary" onclick="whSetView('${n.view}');whClosePop();">Open ${whViewLabel(n.view)} →</button>`:'';
+  pop.innerHTML=`<button class="wh-pop-close" onclick="whClosePop()" aria-label="Close">×</button>
+    <div class="wh-pop-eye">${n.tier==='core'?'Orchestration core':n.tier+(n.chain&&n.chain!=='core'?' · '+n.chain:'')}</div>
+    <div class="wh-pop-name">${whEsc(n.label)}</div>
+    <div class="wh-pop-row"><span>Role</span><span>${whTierMeaning(n.tier)}</span></div>
+    ${n.scenario?`<div class="wh-pop-row"><span>Scenario</span><span>#${n.scenario}</span></div>`:''}
+    <div class="wh-pop-row"><span>Status</span><span class="wh-st-pill ${stCls}">${n.status}</span></div>
+    <div class="wh-pop-role">${whEsc(n.role)}</div>
+    <div class="wh-pop-act">${nav}</div>${admin}`;
+  pop.classList.add('show');
+  const g=document.querySelector(`.wh-node[data-id="${id}"]`);
+  if(g){ const r=g.getBoundingClientRect(); let left=Math.max(8,Math.min(window.innerWidth-288,r.left+r.width/2-140)); let top=r.bottom+10; if(top+pop.offsetHeight>window.innerHeight-10) top=Math.max(10,r.top-pop.offsetHeight-10); pop.style.left=left+'px'; pop.style.top=top+'px'; }
+}
+function whToggleNodeStatus(id){ if(!ccIsAdmin)return; const n=WH_BY_ID[id]; if(!n)return; n.status=n.status==='live'?'planned':'live'; whBuildNetwork(); whApplyMotion(); whClearActive(); whClosePop(); /* in-page demo only */ }
+function whEditBrainLabel(){ if(!ccIsAdmin)return; const n=WH_BY_ID['brain']; const v=prompt('Core label:',n.label); if(v!=null){ n.label=v.trim()||n.label; whBuildNetwork(); whApplyMotion(); whClosePop(); } }
+
+/* ════ VIEWS / NAV / SIDEBAR ════ */
+const WH_VIEWS=[
+  {id:'overview',label:'Overview',icon:'grid'},{id:'projects',label:'Projects',icon:'folder'},
+  {id:'workforce',label:'AI Workforce',icon:'cpu'},{id:'pipeline',label:'Pipeline',icon:'flow'},
+  {id:'marketing',label:'Marketing',icon:'mega'},{id:'timelines',label:'Timelines',icon:'cal'},
+  {id:'settings',label:'Settings',icon:'gear'}
+];
+let WH_VIEW='overview';
+function whIcon(name){
+  const p={
+    grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    cpu:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>',
+    flow:'<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M5 8v3a4 4 0 0 0 4 4h1M19 8v3a4 4 0 0 1-4 4h-1"/>',
+    mega:'<path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
+    cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'
+  }[name]||'';
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+function whViewLabel(v){ const o=WH_VIEWS.find(x=>x.id===v); return o?o.label:v; }
+function whBuildNav(){
+  document.getElementById('wh-nav').innerHTML=WH_VIEWS.map(v=>`<button class="wh-nav-item" data-view="${v.id}" onclick="whSetView('${v.id}')"><span class="wh-ni-ic">${whIcon(v.icon)}</span><span class="wh-ni-lbl">${v.label}</span></button>`).join('');
+  document.getElementById('wh-bottombar').innerHTML=WH_VIEWS.filter(v=>['overview','projects','workforce','marketing','settings'].includes(v.id)).map(v=>`<button class="wh-bb-item" data-view="${v.id}" onclick="whSetView('${v.id}')">${whIcon(v.icon)}<span>${v.label.split(' ')[0]}</span></button>`).join('');
+}
+function syncPfButtons(){ document.getElementById('wh-pf-tl').classList.toggle('active',ccPortfolioView==='timeline'); document.getElementById('wh-pf-bd').classList.toggle('active',ccPortfolioView==='board'); }
+function whSetView(view,opts){
+  opts=opts||{}; WH_VIEW=view;
+  document.querySelectorAll('#wh-nav .wh-nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  document.querySelectorAll('#wh-bottombar .wh-bb-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  const titles={overview:'The <em>Wheelhouse</em>',projects:'<em>Projects</em>',workforce:'AI <em>Workforce</em>',pipeline:'<em>Pipeline</em>',marketing:'<em>Marketing</em>',timelines:'<em>Timelines</em>',settings:'<em>Settings</em>'};
+  document.getElementById('wh-view-title').innerHTML=titles[view]||'The <em>Wheelhouse</em>';
+  document.querySelectorAll('[data-views]').forEach(el=>{ el.classList.toggle('wh-hidden',!el.getAttribute('data-views').split(' ').includes(view)); });
+  if(view==='timelines'&&ccPortfolioView!=='timeline'){ ccPortfolioView='timeline'; syncPfButtons(); }
+  if(view==='settings') whRenderSettings();
+  if(view==='pipeline') whRenderPipeline();
+  if(!opts.fromNode) whClearActive();
+  whRenderPortfolio();
+}
+function whToggleSidebar(){ const sb=document.getElementById('wh-sidebar'); sb.classList.toggle('collapsed'); document.getElementById('wh-collapse').textContent=sb.classList.contains('collapsed')?'›':'‹'; }
+
+/* ════ MOTION (default ON unless reduced-motion; persisted) ════ */
+let whMotion=true, whAeoTimer=null;
+function whApplyMotion(){
+  const g=document.getElementById('wh-graph');
+  g.classList.toggle('motion-on',whMotion); g.classList.toggle('motion-off',!whMotion);
+  const btn=document.getElementById('wh-motion-btn');
+  btn.classList.toggle('on',whMotion); btn.setAttribute('aria-pressed',whMotion?'true':'false');
+  document.getElementById('wh-motion-lbl').textContent=whMotion?'Motion on':'Motion off';
+  if(whAeoTimer){ clearInterval(whAeoTimer); whAeoTimer=null; }
+  if(whMotion) whAeoTimer=setInterval(whCycleAEO,7000);
+}
+function whInitMotion(){
+  const saved=localStorage.getItem('cc_motion');
+  if(saved===null) whMotion=!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  else whMotion=(saved==='on');
+  whApplyMotion();
+}
+function whToggleMotion(){ whMotion=!whMotion; localStorage.setItem('cc_motion',whMotion?'on':'off'); whApplyMotion(); whRenderSettings(); }
+
+/* ════ RENDER: KPIs + PORTFOLIO ════ */
+function whRenderKPIs(){
+  const building=ccProjects.filter(p=>p.status==='building').length;
+  const avg=ccProjects.length?Math.round(ccProjects.reduce((a,p)=>a+(p.completion||0),0)/ccProjects.length):0;
+  document.getElementById('wh-kpi-total').textContent=ccProjects.length||'0';
+  document.getElementById('wh-kpi-active').textContent=building||'0';
+  document.getElementById('wh-kpi-avg').textContent=avg+'%';
+  document.getElementById('wh-kpi-pipeline').textContent=WH_PIPELINE_VALUE;
+  document.getElementById('wh-kpi-pipeline-sub').textContent=WH_PIPELINE_SUB;
+}
+function whTimelineRow(p){
+  const cfg=CC_CATS[p.category]||CC_CATS.Client, score=ccScore(p).toFixed(1), bar=ccProgressColor(p.completion);
+  const owner=whOwners[p.name]||'—';
+  const stlbl={building:'Building',priority:'Next Up',lot:'Lot'}[p.status];
+  const edit=ccIsAdmin?`<button class="cc-icon-btn edit" style="width:22px;height:22px;font-size:11px;" onclick="event.stopPropagation();ccEditProject('${p.id}')" title="Edit">✏️</button>`:'';
+  const ownerAttr=ccIsAdmin?`style="cursor:pointer" onclick="event.stopPropagation();whAssignOwner('${p.id}')" title="Reassign"`:'';
+  return `<div class="wh-tl-row" ${ccIsAdmin?`style="cursor:pointer" onclick="ccEditProject('${p.id}')"`:''}>
+    <div class="wh-tl-meta">
+      <div class="wh-tl-name">${whEsc(p.name)} ${edit}</div>
+      <div class="wh-tl-tags"><span class="wh-cat" style="color:${cfg.color};background:${cfg.bg}">${p.category}</span><span class="wh-stpill ${p.status}">${stlbl}</span><span class="wh-score">score ${score}</span></div>
+      <div class="wh-tl-owner" ${ownerAttr}>◷ <b>${whEsc(owner)}</b></div>
+    </div>
+    <div class="wh-gantt"><div class="wh-gantt-fill" style="width:${Math.max(p.completion,4)}%;background:${bar}"><span class="wh-gantt-pct">${p.completion}%</span></div></div>
+  </div>`;
+}
+function whRenderTimeline(b,pr,lot){
+  const grp=(lbl,cls,arr)=>arr.length?`<div class="wh-tl-group"><div class="wh-tl-glabel ${cls}">${lbl} (${arr.length})</div>${ccSorted(arr).map(whTimelineRow).join('')}</div>`:'';
+  return `<div class="wh-tl-head"><span>Project</span><span>Progress</span></div>${grp('In The Building','building',b)}${grp('Next Up · Priority','',pr)}${grp('The Lot','',lot)}`;
+}
+function ccCard(p){
+  const cfg=CC_CATS[p.category]||CC_CATS.Client, isOpen=!!ccExpanded[p.id], score=ccScore(p).toFixed(1), bar=ccProgressColor(p.completion);
+  const handle=ccIsAdmin?`<span class="cc-drag-handle" title="Drag" onpointerdown="ccDragHandleDown(event,'${p.id}','${p.status}')" onclick="event.stopPropagation()">⠿</span>`:'';
+  const icons=ccIsAdmin?`<div class="cc-icon-btns"><button class="cc-icon-btn edit" onclick="event.stopPropagation();ccEditProject('${p.id}')" title="Edit">✏️</button><button class="cc-icon-btn trash" onclick="event.stopPropagation();ccDeleteProject('${p.id}')" title="Delete">🗑️</button></div>`:'';
+  const moves=ccIsAdmin?['building','priority','lot'].filter(s=>s!==p.status).map(s=>`<button class="cc-move-btn" onclick="event.stopPropagation();ccMove('${p.id}','${s}')">→ ${s[0].toUpperCase()+s.slice(1)}</button>`).join(''):'';
+  return `<div class="wh-pcard" data-cc-id="${p.id}" onclick="ccToggle('${p.id}')">
+    <div class="wh-pc-top">${handle}
+      <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:7px"><span class="wh-cat" style="color:${cfg.color};background:${cfg.bg}">${p.category}</span><span class="wh-score">${score}</span></div><div class="wh-pc-name">${whEsc(p.name)}</div></div>
+      <div style="display:flex;gap:6px;align-items:flex-start;flex-shrink:0"><div class="wh-pc-pct">${p.completion}%</div>${icons}</div>
+    </div>
+    <div class="wh-pc-prog"><i style="width:${p.completion}%;background:${bar}"></i></div>
+    <div class="wh-pc-exp ${isOpen?'open':''}"><div class="wh-pc-notes">${whEsc(p.notes)||'—'}</div><div class="cc-move-btns">${moves}</div></div>
+  </div>`;
+}
+function whRenderBoard(b,pr,lot){
+  const col=(lbl,cls,status,arr,hint)=>`<div class="wh-col ${cls}"><div class="wh-col-hd"><span class="wh-col-lbl">${lbl}</span><span class="wh-col-count">${arr.length}</span></div><div class="wh-col-inner" data-cc-zone="${status}">${arr.length?ccSorted(arr).map(ccCard).join(''):'<div class="cc-empty">Empty</div>'}</div>${hint?`<div class="wh-col-hint">${hint}</div>`:''}</div>`;
+  return `<div class="wh-cols">${col('In The Building','building','building',b,'Nothing enters until the Building is empty')}${col('Next Up','priority','priority',pr,'')}${col('The Lot','lot','lot',lot,'')}</div>`;
+}
+function whRenderPortfolio(){
+  const host=document.getElementById('wh-pf-view'); if(!host) return;
+  const q=(document.getElementById('wh-search').value||'').trim().toLowerCase();
+  let arr=ccFilter==='ALL'?ccProjects:ccProjects.filter(p=>p.category===ccFilter);
+  if(q) arr=arr.filter(p=>(p.name||'').toLowerCase().includes(q));
+  if(!arr.length){ host.innerHTML='<div class="cc-empty">No projects match.</div>'; return; }
+  const b=arr.filter(p=>p.status==='building'),pr=arr.filter(p=>p.status==='priority'),lot=arr.filter(p=>p.status==='lot');
+  host.innerHTML=ccPortfolioView==='timeline'?whRenderTimeline(b,pr,lot):whRenderBoard(b,pr,lot);
+}
+function whRenderFilters(){ document.getElementById('wh-filters').innerHTML=['ALL','SeaLegs','TCS','Client','Personal'].map(c=>`<button class="cc-filter-btn ${ccFilter===c?'active':''}" onclick="ccSetFilter('${c}')">${c}</button>`).join(''); }
+function whRenderLegend(){ document.getElementById('wh-pf-legend').innerHTML=Object.entries(CC_CATS).map(([c,cfg])=>`<div class="wh-leg-item"><span class="wh-leg-dot" style="background:${cfg.color}"></span>${c}</div>`).join('')+'<span class="wh-score-note">Sorted: (Revenue×2)+(Done÷20)−Effort</span>'; }
+function ccSetPortfolioView(v,btn){ ccPortfolioView=v; syncPfButtons(); whRenderPortfolio(); whRenderLegend(); }
+function ccSetFilter(f){ ccFilter=f; whRenderFilters(); whRenderPortfolio(); }
+function ccToggle(id){ ccExpanded[id]=!ccExpanded[id]; whRenderPortfolio(); }
+function whAssignOwner(id){ if(!ccIsAdmin)return; const p=ccProjects.find(x=>x.id===id); if(!p)return; const v=prompt('Owner for "'+p.name+'":',whOwners[p.name]||''); if(v!=null){ whOwners[p.name]=v.trim()||'—'; whRenderPortfolio(); } }
+
+/* ── MODAL (preserved) ── */
+function ccOpenModal(){
+  if(!ccIsAdmin) return;
+  document.getElementById('cc-modal-overlay').classList.add('open');
+  document.querySelector('.cc-modal-title').textContent='New Project';
+  document.querySelector('.cc-modal-sub').textContent='Capture · Score · Park';
+  document.getElementById('cc-f-name').value=''; document.getElementById('cc-f-cat').value='TCS';
+  document.getElementById('cc-f-status').value='lot'; document.getElementById('cc-f-notes').value='';
+  document.getElementById('cc-f-rev').value=3; document.getElementById('cc-f-pct').value=0; document.getElementById('cc-f-eff').value=3;
+  document.getElementById('cc-f-public').checked=false;
+  const b=document.getElementById('cc-save-btn'); b.textContent='Park It →'; b.disabled=false; b.onclick=ccSaveProject;
+  setTimeout(()=>document.getElementById('cc-f-name').focus(),80);
+}
+function ccCloseModal(){ document.getElementById('cc-modal-overlay').classList.remove('open'); const b=document.getElementById('cc-save-btn'); b.onclick=ccSaveProject; }
+function ccEditProject(id){
+  if(!ccIsAdmin) return;
+  const p=ccProjects.find(x=>x.id===id); if(!p) return;
+  document.getElementById('cc-modal-overlay').classList.add('open');
+  document.querySelector('.cc-modal-title').textContent='Edit Project';
+  document.querySelector('.cc-modal-sub').textContent='Update · Re-score';
+  document.getElementById('cc-f-name').value=p.name||''; document.getElementById('cc-f-cat').value=p.category||'TCS';
+  document.getElementById('cc-f-status').value=p.status||'lot'; document.getElementById('cc-f-notes').value=p.notes||'';
+  document.getElementById('cc-f-rev').value=p.revenue||3; document.getElementById('cc-f-pct').value=p.completion||0; document.getElementById('cc-f-eff').value=p.effort||3;
+  document.getElementById('cc-f-public').checked=!!p.is_public;
+  const b=document.getElementById('cc-save-btn'); b.textContent='Save Changes →'; b.disabled=false; b.onclick=()=>ccUpdateProject(id);
+}
+
+/* ════ AI WORKFORCE — DEMO-SEEDED (roster real; task editable in admin) ════ */
+const WH_WORKFORCE=[
+  {name:'Inbound Lead Handler',tier:'STD',status:'active',task:'Watching inbound form + email',pri:'high',cad:'Realtime'},
+  {name:'T1 Bridge',tier:'T1',status:'active',task:'Monitoring pipeline · routing qualified domains',pri:'high',cad:'Daily 6am PT'},
+  {name:'T2 Research',tier:'T2',status:'active',task:'Stack Discovery on seeded batch',pri:'high',cad:'On delegation'},
+  {name:'T2 Outreach',tier:'T2',status:'active',task:'Drafting sequence copy for 3 prospects',pri:'high',cad:'≤50 sends/day'},
+  {name:'T3 Executor — Gmail',tier:'T3',status:'active',task:'Approved-send queue',pri:'high',cad:'On approval'},
+  {name:'T1 Helm',tier:'T1',status:'active',task:'Orchestrating delivery + content',pri:'medium',cad:'Continuous'},
+  {name:'T2 Content',tier:'T2',status:'active',task:'Drafting 3 LinkedIn posts',pri:'medium',cad:'Mon 6am PT · 3/wk'},
+  {name:'T2 Support',tier:'T2',status:'idle',task:'Awaiting inbound',pri:'low',cad:'On inbound'},
+  {name:'T3 Stack Scanner',tier:'T3',status:'active',task:'WebReveal signal pull',pri:'medium',cad:'On demand'},
+  {name:'T3 Signal Puller',tier:'T3',status:'planned',task:'Awaiting Apollo Basic tier',pri:'low',cad:'Planned'},
+  {name:'T3 Publisher',tier:'T3',status:'planned',task:'LinkedIn publish (manual for now)',pri:'low',cad:'Planned'}
+];
+function whRenderWorkforce(){
+  const el=document.getElementById('wh-workforce-body'); if(!el) return;
+  el.innerHTML=WH_WORKFORCE.map((a,i)=>`<div class="wh-wf-row">
+    <div class="wh-wf-agent"><div class="wh-wf-name">${whEsc(a.name)} <span class="wh-tierchip">${a.tier}</span></div><div class="wh-wf-cad">⟳ ${whEsc(a.cad)}</div></div>
+    <div class="wh-wf-task ${ccIsAdmin?'editable':''}" ${ccIsAdmin?`onclick="whEditTask(${i})" title="Click to edit"`:''}>${whEsc(a.task)}</div>
+    <div class="wh-wf-right"><span class="wh-stat ${a.status}"><span class="d"></span>${a.status}</span><span class="wh-pri ${a.pri}">${a.pri}</span></div>
+  </div>`).join('');
+}
+function whEditTask(i){ if(!ccIsAdmin)return; const v=prompt('Current task for '+WH_WORKFORCE[i].name+':',WH_WORKFORCE[i].task); if(v!=null){ WH_WORKFORCE[i].task=v.trim(); whRenderWorkforce(); } }
+
+/* ════ TEAM — DEMO-SEEDED ════ */
+const WH_TEAM=[
+  {name:'Brian Burge',role:'Founder & CRO',kind:'human',on:'Harbor & Hyde',color:'#E07B2A'},
+  {name:'T1 Bridge',role:'Revenue super agent',kind:'agent',on:'Pipeline',color:'#0B1F4A'},
+  {name:'T1 Helm',role:'Operations super agent',kind:'agent',on:'Harbor & Hyde',color:'#0B1F4A'},
+  {name:'T2 Research',role:'Market intelligence',kind:'agent',on:'Signal Puller build',color:'#2550A8'},
+  {name:'T2 Outreach',role:'Business development',kind:'agent',on:'Pipeline',color:'#2550A8'},
+  {name:'T2 Content',role:'Brand & authority',kind:'agent',on:'Playbook v2',color:'#3E7C8C'},
+  {name:'T2 Support',role:'Client success',kind:'agent',on:'Inbound',color:'#334155'}
+];
+function whRenderTeam(){
+  const el=document.getElementById('wh-team-body'); if(!el) return;
+  el.innerHTML=`<div class="wh-team-grid">${WH_TEAM.map(t=>{
+    const init=t.kind==='human'?t.name.split(' ').map(w=>w[0]).join('').slice(0,2):((t.name.match(/T\d/)||['◆'])[0]);
+    return `<div class="wh-tm"><div class="wh-av" style="background:${t.color}">${init}</div><div class="wh-tm-meta"><div class="wh-tm-name">${whEsc(t.name)}</div><div class="wh-tm-role">${whEsc(t.role)}</div><div class="wh-tm-kind">${t.kind} · on ${whEsc(t.on)}</div></div></div>`;
+  }).join('')}</div>`;
+}
+
+/* ════ MARKETING + PIPELINE — DEMO-SEEDED (editable in admin) ════ */
+let WH_PIPELINE_VALUE='$180K', WH_PIPELINE_SUB='3 active opportunities';
+let WH_FUNNEL=[['Seeded',120],['Scanned',84],['Enriched',61],['Outreach',38],['Booked',4]];
+let WH_CADENCE_DONE=2, WH_CADENCE_TOTAL=3, whAeoIdx=0;
+const WH_AEO=['How do I consolidate my e-commerce SaaS stack?','Which Shopify apps are redundant?','How much can I cut from my martech spend?','What replaces five overlapping marketing tools?'];
+function whRenderMarketing(){
+  const grid=document.getElementById('wh-mkt-grid'); if(!grid) return;
+  const maxF=Math.max.apply(null,WH_FUNNEL.map(f=>f[1]));
+  grid.innerHTML=`
+    <div class="wh-mkt-tile"><div class="wh-mkt-eye">Content cadence</div><h4>T2 Content → 3 LinkedIn posts / week</h4><div class="wh-week">${Array.from({length:WH_CADENCE_TOTAL}).map((_,i)=>`<i class="${i<WH_CADENCE_DONE?'done':''}"></i>`).join('')}</div><div class="wh-mkt-live"><span class="d"></span>${WH_CADENCE_DONE} of ${WH_CADENCE_TOTAL} shipped</div></div>
+    <div class="wh-mkt-tile" ${ccIsAdmin?'onclick="whEditFunnel()" style="cursor:pointer"':''}><div class="wh-mkt-eye">Pipeline funnel${ccIsAdmin?' · edit':''}</div><div class="wh-funnel">${WH_FUNNEL.map(f=>`<div class="wh-fn"><span class="wh-fn-lbl">${f[0]}</span><span class="wh-fn-bar"><i style="width:${Math.round(f[1]/maxF*100)}%"></i></span><span class="wh-fn-n">${f[1]}</span></div>`).join('')}</div></div>
+    <div class="wh-mkt-tile"><div class="wh-mkt-eye">AEO target · question we own</div><div class="wh-aeo" onclick="whCycleAEO()" title="Tap to cycle">&ldquo;${whEsc(WH_AEO[whAeoIdx])}&rdquo;</div></div>
+    <div class="wh-mkt-tile"><div class="wh-mkt-eye">Offer · live</div><h4>Free Stack Audit — booking live</h4><a class="wh-mkt-offer" href="${WH_BOOKING}" target="_blank" rel="noopener">Book the audit →</a></div>`;
+}
+function whCycleAEO(){ whAeoIdx=(whAeoIdx+1)%WH_AEO.length; whRenderMarketing(); }
+function whEditPipelineValue(){ if(!ccIsAdmin)return; const v=prompt('Pipeline value:',WH_PIPELINE_VALUE); if(v!=null)WH_PIPELINE_VALUE=v.trim()||WH_PIPELINE_VALUE; const s=prompt('Subtext:',WH_PIPELINE_SUB); if(s!=null)WH_PIPELINE_SUB=s.trim()||WH_PIPELINE_SUB; whRenderKPIs(); }
+function whEditFunnel(){ if(!ccIsAdmin)return; WH_FUNNEL=WH_FUNNEL.map(f=>{ const v=prompt(f[0]+' count:',f[1]); return [f[0],(v!=null&&!isNaN(+v))?+v:f[1]]; }); whRenderMarketing(); whRenderPipeline(); }
+function whRenderPipeline(){
+  const el=document.getElementById('wh-pipeline-body'); if(!el) return;
+  const maxF=Math.max.apply(null,WH_FUNNEL.map(f=>f[1]));
+  el.innerHTML=`<div class="wh-funnel" style="gap:9px">${WH_FUNNEL.map(f=>`<div class="wh-fn"><span class="wh-fn-lbl" style="width:78px">${f[0]}</span><span class="wh-fn-bar" style="height:12px"><i style="width:${Math.round(f[1]/maxF*100)}%"></i></span><span class="wh-fn-n">${f[1]}</span></div>`).join('')}</div><div class="wh-net-note" style="margin-top:12px">Inbound → T1 Bridge → T2 Research → T3 Scanner/Enricher → T2 Outreach → T3 Executor.${ccIsAdmin?' <a href="javascript:void 0" onclick="whEditFunnel()" style="color:var(--rev)">Edit counts</a>':''}</div>`;
+}
+
+/* ════ SETTINGS + CHIPS ════ */
+function whRenderSettings(){
+  const el=document.getElementById('wh-settings-body'); if(!el) return;
+  el.innerHTML=`
+    <div class="wh-set-row"><div class="wh-set-l"><b>Motion</b><span>Animate the SeaLegs network</span></div><button class="wh-pop-btn" style="width:auto;padding:8px 14px" onclick="whToggleMotion()">${whMotion?'On — turn off':'Off — turn on'}</button></div>
+    <div class="wh-set-row"><div class="wh-set-l"><b>Access</b><span>${ccIsAdmin?'Admin — full edit access':'Demo mode — read only'}</span></div><button class="wh-pop-btn" style="width:auto;padding:8px 14px" onclick="ccLockClick()">${ccIsAdmin?'Lock':'Unlock'}</button></div>
+    <div class="wh-set-row"><div class="wh-set-l"><b>Public data source</b><span>${CC_PUBLIC_TABLE} · SELECT-only, RLS</span></div><span class="wh-tag-wired">Supabase</span></div>
+    <div class="wh-set-row"><div class="wh-set-l"><b>Method</b><span>Catalog → Consolidate → Connect → Coach · 90-day DFY · $10K–$25K</span></div><span class="wh-stpill priority">4C</span></div>
+    <div class="wh-set-row"><div class="wh-set-l"><b>Identity</b><span>The Clear Stack — AI clarity for mid-market e-commerce</span></div></div>`;
+}
+function whRenderChips(){
+  const chips=[['Supabase',true],['Make.com',true],['HubSpot',true],['Apollo',true],['WebReveal',false]];
+  document.getElementById('wh-footer-chips').innerHTML=chips.map(c=>`<span class="wh-chip ${c[1]?'on':''}">${c[1]?'●':'◌'} ${c[0]}</span>`).join('');
+}
+
+/* ════ DRAG (admin-only, pointer-based, touch/iPad-safe) ════ */
+const CC_DRAG_THRESHOLD=5;
+let ccDrag=null, ccGhost=null, ccDragActive=false;
+function ccZoneAt(x,y){ if(ccGhost)ccGhost.style.display='none'; const el=document.elementFromPoint(x,y); if(ccGhost)ccGhost.style.display=''; return el?el.closest('[data-cc-zone]'):null; }
+function ccClearZoneHighlight(){ document.querySelectorAll('.cc-drag-over').forEach(el=>el.classList.remove('cc-drag-over')); }
+function ccDragHandleDown(e,id,fromStatus){
+  if(!ccIsAdmin)return; if(e.button!==undefined&&e.button!==0)return;
+  e.preventDefault(); e.stopPropagation();
+  const card=e.target.closest('.wh-pcard');
+  ccDrag={id,fromStatus,startX:e.clientX,startY:e.clientY,card}; ccDragActive=false;
+  window.addEventListener('pointermove',ccDragMove); window.addEventListener('pointerup',ccDragUp); window.addEventListener('pointercancel',ccDragUp);
+}
+function ccDragMove(e){
+  if(!ccDrag)return;
+  const dx=e.clientX-ccDrag.startX, dy=e.clientY-ccDrag.startY;
+  if(!ccDragActive){
+    if(Math.hypot(dx,dy)<CC_DRAG_THRESHOLD)return;
+    ccDragActive=true; document.body.style.userSelect='none';
+    if(ccDrag.card){ ccDrag.card.classList.add('cc-dragging'); const r=ccDrag.card.getBoundingClientRect();
+      ccGhost=ccDrag.card.cloneNode(true); ccGhost.classList.add('cc-drag-ghost'); ccGhost.classList.remove('cc-dragging');
+      ccGhost.style.width=r.width+'px'; ccGhost.style.left=r.left+'px'; ccGhost.style.top=r.top+'px';
+      ccGhost._ox=e.clientX-r.left; ccGhost._oy=e.clientY-r.top; document.body.appendChild(ccGhost);
+    }
+  }
+  if(ccGhost){ ccGhost.style.left=(e.clientX-ccGhost._ox)+'px'; ccGhost.style.top=(e.clientY-ccGhost._oy)+'px'; }
+  ccClearZoneHighlight(); const zone=ccZoneAt(e.clientX,e.clientY); if(zone)zone.classList.add('cc-drag-over');
+}
+function ccDragUp(e){
+  window.removeEventListener('pointermove',ccDragMove); window.removeEventListener('pointerup',ccDragUp); window.removeEventListener('pointercancel',ccDragUp);
+  document.body.style.userSelect='';
+  const wasActive=ccDragActive, drag=ccDrag;
+  if(ccGhost){ ccGhost.remove(); ccGhost=null; }
+  if(drag&&drag.card)drag.card.classList.remove('cc-dragging');
+  ccClearZoneHighlight(); ccDrag=null; ccDragActive=false;
+  if(!wasActive||!drag)return;
+  const zone=ccZoneAt(e.clientX,e.clientY); if(!zone)return;
+  const target=zone.getAttribute('data-cc-zone');
+  if(target&&target!==drag.fromStatus)ccMove(drag.id,target);
+}
+
+/* ════ MASTER RENDER + INIT ════ */
+function ccRender(){
+  document.getElementById('cc-loading').style.display='none';
+  whRenderKPIs(); whRenderFilters(); whRenderPortfolio(); whRenderLegend(); whRenderTeam();
+}
+function whInit(){
+  whBuildNav(); whBuildNetwork(); whBindNetwork(); whInitMotion();
+  whRenderWorkforce(); whRenderTeam(); whRenderMarketing(); whRenderPipeline(); whRenderChips(); whRenderSettings();
+  whSetView('overview'); ccLoad();
+  document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+  document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this)ccCloseModal(); });
+  window.addEventListener('scroll',()=>{ whHideTip(); whClosePop(); },{passive:true});
+}
+document.addEventListener('DOMContentLoaded',whInit);
+</script>
+</body>
+</html>
