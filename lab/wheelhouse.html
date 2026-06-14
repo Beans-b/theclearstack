@@ -60,7 +60,7 @@
     /* SHELL */
     #wh-app{background:var(--light);}
     .wh-shell{display:flex;max-width:1480px;margin:0 auto;padding:0 40px;min-height:70vh;}
-    .wh-sidebar{width:214px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:64px;align-self:flex-start;height:calc(100vh - 64px);transition:width .2s ease;}
+    .wh-sidebar{width:214px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:64px;align-self:flex-start;height:calc(100vh - 64px);transition:width .2s ease;z-index:50;}
     .wh-sidebar.collapsed{width:62px;}
     .wh-side-head{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 12px;margin-bottom:6px;border-bottom:1px solid var(--border);}
     .wh-side-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);white-space:nowrap;overflow:hidden;}
@@ -68,7 +68,7 @@
     .wh-collapse{width:26px;height:26px;border:1px solid var(--border);background:transparent;border-radius:4px;color:var(--gray);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
     .wh-collapse:hover{border-color:var(--navy);color:var(--navy);}
     .wh-nav-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:5px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--gray);font-size:13px;font-weight:500;transition:all .14s;white-space:nowrap;}
-    #wh-nav{display:flex;flex-direction:column;gap:2px;min-width:0;}
+    #wh-nav{display:flex;flex-direction:column;gap:2px;min-width:0;background:transparent;height:auto;position:static;z-index:auto;padding:0;}
     #wh-nav .wh-nav-item{background:transparent;}
     #wh-nav .wh-nav-item.on{background:transparent;}
     #wh-nav .wh-nav-item:hover{background:var(--light);}
@@ -136,7 +136,7 @@
     .wh-tag-wired{background:rgba(74,158,107,.1);color:#2f7a4f;border:1px solid rgba(74,158,107,.25);}
     .wh-tag-demo{background:rgba(11,31,74,.05);color:var(--gray);border:1px solid var(--border);}
     /* WORKSPACE — floating-window canvas */
-    .wh-workspace{position:relative;width:100%;height:calc(100vh - 150px);min-height:560px;overflow:hidden;}
+    .wh-workspace{position:relative;width:100%;height:calc(100vh - 150px);min-height:560px;overflow:hidden;z-index:1;}
     .wh-win{position:absolute;background:var(--white);border:1px solid var(--border2);border-radius:8px;box-shadow:var(--shadow);display:flex;flex-direction:column;max-height:calc(100% - 12px);overflow:hidden;}
     .wh-win.hidden{display:none;}
     .wh-win[data-win="network"]{box-shadow:var(--shadow2);}
