@@ -253,10 +253,15 @@
     /* ── PROJECT CARD ── */
     .cc-card { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 13px 15px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
     .cc-card:hover { border-color: rgba(11,31,74,0.22); box-shadow: 0 2px 12px rgba(11,31,74,0.07); }
-    .cc-card[draggable="true"] { cursor: grab; }
-    .cc-card.cc-dragging { opacity: 0.35; cursor: grabbing; }
-    .cc-zone-inner.cc-drag-over { outline: 2px dashed var(--navy); outline-offset: -2px; background: rgba(11,31,74,0.04) !important; }
-    .cc-lot-floor.cc-drag-over { outline: 2px dashed rgba(11,31,74,0.3); outline-offset: -2px; }
+    .cc-card.cc-dragging { opacity: 0.32; }
+    .cc-zone-inner.cc-drag-over,
+    .cc-lot-floor.cc-drag-over,
+    [data-cc-zone].cc-drag-over { outline: 2px dashed var(--navy); outline-offset: -2px; background: rgba(11,31,74,0.05) !important; }
+    /* drag handle (admin only) + floating ghost */
+    .cc-drag-handle { width: 20px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin: 0 4px 0 -4px; border-radius: 3px; color: var(--border2); cursor: grab; flex-shrink: 0; touch-action: none; user-select: none; font-size: 12px; line-height: 1; }
+    .cc-drag-handle:hover { color: var(--navy); background: rgba(11,31,74,0.06); }
+    .cc-drag-handle:active { cursor: grabbing; color: var(--navy); }
+    .cc-drag-ghost { position: fixed; top: 0; left: 0; z-index: 5000; pointer-events: none; opacity: 0.92; box-shadow: 0 14px 44px rgba(11,31,74,0.30); border-radius: 4px; }
     .cc-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .cc-card-cat { font-family: var(--font-body); font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }
     .cc-card-score { font-family: var(--font-mono); font-size: 9px; color: var(--gray); margin-left: 6px; opacity: 0.55; }
@@ -506,6 +511,10 @@
       <div><label class="cc-field-lbl">Done %</label><input class="cc-finput" id="cc-f-pct" type="number" min="0" max="100" value="0" /></div>
       <div><label class="cc-field-lbl">Effort (1–5)</label><input class="cc-finput" id="cc-f-eff" type="number" min="1" max="5" value="3" /></div>
     </div>
+    <label class="cc-field-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <input type="checkbox" id="cc-f-public" style="width:auto;margin:0;accent-color:var(--orange);" />
+      Show on public site
+    </label>
     <div class="cc-modal-actions">
       <button class="cc-btn-save" id="cc-save-btn" onclick="ccSaveProject()">Park It →</button>
       <button class="cc-btn-cancel" onclick="ccCloseModal()">Cancel</button>
@@ -544,19 +553,20 @@ const CC_URL  = 'https://aicnfrbafeydlrkvsprd.supabase.co';
 const CC_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpY25mcmJhZmV5ZGxya3ZzcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1OTI3OTQsImV4cCI6MjA5NjE2ODc5NH0.waSYlPjvwab3Mblge1rnXAWnkuSMeZ__D-Y5_6SaJK4';
 
 // ── AUTH STATE ────────────────────────────────────────────────────
-let ccIsAdmin    = false;
-let ccServiceKey = null;
-
-function ccActiveKey()   { return ccIsAdmin && ccServiceKey ? ccServiceKey : CC_ANON; }
-function ccActiveTable() { return ccIsAdmin && ccServiceKey ? 'projects' : 'projects_demo'; }
+// SECURITY: the browser NEVER holds the Supabase service_role key.
+// Login returns only a short-lived signed session token. All writes
+// (and admin reads) go through the /api/projects serverless proxy,
+// which holds the service key server-side. Public reads use the anon
+// key directly and are gated by RLS.
+let ccIsAdmin = false;
+let ccToken   = null;
 
 // ── LOCK BUTTON ───────────────────────────────────────────────────
 function ccLockClick() {
   if (ccIsAdmin) {
-    ccIsAdmin    = false;
-    ccServiceKey = null;
-    sessionStorage.removeItem('cc_admin_token');
-    sessionStorage.removeItem('cc_service_key');
+    ccIsAdmin = false;
+    ccToken   = null;
+    sessionStorage.removeItem('cc_token');
     ccUpdateAdminUI();
     ccLoad();
   } else {
@@ -582,13 +592,17 @@ async function ccAuthSubmit() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pw })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Incorrect password');
+    let data = {};
+    try { data = await res.json(); } catch(_) {}
+    if (!res.ok || !data.token) {
+      throw new Error(data.error || (res.status === 404
+        ? 'Login endpoint not found — deploy functions/api/auth.js'
+        : 'Incorrect password'));
+    }
 
-    ccIsAdmin    = true;
-    ccServiceKey = data.serviceKey;
-    sessionStorage.setItem('cc_admin_token', data.token);
-    sessionStorage.setItem('cc_service_key', data.serviceKey);
+    ccIsAdmin = true;
+    ccToken   = data.token;
+    sessionStorage.setItem('cc_token', data.token);
 
     document.getElementById('cc-auth-overlay').style.display = 'none';
     ccUpdateAdminUI();
@@ -627,11 +641,10 @@ function ccUpdateAdminUI() {
   }
 }
 
-// Restore session if tab still open
+// Restore admin session if the tab is still open (token only — no keys)
 (function ccRestoreSession() {
-  const token = sessionStorage.getItem('cc_admin_token');
-  const key   = sessionStorage.getItem('cc_service_key');
-  if (token && key) { ccIsAdmin = true; ccServiceKey = key; }
+  const token = sessionStorage.getItem('cc_token');
+  if (token) { ccIsAdmin = true; ccToken = token; }
 })();
 
 const CC_CATS = {
@@ -682,16 +695,43 @@ function ccBuildingSVG() {
   </svg>`;
 }
 
-// ── SUPABASE ──────────────────────────────────────────────────────
-async function ccApi(path, opts={}) {
-  const key = ccActiveKey();
-  const r = await fetch(`${CC_URL}/rest/v1/${path}`, {
-    headers:{ 'apikey':key, 'Authorization':`Bearer ${key}`,
-      'Content-Type':'application/json', 'Prefer':'return=representation', ...opts.headers },
-    ...opts
+// ── DATA LAYER ────────────────────────────────────────────────────
+// Public reads: anon key direct to Supabase (RLS limits which rows return).
+// Admin reads + ALL writes: through the /api/projects proxy, which holds the
+// service_role key server-side. The service key never reaches the browser.
+async function ccReadPublic() {
+  const r = await fetch(`${CC_URL}/rest/v1/projects?select=*&order=created_at.asc`, {
+    headers: { 'apikey': CC_ANON, 'Authorization': `Bearer ${CC_ANON}` }
   });
   if (!r.ok) throw new Error(await r.text());
   const t = await r.text(); return t ? JSON.parse(t) : [];
+}
+
+async function ccProxy(op, payload={}) {
+  const r = await fetch('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ccToken || ''}` },
+    body: JSON.stringify({ op, ...payload })
+  });
+  if (r.status === 401) {
+    ccIsAdmin = false; ccToken = null; sessionStorage.removeItem('cc_token'); ccUpdateAdminUI();
+    throw new Error('Session expired — please log in again.');
+  }
+  if (!r.ok) throw new Error(await r.text());
+  const t = await r.text(); return t ? JSON.parse(t) : [];
+}
+
+function ccReadFields() {
+  return {
+    name:       document.getElementById('cc-f-name').value.trim(),
+    category:   document.getElementById('cc-f-cat').value,
+    status:     document.getElementById('cc-f-status').value,
+    notes:      document.getElementById('cc-f-notes').value.trim() || null,
+    revenue:    parseInt(document.getElementById('cc-f-rev').value) || 3,
+    completion: parseInt(document.getElementById('cc-f-pct').value) || 0,
+    effort:     parseInt(document.getElementById('cc-f-eff').value) || 3,
+    is_public:  document.getElementById('cc-f-public').checked
+  };
 }
 
 async function ccLoad() {
@@ -701,39 +741,36 @@ async function ccLoad() {
   document.getElementById('cc-list-view').style.display = 'none';
   ccUpdateAdminUI();
   try {
-    ccProjects = await ccApi(ccActiveTable()+'?order=created_at.asc');
+    ccProjects = ccIsAdmin ? await ccProxy('list') : await ccReadPublic();
     ccRender();
   } catch(e) {
-    document.getElementById('cc-loading').textContent = 'Could not connect — check console.';
+    document.getElementById('cc-loading').textContent = ccIsAdmin
+      ? 'Admin load failed — deploy functions/api/projects.js & set env vars (see console).'
+      : 'Could not connect — check console.';
     console.error('CC Load:', e);
   }
 }
 
 async function ccSaveProject() {
+  if (!ccIsAdmin) return;
   const name = document.getElementById('cc-f-name').value.trim();
   if (!name) { document.getElementById('cc-f-name').focus(); return; }
   const btn = document.getElementById('cc-save-btn');
   btn.disabled=true; btn.textContent='Saving…';
   try {
-    const rows = await ccApi(ccActiveTable(), { method:'POST', body: JSON.stringify({
-      name,
-      category:   document.getElementById('cc-f-cat').value,
-      status:     document.getElementById('cc-f-status').value,
-      notes:      document.getElementById('cc-f-notes').value.trim()||null,
-      revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
-      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
-      effort:     parseInt(document.getElementById('cc-f-eff').value)||3
-    })});
-    ccProjects.push(rows[0]); ccCloseModal(); ccRender();
+    const rows = await ccProxy('insert', { row: ccReadFields() });
+    if (rows && rows[0]) ccProjects.push(rows[0]);
+    ccCloseModal(); ccRender();
   } catch(e) { btn.textContent='Error — try again'; btn.disabled=false; console.error('CC Save:',e); }
 }
 
 async function ccMove(id, status) {
+  if (!ccIsAdmin) return;
   try {
-    await ccApi(`${ccActiveTable()}?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status, updated_at: new Date().toISOString()}) });
+    await ccProxy('update', { id, patch: { status, updated_at: new Date().toISOString() } });
     ccProjects = ccProjects.map(p => p.id===id ? {...p,status} : p);
     ccRender();
-  } catch(e) { console.error('CC Move:',e); }
+  } catch(e) { console.error('CC Move:',e); alert(e.message); }
 }
 
 function ccScore(p) { return (p.revenue*2)+(p.completion/20)-p.effort; }
@@ -765,7 +802,7 @@ function ccRenderLot(building, priority, lot) {
   document.getElementById('cc-lot-view').innerHTML = `
     <div class="cc-zone cc-zone-building">
       <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Active — In The Building</div></div>
-      <div class="cc-zone-inner" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'building')">
+      <div class="cc-zone-inner" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;" data-cc-zone="building">
         <div style="width:180px;flex-shrink:0;text-align:center;">
           ${ccBuildingSVG()}
           <div style="font-family:var(--font-mono);font-size:8px;color:#4a9e6b;letter-spacing:0.14em;margin-top:6px;text-transform:uppercase;">Active Now</div>
@@ -784,7 +821,7 @@ function ccRenderLot(building, priority, lot) {
 
     <div class="cc-zone cc-zone-priority">
       <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ Next Up — Priority Parking</div></div>
-      <div class="cc-zone-inner" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'priority')">
+      <div class="cc-zone-inner" data-cc-zone="priority">
         ${priority.length===0
           ? '<div class="cc-empty">Priority empty — promote from the lot</div>'
           : `<div class="cc-grid">${priority.map(p=>`
@@ -804,7 +841,7 @@ function ccRenderLot(building, priority, lot) {
           ).join('')}
         </div>
       </div>
-      <div class="cc-lot-floor" ondragover="ccDragOver(event)" ondragleave="ccDragLeave(event)" ondrop="ccDrop(event,'lot')">
+      <div class="cc-lot-floor" data-cc-zone="lot">
         ${filtered.length===0
           ? '<div class="cc-empty">Lot empty for this filter</div>'
           : `<div class="cc-grid">${ccSorted(filtered).map((p,i)=>`
@@ -828,13 +865,13 @@ function ccRenderLot(building, priority, lot) {
 
 function ccRenderList(building, priority, lot) {
   document.getElementById('cc-list-view').innerHTML = [
-    { label:'In The Building',  cls:'cc-zone-building', data:building },
-    { label:'Priority Parking', cls:'cc-zone-priority', data:priority },
-    { label:'The Lot',          cls:'cc-zone-lot',      data:lot }
+    { label:'In The Building',  cls:'cc-zone-building', status:'building', data:building },
+    { label:'Priority Parking', cls:'cc-zone-priority', status:'priority', data:priority },
+    { label:'The Lot',          cls:'cc-zone-lot',      status:'lot',      data:lot }
   ].map(s=>`
     <div class="cc-zone ${s.cls}">
       <div class="cc-zone-hdr"><div class="cc-zone-lbl">▸ ${s.label} (${s.data.length})</div></div>
-      <div class="cc-zone-inner">
+      <div class="cc-zone-inner" data-cc-zone="${s.status}">
         ${s.data.length===0 ? '<div class="cc-empty">Empty</div>'
           : ccSorted(s.data).map(p=>ccCard(p)).join('')}
       </div>
@@ -856,13 +893,13 @@ function ccCard(p) {
       <button class="cc-icon-btn edit"  title="Edit"   onclick="ccEditProject('${p.id}');event.stopPropagation()">✏️</button>
       <button class="cc-icon-btn trash" title="Delete" onclick="ccDeleteProject('${p.id}');event.stopPropagation()">🗑️</button>
     </div>` : '';
+  const handle = ccIsAdmin
+    ? `<span class="cc-drag-handle" title="Drag to move" onpointerdown="ccDragHandleDown(event,'${p.id}','${p.status}')" onclick="event.stopPropagation()">⠿</span>`
+    : '';
   return `
-    <div class="cc-card"
-      draggable="true"
-      ondragstart="if(ccIsAdmin)ccDragStart(event,'${p.id}')"
-      ondragend="ccDragEnd(event)"
-      onclick="ccToggle('${p.id}')">
+    <div class="cc-card" data-cc-id="${p.id}" onclick="ccToggle('${p.id}')">
       <div class="cc-card-top">
+        ${handle}
         <div style="flex:1;">
           <div>
             <span class="cc-card-cat" style="color:${cfg.color};background:${cfg.bg};padding:2px 9px;border-radius:12px;">${p.category}</span>
@@ -895,6 +932,7 @@ function ccEditProject(id) {
   document.getElementById('cc-f-eff').value    = p.effort||3;
   document.getElementById('cc-f-cat').value    = p.category||'TCS';
   document.getElementById('cc-f-status').value = p.status||'lot';
+  document.getElementById('cc-f-public').checked = !!p.is_public;
   const btn = document.getElementById('cc-save-btn');
   btn.disabled = false;
   btn.textContent = 'Save Changes →';
@@ -904,29 +942,13 @@ function ccEditProject(id) {
 }
 
 async function ccUpdateProject(id) {
+  if (!ccIsAdmin) return;
   const btn = document.getElementById('cc-save-btn');
   btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    await ccApi(`${ccActiveTable()}?id=eq.`+id, { method:'PATCH', body: JSON.stringify({
-      name:       document.getElementById('cc-f-name').value.trim(),
-      category:   document.getElementById('cc-f-cat').value,
-      status:     document.getElementById('cc-f-status').value,
-      notes:      document.getElementById('cc-f-notes').value.trim()||null,
-      revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
-      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
-      effort:     parseInt(document.getElementById('cc-f-eff').value)||3,
-      updated_at: new Date().toISOString()
-    })});
-    ccProjects = ccProjects.map(p => p.id===id ? {
-      ...p,
-      name:       document.getElementById('cc-f-name').value.trim(),
-      category:   document.getElementById('cc-f-cat').value,
-      status:     document.getElementById('cc-f-status').value,
-      notes:      document.getElementById('cc-f-notes').value.trim()||null,
-      revenue:    parseInt(document.getElementById('cc-f-rev').value)||3,
-      completion: parseInt(document.getElementById('cc-f-pct').value)||0,
-      effort:     parseInt(document.getElementById('cc-f-eff').value)||3
-    } : p);
+    const fields = ccReadFields();
+    await ccProxy('update', { id, patch: { ...fields, updated_at: new Date().toISOString() } });
+    ccProjects = ccProjects.map(p => p.id===id ? { ...p, ...fields } : p);
     ccCloseModal();
     const b = document.getElementById('cc-save-btn');
     b.onclick = ccSaveProject;
@@ -935,55 +957,104 @@ async function ccUpdateProject(id) {
 }
 
 async function ccDeleteProject(id) {
+  if (!ccIsAdmin) return;
   const p = ccProjects.find(x=>x.id===id);
   if (!p) return;
   if (!confirm('Delete "'+p.name+'"? This cannot be undone.')) return;
   try {
-    await ccApi(`${ccActiveTable()}?id=eq.`+id, { method:'DELETE', headers:{'Prefer':'return=minimal'} });
+    await ccProxy('delete', { id });
     ccProjects = ccProjects.filter(x=>x.id!==id);
     ccRender();
-  } catch(e) { console.error('CC Delete:',e); alert('Delete failed — check console.'); }
+  } catch(e) { console.error('CC Delete:',e); alert('Delete failed — '+e.message); }
 }
 
-// ── DRAG AND DROP ────────────────────────────────────────────────
-let ccDragId = null;
+// ── DRAG AND DROP (pointer-based: works on mouse + touch/iPad) ────
+// Admin-only. Drag is initiated from the ⠿ handle so a tap on the card
+// body still expands it and page scroll on touch is never hijacked.
+const CC_DRAG_THRESHOLD = 5; // px of movement before a press becomes a drag
+let ccDrag = null;       // { id, fromStatus, startX, startY, card }
+let ccGhost = null;      // floating clone following the pointer
+let ccDragActive = false;
 
-function ccDragStart(e, id) {
-  ccDragId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', id);
-  setTimeout(() => {
-    const el = e.target.closest('.cc-card');
-    if (el) el.classList.add('cc-dragging');
-  }, 0);
+function ccZoneAt(x, y) {
+  // Ghost sits under the pointer with pointer-events:none, but hide it
+  // anyway so elementFromPoint reads the zone underneath reliably.
+  if (ccGhost) ccGhost.style.display = 'none';
+  const el = document.elementFromPoint(x, y);
+  if (ccGhost) ccGhost.style.display = '';
+  return el ? el.closest('[data-cc-zone]') : null;
 }
 
-function ccDragEnd(e) {
-  ccDragId = null;
-  document.querySelectorAll('.cc-dragging').forEach(el => el.classList.remove('cc-dragging'));
+function ccClearZoneHighlight() {
   document.querySelectorAll('.cc-drag-over').forEach(el => el.classList.remove('cc-drag-over'));
 }
 
-function ccDragOver(e) {
+function ccDragHandleDown(e, id, fromStatus) {
+  if (!ccIsAdmin) return;
+  if (e.button !== undefined && e.button !== 0) return; // left button / touch only
   e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('cc-drag-over');
+  e.stopPropagation();
+  const card = e.target.closest('.cc-card');
+  ccDrag = { id, fromStatus, startX: e.clientX, startY: e.clientY, card };
+  ccDragActive = false;
+  window.addEventListener('pointermove', ccDragMove);
+  window.addEventListener('pointerup', ccDragUp);
+  window.addEventListener('pointercancel', ccDragUp);
 }
 
-function ccDragLeave(e) {
-  if (!e.currentTarget.contains(e.relatedTarget)) {
-    e.currentTarget.classList.remove('cc-drag-over');
+function ccDragMove(e) {
+  if (!ccDrag) return;
+  const dx = e.clientX - ccDrag.startX;
+  const dy = e.clientY - ccDrag.startY;
+
+  if (!ccDragActive) {
+    if (Math.hypot(dx, dy) < CC_DRAG_THRESHOLD) return; // ignore tiny jitters
+    // Threshold crossed → begin dragging: build the ghost clone.
+    ccDragActive = true;
+    document.body.style.userSelect = 'none';
+    if (ccDrag.card) {
+      ccDrag.card.classList.add('cc-dragging');
+      const r = ccDrag.card.getBoundingClientRect();
+      ccGhost = ccDrag.card.cloneNode(true);
+      ccGhost.classList.add('cc-drag-ghost');
+      ccGhost.classList.remove('cc-dragging');
+      ccGhost.style.width = r.width + 'px';
+      ccGhost.style.left = r.left + 'px';
+      ccGhost.style.top = r.top + 'px';
+      ccGhost._ox = e.clientX - r.left;
+      ccGhost._oy = e.clientY - r.top;
+      document.body.appendChild(ccGhost);
+    }
   }
+
+  if (ccGhost) {
+    ccGhost.style.left = (e.clientX - ccGhost._ox) + 'px';
+    ccGhost.style.top = (e.clientY - ccGhost._oy) + 'px';
+  }
+  ccClearZoneHighlight();
+  const zone = ccZoneAt(e.clientX, e.clientY);
+  if (zone) zone.classList.add('cc-drag-over');
 }
 
-function ccDrop(e, targetStatus) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('cc-drag-over');
-  const id = ccDragId || e.dataTransfer.getData('text/plain');
-  if (!id) return;
-  const project = ccProjects.find(p => p.id === id);
-  if (!project || project.status === targetStatus) return;
-  ccMove(id, targetStatus);
+function ccDragUp(e) {
+  window.removeEventListener('pointermove', ccDragMove);
+  window.removeEventListener('pointerup', ccDragUp);
+  window.removeEventListener('pointercancel', ccDragUp);
+  document.body.style.userSelect = '';
+
+  const wasActive = ccDragActive;
+  const drag = ccDrag;
+  if (ccGhost) { ccGhost.remove(); ccGhost = null; }
+  if (drag && drag.card) drag.card.classList.remove('cc-dragging');
+  ccClearZoneHighlight();
+  ccDrag = null;
+  ccDragActive = false;
+
+  if (!wasActive || !drag) return; // it was just a press, not a drag
+  const zone = ccZoneAt(e.clientX, e.clientY);
+  if (!zone) return;
+  const target = zone.getAttribute('data-cc-zone');
+  if (target && target !== drag.fromStatus) ccMove(drag.id, target);
 }
 
 function ccToggle(id) { ccExpanded[id]=!ccExpanded[id]; ccRender(); }
@@ -1000,6 +1071,7 @@ function ccOpenModal() {
   document.getElementById('cc-f-eff').value='3';
   document.getElementById('cc-f-cat').value='TCS';
   document.getElementById('cc-f-status').value='lot';
+  document.getElementById('cc-f-public').checked=false;
   const btn=document.getElementById('cc-save-btn');
   btn.disabled=false; btn.textContent='Park It →';
   btn.onclick=ccSaveProject;
