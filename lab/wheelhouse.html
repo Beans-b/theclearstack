@@ -29,7 +29,8 @@
     button{font-family:var(--font-body);cursor:pointer;}
     :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
     /* NAV */
-    nav{background:var(--navy);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    nav{background:var(--navy);padding:0 40px;height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100;}
+    .nav-inner{max-width:1480px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
     .nav-logo{display:flex;align-items:center;gap:11px;}
     .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
     .logo-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em;}
@@ -150,9 +151,9 @@
     .wh-nl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
     .wh-net-note{font-family:var(--font-mono);font-size:8.5px;color:var(--gray);margin-left:auto;}
     .wh-node,.wh-hit{cursor:pointer;}
-    .wh-nlabel{font-family:var(--font-body);font-size:12px;font-weight:600;fill:var(--navy);pointer-events:none;}
-    .wh-nid{font-family:var(--font-mono);font-size:9px;fill:var(--gray);pointer-events:none;}
-    .wh-node.t3 .wh-nlabel{font-size:10px;font-weight:500;fill:var(--slate);}
+    .wh-nlabel{font-family:var(--font-body);font-size:15px;font-weight:600;fill:var(--navy);pointer-events:none;}
+    .wh-nid{font-family:var(--font-mono);font-size:11px;fill:var(--gray);pointer-events:none;}
+    .wh-node.t3 .wh-nlabel{font-size:12.5px;font-weight:500;fill:var(--slate);}
     .wh-node.is-planned .wh-core{opacity:.5;}
     .wh-node.is-planned .wh-nlabel{fill:var(--gray);font-style:italic;}
     .wh-edge{stroke-width:1.4;fill:none;}
@@ -389,11 +390,28 @@
       .wh-win[data-win="kpis"] .wh-kpis{grid-template-columns:1fr 1fr;}
       .wh-win[data-win="marketing"] .wh-mkt-grid{grid-template-columns:1fr;}
     }
+    /* resize handle */
+    .wh-win-resize{position:absolute;right:3px;bottom:3px;width:16px;height:16px;cursor:nwse-resize;color:var(--border2);display:flex;align-items:center;justify-content:center;z-index:6;touch-action:none;}
+    .wh-win-resize:hover{color:var(--navy);}
+    .wh-win-resize svg{width:12px;height:12px;}
+    .wh-win.collapsed .wh-win-resize{display:none;}
+    .wh-add-btn{font-size:16px!important;font-weight:500;}
+    /* add-window menu */
+    .wh-addmenu{position:fixed;z-index:1650;background:var(--white);border:1px solid var(--border2);border-radius:9px;box-shadow:var(--shadow2);padding:7px;display:none;min-width:178px;}
+    .wh-addmenu.show{display:block;}
+    .wh-am-h{font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);padding:4px 8px 7px;}
+    .wh-addmenu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:none;border-radius:6px;padding:8px 9px;font-size:12.5px;color:var(--charcoal);transition:background .12s;}
+    .wh-addmenu button:hover{background:var(--light);}
+    .wh-am-ic{width:16px;height:16px;color:var(--navy);display:flex;flex-shrink:0;}
+    .wh-am-ic svg{width:16px;height:16px;}
+    .wh-am-empty{font-size:11.5px;color:var(--gray);padding:6px 9px 8px;}
+    @media(max-width:979px){.wh-win-resize{display:none;}}
   </style>
 </head>
 <body>
 <!-- NAV (preserved) -->
 <nav>
+  <div class="nav-inner">
   <a href="../index.html" class="nav-logo">
     <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -424,6 +442,7 @@
     <li><a href="../lab/index.html" class="active">Lab</a></li>
   </ul>
   <a href="../contact.html" class="nav-cta">Work With Us</a>
+  </div>
 </nav>
 <div class="drawer" id="drawer">
   <ul>
@@ -459,7 +478,7 @@
   <main class="wh-main">
     <div class="wh-topbar">
       <div class="wh-tb-titles">
-        <div class="wh-tb-eyebrow">Live cockpit · SeaLegs OS</div>
+        <div class="wh-tb-eyebrow">SeaLegs OS</div>
         <h1 class="wh-tb-title" id="wh-view-title">The <em>Wheelhouse</em></h1>
       </div>
       <div class="wh-search">
@@ -637,6 +656,7 @@
 
 <div class="wh-tip" id="wh-tip"></div>
 <div class="wh-pop" id="wh-pop"></div>
+<div class="wh-addmenu" id="wh-addmenu"></div>
 <script>
 /* ════ THE WHEELHOUSE — SeaLegs OS cockpit ════
    Production plumbing (constants, auth, proxy, ops, scoring, schema,
@@ -960,36 +980,53 @@ function whViewToWin(v){ return {pipeline:'pipeline',projects:'portfolio',market
 function whCanDrag(){ return window.matchMedia('(min-width:980px)').matches; }
 function whWsSize(){ const w=document.getElementById('wh-workspace'); return {W:w.clientWidth,H:w.clientHeight}; }
 function whDefaultLayout(){
-  const s=whWsSize(), W=s.W, H=s.H, netW=Math.min(540,Math.max(420,W*0.42)), L={};
-  L.network ={x:(W-netW)/2,y:Math.max(8,(H-netW*0.82)/2-6),w:netW,bodyMax:99999};
-  L.kpis     ={x:12,y:12,w:264,bodyMax:99999};
-  L.portfolio={x:12,y:208,w:Math.min(372,Math.max(300,W*0.27)),bodyMax:360};
-  L.workforce={x:W-348,y:12,w:336,bodyMax:300};
-  L.marketing={x:W-392,y:H-326,w:380,bodyMax:300};
-  L.crew     ={x:W-348,y:322,w:320,bodyMax:240};
-  L.pipeline ={x:12,y:H-282,w:300,bodyMax:240};
-  L.settings ={x:Math.max(12,(W-330)/2),y:Math.max(12,(H-300)/2),w:330,bodyMax:280};
+  const s=whWsSize(), W=s.W, H=s.H, netW=Math.min(560,Math.max(440,W*0.44)), L={};
+  L.network ={x:(W-netW)/2,y:Math.max(8,(H-netW*0.82)/2-6),w:netW,h:null};
+  L.kpis     ={x:12,y:12,w:266,h:null};
+  L.portfolio={x:12,y:206,w:Math.min(380,Math.max(300,W*0.27)),h:Math.min(430,Math.max(240,H-220))};
+  L.workforce={x:W-352,y:12,w:340,h:330};
+  L.marketing={x:W-396,y:H-340,w:384,h:320};
+  L.crew     ={x:W-352,y:354,w:320,h:250};
+  L.pipeline ={x:12,y:H-290,w:300,h:260};
+  L.settings ={x:Math.max(12,(W-340)/2),y:Math.max(12,(H-320)/2),w:340,h:320};
   return L;
 }
 function whLoadWins(){ try{ return JSON.parse(localStorage.getItem(WH_WIN_STORE)||'{}')||{}; }catch(e){ return {}; } }
-function whSaveWins(){ try{ const o={}; WH_WINS.forEach(w=>{const s=whWinState[w.id];o[w.id]={x:s.x,y:s.y,w:s.w,hidden:s.hidden,collapsed:s.collapsed,z:s.z};}); localStorage.setItem(WH_WIN_STORE,JSON.stringify(o)); }catch(e){} }
+function whSaveWins(){ try{ const o={}; WH_WINS.forEach(w=>{const s=whWinState[w.id];o[w.id]={x:s.x,y:s.y,w:s.w,h:s.h,hidden:s.hidden,collapsed:s.collapsed,z:s.z};}); localStorage.setItem(WH_WIN_STORE,JSON.stringify(o)); }catch(e){} }
 function whInitWins(){
   const def=whDefaultLayout(), saved=whLoadWins();
   WH_WINS.forEach(w=>{
-    const d=def[w.id]||{x:20,y:20,w:320,bodyMax:300}, s=saved[w.id]||{};
-    whWinState[w.id]={ x:s.x!=null?s.x:d.x, y:s.y!=null?s.y:d.y, w:s.w!=null?s.w:d.w, bodyMax:d.bodyMax,
+    const d=def[w.id]||{x:20,y:20,w:320,h:300}, s=saved[w.id]||{};
+    whWinState[w.id]={ x:s.x!=null?s.x:d.x, y:s.y!=null?s.y:d.y, w:s.w!=null?s.w:d.w,
+      h:s.h!==undefined?s.h:(d.h!=null?d.h:null),
       hidden:s.hidden!=null?s.hidden:!w.def, collapsed:s.collapsed!=null?s.collapsed:false, z:s.z||(++whTopZ) };
+    const el=document.getElementById('win-'+w.id);
+    if(el){
+      const tools=el.querySelector('.wh-win-tools');
+      if(tools && !tools.querySelector('.wh-add-btn')){
+        const add=document.createElement('button'); add.type='button'; add.className='wh-win-ctl wh-add-btn'; add.title='Add a window'; add.textContent='+';
+        add.addEventListener('click',ev=>{ ev.stopPropagation(); whToggleAddMenu(ev,add); });
+        tools.insertBefore(add,tools.firstChild);
+      }
+      if(!el.querySelector('.wh-win-resize')){
+        const rz=document.createElement('div'); rz.className='wh-win-resize'; rz.title='Drag to resize';
+        rz.innerHTML='<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M11 5 5 11 M11 9 9 11"/></svg>';
+        rz.addEventListener('pointerdown',ev=>whResizeDown(ev,w.id));
+        el.appendChild(rz);
+      }
+      el.addEventListener('pointerdown',()=>whWinFront(w.id));
+    }
     whApplyWin(w.id);
-    const el=document.getElementById('win-'+w.id); if(el) el.addEventListener('pointerdown',()=>whWinFront(w.id));
   });
 }
 function whApplyWin(id){
   const el=document.getElementById('win-'+id), st=whWinState[id]; if(!el||!st) return;
   el.classList.toggle('hidden',!!st.hidden);
   el.classList.toggle('collapsed',!!st.collapsed);
-  const body=el.querySelector('.wh-win-body');
-  if(whCanDrag()){ el.style.left=st.x+'px'; el.style.top=st.y+'px'; el.style.width=st.w+'px'; el.style.zIndex=st.z; if(body) body.style.maxHeight=st.bodyMax<99999?st.bodyMax+'px':''; }
-  else{ el.style.left=el.style.top=el.style.width=el.style.zIndex=''; if(body) body.style.maxHeight=''; }
+  if(whCanDrag()){
+    el.style.left=st.x+'px'; el.style.top=st.y+'px'; el.style.width=st.w+'px'; el.style.zIndex=st.z;
+    el.style.height=(st.collapsed||id==='network'||st.h==null)?'':st.h+'px';
+  } else { el.style.left=el.style.top=el.style.width=el.style.height=el.style.zIndex=''; }
 }
 function whApplyAll(){ WH_WINS.forEach(w=>whApplyWin(w.id)); }
 function whWinFront(id){ const st=whWinState[id]; if(!st)return; st.z=++whTopZ; const el=document.getElementById('win-'+id); if(el&&whCanDrag()) el.style.zIndex=st.z; }
@@ -1013,7 +1050,7 @@ function whWinShow(id){
 function whWinToggle(id){ whWinState[id].hidden?whWinShow(id):whWinHide(id); }
 function whWinCollapse(id){ whWinState[id].collapsed=!whWinState[id].collapsed; whApplyWin(id); whSaveWins(); }
 function whWinFocus(id){ if(!whWinState[id])return; if(whWinState[id].hidden){ whWinShow(id); } else { whWinFront(id); whBuildLauncher(); } }
-function whTidy(){ const def=whDefaultLayout(); WH_WINS.forEach(w=>{ const d=def[w.id], st=whWinState[w.id]; if(d&&!st.hidden){ st.x=d.x; st.y=d.y; st.w=d.w; } }); whApplyAll(); whSaveWins(); }
+function whTidy(){ const def=whDefaultLayout(); WH_WINS.forEach(w=>{ const d=def[w.id], st=whWinState[w.id]; if(d&&!st.hidden){ st.x=d.x; st.y=d.y; st.w=d.w; st.h=d.h; } }); whApplyAll(); whSaveWins(); }
 function whResetLayout(){ try{localStorage.removeItem(WH_WIN_STORE);}catch(e){} whWinState={}; whTopZ=20; whInitWins(); whBuildLauncher(); }
 function whBuildLauncher(){
   document.getElementById('wh-nav').innerHTML=WH_WINS.map(w=>{ const vis=whWinState[w.id]&&!whWinState[w.id].hidden;
@@ -1023,6 +1060,30 @@ function whBuildLauncher(){
 }
 function syncPfButtons(){ document.getElementById('wh-pf-tl').classList.toggle('active',ccPortfolioView==='timeline'); document.getElementById('wh-pf-bd').classList.toggle('active',ccPortfolioView==='board'); }
 function whToggleSidebar(){ const sb=document.getElementById('wh-sidebar'); sb.classList.toggle('collapsed'); document.getElementById('wh-collapse').textContent=sb.classList.contains('collapsed')?'›':'‹'; }
+function whResizeDown(e,id){
+  if(!whCanDrag())return; e.preventDefault(); e.stopPropagation(); whWinFront(id);
+  const st=whWinState[id], el=document.getElementById('win-'+id), sx=e.clientX, sy=e.clientY, sw=el.offsetWidth, sh=el.offsetHeight, sz=whWsSize(), isNet=(id==='network');
+  function mv(ev){
+    st.w=Math.max(220,Math.min(sz.W-st.x-6, sw+(ev.clientX-sx))); el.style.width=st.w+'px';
+    if(!isNet){ st.h=Math.max(120,Math.min(sz.H-st.y-6, sh+(ev.clientY-sy))); el.style.height=st.h+'px'; }
+  }
+  function up(){ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); whSaveWins(); }
+  window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+}
+function whBuildAddMenu(){
+  const hidden=WH_WINS.filter(w=>whWinState[w.id]&&whWinState[w.id].hidden), m=document.getElementById('wh-addmenu');
+  m.innerHTML='<div class="wh-am-h">Add a window</div>'+(hidden.length?hidden.map(w=>`<button onclick="whWinShow('${w.id}');whCloseAddMenu();"><span class="wh-am-ic">${whIcon(w.icon)}</span>${w.label}</button>`).join(''):'<div class="wh-am-empty">All windows are open.</div>');
+}
+function whToggleAddMenu(e,btn){
+  const m=document.getElementById('wh-addmenu');
+  if(m.classList.contains('show')){ whCloseAddMenu(); return; }
+  whBuildAddMenu(); m.classList.add('show');
+  const r=btn.getBoundingClientRect();
+  m.style.left=Math.max(8,Math.min(window.innerWidth-m.offsetWidth-8, r.right-m.offsetWidth))+'px';
+  let top=r.bottom+6; if(top+m.offsetHeight>window.innerHeight-8) top=Math.max(8,r.top-m.offsetHeight-6);
+  m.style.top=top+'px';
+}
+function whCloseAddMenu(){ document.getElementById('wh-addmenu').classList.remove('show'); }
 
 /* ════ MOTION (default ON unless reduced-motion; persisted) ════ */
 let whMotion=true, whAeoTimer=null;
@@ -1265,7 +1326,8 @@ function whInit(){
   ccLoad();
   document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
   document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this)ccCloseModal(); });
-  window.addEventListener('scroll',()=>{ whHideTip(); whClosePop(); },{passive:true});
+  window.addEventListener('scroll',()=>{ whHideTip(); whClosePop(); whCloseAddMenu(); },{passive:true});
+  document.addEventListener('click',e=>{ if(!e.target.closest('#wh-addmenu')&&!e.target.closest('.wh-add-btn')) whCloseAddMenu(); });
   let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(whApplyAll,180); });
 }
 document.addEventListener('DOMContentLoaded',whInit);
