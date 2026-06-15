@@ -256,6 +256,174 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 </div>
 </section>
 
+
+<!-- ============================================================
+     ENGAGEMENT ROUTER  ·  3-question path finder
+     Inherits page :root vars + .btn .btn-primary. Namespaced .csr-.
+     ============================================================ -->
+<section class="csr-sec" id="router">
+  <style>
+    .csr-wrap{max-width:680px;margin:0 auto;}
+    .csr-kicker{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;}
+    .csr-h2{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(30px,4vw,46px);line-height:1.1;color:var(--navy);margin-bottom:14px;}
+    .csr-sub{font-size:17px;color:var(--gray);font-weight:300;line-height:1.6;margin-bottom:34px;max-width:560px;}
+    .csr-card{background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:38px 34px;}
+    .csr-prog{display:flex;gap:6px;margin-bottom:28px;}
+    .csr-prog span{height:4px;flex:1;border-radius:99px;background:var(--line);transition:background .25s ease;}
+    .csr-prog span.on{background:var(--navy);}
+    .csr-step{display:none;animation:csrFade .35s ease;}
+    .csr-step.active{display:block;}
+    @keyframes csrFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+    .csr-qnum{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--gray);text-transform:uppercase;margin-bottom:10px;}
+    .csr-q{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(22px,3.4vw,28px);line-height:1.15;color:var(--navy);margin-bottom:22px;}
+    .csr-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .csr-opt{font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;text-align:left;color:var(--charcoal);background:var(--white);border:1.5px solid var(--line);border-radius:4px;padding:16px;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .08s ease;line-height:1.3;}
+    .csr-opt:hover{border-color:var(--navy);box-shadow:0 4px 14px rgba(11,31,74,.08);}
+    .csr-opt:active{transform:scale(.985);}
+    .csr-back{margin-top:24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gray);background:none;border:none;cursor:pointer;padding:0;text-transform:uppercase;}
+    .csr-back:hover{color:var(--navy);}
+    .csr-result{display:none;animation:csrFade .4s ease;}
+    .csr-result.active{display:block;}
+    .csr-rec{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+    .csr-rtitle{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(26px,4vw,34px);line-height:1.12;color:var(--navy);margin-bottom:6px;}
+    .csr-price{font-family:'DM Mono',monospace;font-size:13px;color:var(--charcoal);margin-bottom:18px;}
+    .csr-rbody{font-size:16px;color:var(--gray);font-weight:300;line-height:1.65;margin-bottom:16px;}
+    .csr-note{font-size:13.5px;color:var(--gray);font-weight:300;line-height:1.6;margin-bottom:26px;}
+    .csr-note a{color:var(--navy);font-weight:600;text-decoration:underline;cursor:pointer;}
+    .csr-restart{display:block;margin-top:20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gray);background:none;border:none;cursor:pointer;padding:0;text-transform:uppercase;}
+    .csr-restart:hover{color:var(--navy);}
+    .csr-cross{text-align:center;font-size:13.5px;color:var(--gray);font-weight:300;margin-top:24px;}
+    .csr-cross a{color:var(--navy);font-weight:600;text-decoration:underline;}
+    @media(max-width:900px){.csr-sec{padding:64px 24px;}.csr-opts{grid-template-columns:1fr;}.csr-card{padding:30px 22px;}}
+  </style>
+
+  <div class="csr-wrap">
+    <span class="csr-kicker">Find your path</span>
+    <h2 class="csr-h2">Three questions.<br>We'll tell you where to start.</h2>
+    <p class="csr-sub">No call required. Answer three taps and we'll point you to the right engagement.</p>
+
+    <div class="csr-card reveal">
+      <div class="csr-prog" id="csrProg"><span class="on"></span><span></span><span></span></div>
+
+      <div class="csr-step active" data-step="0">
+        <p class="csr-qnum">01 — Company size</p>
+        <p class="csr-q">How big is your team?</p>
+        <div class="csr-opts">
+          <button class="csr-opt" data-k="size" data-v="under50">Under 50</button>
+          <button class="csr-opt" data-k="size" data-v="50-150">50 – 150</button>
+          <button class="csr-opt" data-k="size" data-v="150-500">150 – 500</button>
+          <button class="csr-opt" data-k="size" data-v="500plus">500+</button>
+        </div>
+      </div>
+
+      <div class="csr-step" data-step="1">
+        <p class="csr-qnum">02 — Situation</p>
+        <p class="csr-q">Where are you with your AI stack?</p>
+        <div class="csr-opts">
+          <button class="csr-opt" data-k="sit" data-v="exploring">Just exploring AI</button>
+          <button class="csr-opt" data-k="sit" data-v="sprawling">Tools are sprawling &amp; redundant</button>
+          <button class="csr-opt" data-k="sit" data-v="automate">Want it automated end-to-end</button>
+          <button class="csr-opt" data-k="sit" data-v="ongoing">Need ongoing management</button>
+        </div>
+        <button class="csr-back" type="button">← Back</button>
+      </div>
+
+      <div class="csr-step" data-step="2">
+        <p class="csr-qnum">03 — What hurts most</p>
+        <p class="csr-q">What's the biggest pain right now?</p>
+        <div class="csr-opts">
+          <button class="csr-opt" data-k="pain" data-v="unknown">Don't know what we're running</button>
+          <button class="csr-opt" data-k="pain" data-v="overlap">Paying for overlapping tools</button>
+          <button class="csr-opt" data-k="pain" data-v="manual">Manual work that should be automated</button>
+          <button class="csr-opt" data-k="pain" data-v="noowner">No one owns the AI stack</button>
+        </div>
+        <button class="csr-back" type="button">← Back</button>
+      </div>
+
+      <div class="csr-result" id="csrResult">
+        <p class="csr-rec">Recommended for you</p>
+        <h3 class="csr-rtitle" id="csrRTitle"></h3>
+        <p class="csr-price" id="csrRPrice"></p>
+        <p class="csr-rbody" id="csrRBody"></p>
+        <p class="csr-note" id="csrRNote"></p>
+        <a class="btn btn-primary" id="csrRCta" href="#" style="font-size:16px;padding:16px 36px;">Get started</a>
+        <button class="csr-restart" type="button" id="csrRestart">↺ Start over</button>
+      </div>
+    </div>
+
+    <p class="csr-cross">Curious what you'd save first? <a href="method.html#calculator">Run the savings calculator →</a></p>
+  </div>
+
+  <script>
+  (function(){
+    var root = document.getElementById('router');
+    var answers = {size:null, sit:null, pain:null};
+    var steps = root.querySelectorAll('.csr-step');
+    var prog  = root.querySelector('#csrProg').children;
+    var result = root.querySelector('#csrResult');
+    var cur = 0;
+
+    var OUTCOMES = {
+      playbook:{title:'The AI Stack Playbook',price:'$49 · instant download',
+        body:'Start here. Audit your own stack with the 4C Framework \u2014 Catalog, Consolidate, Connect, Coach \u2014 and find the redundancy yourself.',
+        note:'Want it done with you instead of by yourself? Ask about the <a href="#cohort">Coaching Cohort</a>.',
+        cta:'Get the Playbook \u2014 $49',href:'#playbook'},
+      dfy:{title:'Done-For-You Implementation',price:'$10K \u2013 $25K · fixed scope',
+        body:'We catalog your stack, consolidate the redundancy, connect what\u2019s left into automated workflows, and coach your team. You keep a clear stack you own.',
+        note:'Currently accepting Q3 2026 engagements \u2014 limited slots per month.',
+        cta:'Book a discovery call',href:'contact.html'},
+      retainer:{title:'Retainer & Maintenance',price:'Custom monthly',
+        body:'We stay on as your AI operations team \u2014 proactive, accountable, part of your team. We monitor, maintain, and keep the stack clean as you grow.',
+        note:'Built on top of a completed implementation or an existing stack we audit first.',
+        cta:'Book a discovery call',href:'contact.html'},
+      talk:{title:'Let\u2019s scope it together',price:'Enterprise · custom',
+        body:'You\u2019re above our core mid-market focus, but consolidation pain doesn\u2019t stop at 500 people. If there\u2019s a fit, we\u2019ll find it on a call.',
+        note:'We\u2019ll tell you honestly in the first conversation whether we\u2019re the right team.',
+        cta:'Book a call',href:'contact.html'}
+    };
+
+    function recommend(a){
+      if(a.size === '500plus') return 'talk';
+      if(a.sit === 'ongoing' || a.pain === 'noowner') return 'retainer';
+      if(a.sit === 'automate') return 'dfy';
+      if(a.size !== 'under50' && (a.sit === 'sprawling' || a.pain === 'manual' || a.pain === 'overlap')) return 'dfy';
+      if(a.sit === 'exploring' || a.size === 'under50') return 'playbook';
+      return 'playbook';
+    }
+    function show(i){
+      steps.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+      for(var p=0;p<prog.length;p++){ prog[p].classList.toggle('on', p<=i); }
+      result.classList.remove('active'); cur = i;
+    }
+    function finish(){
+      var o = OUTCOMES[recommend(answers)];
+      root.querySelector('#csrRTitle').textContent = o.title;
+      root.querySelector('#csrRPrice').textContent = o.price;
+      root.querySelector('#csrRBody').textContent  = o.body;
+      var note = root.querySelector('#csrRNote');
+      note.innerHTML = o.note; note.style.display = o.note ? 'block':'none';
+      var cta = root.querySelector('#csrRCta');
+      cta.textContent = o.cta; cta.setAttribute('href', o.href);
+      steps.forEach(function(s){ s.classList.remove('active'); });
+      for(var p=0;p<prog.length;p++){ prog[p].classList.add('on'); }
+      result.classList.add('active');
+    }
+    root.querySelectorAll('.csr-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        answers[btn.dataset.k] = btn.dataset.v;
+        if(cur < 2){ show(cur+1); } else { finish(); }
+      });
+    });
+    root.querySelectorAll('.csr-back').forEach(function(b){
+      b.addEventListener('click', function(){ if(cur>0) show(cur-1); });
+    });
+    root.querySelector('#csrRestart').addEventListener('click', function(){
+      answers={size:null,sit:null,pain:null}; show(0);
+    });
+  })();
+  </script>
+</section>
+
 <div class="cta-close">
   <div class="cta-bot"></div>
   <div class="cta-inner">

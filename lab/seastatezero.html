@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SeaStateZero — See Your Real Stack | The Clear Stack</title>
+  <meta name="description" content="Paste your tool list and get an instant 4C consolidation read — what to cut, renegotiate, replace, and keep. Built on the same engine we run for clients." />
+  <link rel="canonical" href="https://theclearstack.com/lab/seastatezero.html">
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CLEAR STACK DESIGN SYSTEM ── */
+    :root {
+      --navy:    #0B1F4A;
+      --navy2:   #07152F;
+      --orange:  #E07B2A;
+      --white:   #FFFFFF;
+      --cream:   #F7F4EF;
+      --light:   #F4F5F7;
+      --charcoal:#1A1A1A;
+      --gray:    #5A6478;
+      --slate:   #334155;
+      --border:  rgba(11,31,74,0.10);
+      --border2: rgba(11,31,74,0.18);
+      --shadow:  0 2px 24px rgba(11,31,74,0.08);
+      --shadow2: 0 8px 48px rgba(11,31,74,0.13);
+      --radius:  4px;
+      --green:   #2E7D5B;
+      --red:     #B5462F;
+      --font-head: 'Cormorant Garamond', serif;
+      --font-body: 'Outfit', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--white);
+      color: var(--charcoal);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font-body); cursor: pointer; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--navy);
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .logo-wm { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: #F7F4EF;
+      letter-spacing: 0.01em;
+    }
+    .logo-name .logo-the { font-weight: 600; color: #F7F4EF; }
+    .logo-name em { font-style: normal; font-weight: 700; color: var(--orange); }
+    .logo-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 6.5px;
+      letter-spacing: 0.14em;
+      color: #FFFFFF;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: rgba(247,244,239,.6); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: rgba(247,244,239,.95); }
+    .nav-links a.active { border-bottom: 1px solid var(--orange); padding-bottom: 2px; }
+    .nav-cta { background: var(--orange) !important; color: #fff !important; padding: 9px 22px; border-radius: 3px; font-size: 13px !important; font-weight: 600 !important; text-decoration: none; transition: background .2s; }
+    .nav-cta:hover { background: #C96A1A !important; }
+    .burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; }
+    .burger span { display: block; width: 22px; height: 2px; background: rgba(247,244,239,.7); border-radius: 2px; }
+    .drawer { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: #07152F; z-index: 999; padding: 32px 24px; transform: translateX(-100%); transition: transform .3s ease; }
+    .drawer.open { transform: none; }
+    .drawer ul { list-style: none; }
+    .drawer a { display: block; padding: 18px 0; font-size: 18px; font-weight: 500; color: rgba(247,244,239,.75); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .d-cta { color: var(--orange) !important; font-weight: 700 !important; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--navy);
+      padding: 72px 40px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 90% at 50% 110%, rgba(224,123,42,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-label {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      padding: 5px 14px;
+      border: 1px solid rgba(224,123,42,0.3);
+      border-radius: 20px;
+    }
+    .hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(38px, 5.5vw, 60px);
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.08;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+    .hero h1 em { font-style: italic; color: rgba(255,255,255,0.55); }
+    .hero p {
+      color: rgba(255,255,255,0.55);
+      font-size: 16px;
+      max-width: 540px;
+      margin: 0 auto;
+      font-weight: 300;
+      line-height: 1.75;
+    }
+
+    /* ── MAIN ── */
+    .wrap { max-width: 820px; margin: 0 auto; padding: 56px 24px 88px; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: var(--white);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .field { margin-bottom: 20px; }
+    .field:last-of-type { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 8px;
+    }
+    .field .hint { color: var(--gray); text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: 12px; }
+    textarea, input[type="text"] {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--charcoal);
+      background: var(--white);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+    textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(224,123,42,0.12);
+    }
+    textarea::placeholder, input::placeholder { color: #97A0B0; }
+
+    /* honeypot — hidden from humans */
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    /* optional context, collapsed */
+    .context-toggle {
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 14px 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .context-toggle .chev { transition: transform 0.2s; font-size: 9px; }
+    .context-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+    .context-panel { display: none; padding-top: 16px; }
+    .context-panel.open { display: block; }
+    .context-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .context-grid { grid-template-columns: 1fr; } }
+
+    .submit-row { margin-top: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .btn-run {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 13px 30px;
+      background: var(--orange);
+      color: #fff;
+      border-radius: 3px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn-run:hover:not(:disabled) { background: #C96A1A; }
+    .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
+    .run-note { font-family: var(--font-mono); font-size: 11px; color: var(--gray); letter-spacing: 0.04em; }
+
+    /* ── LOADING (narrated) ── */
+    .loader { display: none; padding: 8px 4px; }
+    .loader.show { display: block; }
+    .loader-head {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .loader-sub { color: var(--gray); font-size: 14px; font-weight: 300; margin-bottom: 22px; }
+    .progress-track {
+      height: 4px;
+      background: var(--light);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--orange);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .progress-steps { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .progress-steps li {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 14px;
+      color: #97A0B0;
+      transition: color 0.3s;
+    }
+    .progress-steps li .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border2);
+      flex-shrink: 0;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .progress-steps li.active { color: var(--slate); font-weight: 500; }
+    .progress-steps li.active .dot { background: var(--orange); box-shadow: 0 0 0 4px rgba(224,123,42,0.14); }
+    .progress-steps li.done { color: var(--gray); }
+    .progress-steps li.done .dot { background: var(--green); }
+
+    /* ── RESULT ── */
+    .result { display: none; }
+    .result.show { display: block; animation: fadeUp 0.4s ease; }
+
+    /* teaser (ungated): summary + headline savings only */
+    .teaser { display: none; }
+    .teaser.show { display: block; animation: fadeUp 0.4s ease; }
+    .teaser-hook {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .teaser-hook .th-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 14px;
+    }
+    .teaser-hook .th-savings {
+      font-family: var(--font-head);
+      font-size: clamp(40px, 7vw, 64px);
+      font-weight: 600;
+      color: var(--orange);
+      line-height: 1.05;
+      margin-bottom: 6px;
+    }
+    .teaser-hook .th-cap {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--gray);
+    }
+
+    /* gate card */
+    .gate {
+      background: var(--navy);
+      border-radius: 6px;
+      padding: 32px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .gate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 85% 0%, rgba(224,123,42,0.14) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .gate-inner { position: relative; }
+    .gate .g-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 12px;
+    }
+    .gate h3 {
+      font-family: var(--font-head);
+      font-size: 27px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .gate .g-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    .gate-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+    .gate-fields .gf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 520px) { .gate-fields .gf-row { grid-template-columns: 1fr; } }
+    .gate label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 6px;
+    }
+    .gate input, .gate select {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .gate input::placeholder { color: rgba(255,255,255,0.4); }
+    .gate input:focus, .gate select:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(224,123,42,0.2);
+    }
+    .gate select { appearance: none; -webkit-appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201l4%204%204-4%22%20stroke%3D%22%23E07B2A%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+    }
+    .gate select option { color: #1A1A1A; }
+    .gate .btn-unlock {
+      width: 100%;
+      padding: 14px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .gate .btn-unlock:hover:not(:disabled) { background: #C96A1A; }
+    .gate .btn-unlock:disabled { opacity: 0.5; cursor: not-allowed; }
+    .gate .g-fine {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    .gate .g-err {
+      font-size: 12px;
+      color: #FFB59E;
+      margin-top: 10px;
+      min-height: 16px;
+      text-align: center;
+    }
+
+    /* locked preview — blurred peek of what's behind the gate */
+    .locked-peek {
+      margin-top: 18px;
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .locked-peek .lp-blur {
+      filter: blur(6px);
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+      padding: 20px 24px;
+      background: var(--white);
+    }
+    .locked-peek .lp-line {
+      height: 12px;
+      background: var(--border2);
+      border-radius: 3px;
+      margin-bottom: 12px;
+    }
+    .locked-peek .lp-line.w1 { width: 86%; }
+    .locked-peek .lp-line.w2 { width: 72%; }
+    .locked-peek .lp-line.w3 { width: 91%; }
+    .locked-peek .lp-line.w4 { width: 64%; }
+    .locked-peek .lp-badge {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      background: var(--cream);
+      border: 1px solid var(--border2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .summary-card {
+      background: var(--navy);
+      border-radius: 6px;
+      padding: 32px;
+      color: #fff;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 90% 0%, rgba(224,123,42,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .summary-card .sc-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 14px;
+    }
+    .summary-card .sc-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.9);
+      font-weight: 300;
+    }
+    .summary-card .sc-company {
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 560px) { .stats-row { grid-template-columns: 1fr; } }
+    .stat {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+    }
+    .stat .s-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+    .stat .s-value { font-family: var(--font-head); font-size: 26px; font-weight: 600; color: var(--navy); line-height: 1.15; }
+    .stat.accent .s-value { color: var(--orange); }
+
+    .caveat {
+      background: var(--light);
+      border-left: 3px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .caveat strong { color: var(--slate); font-weight: 600; }
+
+    /* collapsible 4C sections */
+    .sections { margin-top: 26px; }
+    .csec {
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: var(--white);
+    }
+    .csec-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: var(--white);
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .csec-head:hover { background: var(--light); }
+    .csec-head .ch-left { display: flex; align-items: baseline; gap: 14px; }
+    .csec-head .ch-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--orange);
+      letter-spacing: 0.1em;
+    }
+    .csec-head .ch-title { font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--navy); }
+    .csec-head .ch-count { font-family: var(--font-mono); font-size: 11px; color: var(--gray); }
+    .csec-head .ch-chev { color: var(--gray); transition: transform 0.2s; font-size: 12px; }
+    .csec-head[aria-expanded="true"] .ch-chev { transform: rotate(90deg); }
+    .csec-body { display: none; padding: 4px 24px 24px; }
+    .csec-body.open { display: block; }
+
+    .subhead {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin: 20px 0 10px;
+    }
+    .subhead:first-child { margin-top: 6px; }
+
+    .row {
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row .r-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .row .r-tool { font-weight: 600; color: var(--charcoal); }
+    .row .r-cat {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--light);
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+    .row .r-save {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--green);
+      margin-left: auto;
+    }
+    .row .r-reason { font-size: 13.5px; color: var(--gray); line-height: 1.6; }
+    .row .r-conf {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--gray);
+      letter-spacing: 0.06em;
+    }
+
+    /* make_justified honesty flag */
+    .mj-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(181,70,47,0.08);
+      color: var(--red);
+      border: 1px dashed rgba(181,70,47,0.35);
+      margin-top: 6px;
+    }
+
+    .pair {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .pair .p-tools { font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .pair .p-issue { font-size: 13.5px; color: var(--gray); line-height: 1.6; margin-bottom: 6px; }
+    .pair .p-rec { font-size: 13.5px; color: var(--slate); line-height: 1.6; }
+    .pair .p-rec strong { color: var(--navy); }
+
+    .flag-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .flag-list li {
+      font-size: 13.5px;
+      color: var(--slate);
+      line-height: 1.6;
+      padding-left: 18px;
+      position: relative;
+    }
+    .flag-list li::before { content: '!'; position: absolute; left: 0; color: var(--orange); font-weight: 700; font-family: var(--font-mono); }
+
+    .conn {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .conn:last-child { border-bottom: none; }
+    .conn .c-flow { font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+    .conn .c-tools { font-family: var(--font-mono); font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+    .conn .c-impact { font-size: 13.5px; color: var(--gray); line-height: 1.6; }
+
+    .empty { color: var(--gray); font-size: 13.5px; font-style: italic; padding: 8px 0; }
+
+    /* coach / discovery questions → CTA */
+    .coach-card {
+      background: var(--cream);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 28px;
+      margin-top: 24px;
+    }
+    .coach-card .cc-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+    .coach-card h3 { font-family: var(--font-head); font-size: 26px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .coach-card .cc-intro { color: var(--gray); font-size: 14px; line-height: 1.7; margin-bottom: 18px; font-weight: 300; }
+    .q-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; counter-reset: q; }
+    .q-list li {
+      display: flex;
+      gap: 12px;
+      font-size: 14.5px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+    .q-list li .q-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--orange);
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+    .q-list li:first-child { font-weight: 600; color: var(--charcoal); }
+
+    .btn-book {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--navy);
+      color: #fff;
+      border-radius: 3px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .btn-book:hover { background: var(--navy2); }
+
+    /* error state */
+    .err { display: none; }
+    .err.show { display: block; animation: fadeUp 0.3s ease; }
+    .err-card {
+      background: var(--white);
+      border: 1px solid var(--border2);
+      border-left: 3px solid var(--red);
+      border-radius: 6px;
+      padding: 28px;
+      text-align: center;
+    }
+    .err-card h3 { font-family: var(--font-head); font-size: 24px; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+    .err-card p { color: var(--gray); font-size: 14px; line-height: 1.7; margin-bottom: 22px; }
+    .err-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-retry {
+      padding: 12px 26px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .btn-retry:hover { background: #C96A1A; }
+    .btn-alt {
+      padding: 12px 26px;
+      background: var(--white);
+      color: var(--navy);
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-alt:hover { background: var(--light); }
+
+    /* ── FOOTER CTA ── */
+    .footer-cta { background: var(--navy); padding: 56px 40px; text-align: center; }
+    .footer-cta h2 { font-family: var(--font-head); font-size: clamp(28px, 4vw, 42px); font-weight: 600; color: var(--white); margin-bottom: 12px; }
+    .footer-cta p { color: rgba(255,255,255,0.55); font-size: 15px; margin-bottom: 28px; font-weight: 300; }
+    .btn-primary { display: inline-flex; align-items: center; padding: 13px 32px; background: var(--orange); color: white; border-radius: 3px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: background 0.15s; text-decoration: none; }
+    .btn-primary:hover { background: #c96e20; }
+    .footer-cta-note { color: rgba(255,255,255,0.3); font-size: 11px; font-family: var(--font-mono); margin-top: 16px; letter-spacing: 0.05em; }
+
+    /* ── SITE FOOTER ── */
+    footer { background: var(--navy2); padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    footer span { color: rgba(255,255,255,0.3); font-size: 12px; font-family: var(--font-mono); }
+    footer a { color: rgba(255,255,255,0.35); font-size: 12px; transition: color 0.15s; }
+    footer a:hover { color: rgba(255,255,255,0.7); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .burger { display: flex; }
+      .drawer { display: block; }
+      .hero { padding: 52px 24px 44px; }
+      .wrap { padding: 40px 16px 64px; }
+      .input-card { padding: 24px; }
+      footer { padding: 20px 24px; }
+      .footer-cta { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html" class="active">Lab</a></li>
+  </ul>
+  <a href="../contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html">Lab</a></li>
+    <li><a href="../contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-label">SeaStateZero</div>
+  <h1>See Your <em>Real</em> Stack</h1>
+  <p>Paste the tools you're running and get an instant consolidation read — what to cut, what to renegotiate, what Make.com can replace, and what to keep. Same engine we run on client calls.</p>
+</section>
+
+<!-- ── MAIN ── -->
+<div class="wrap">
+
+  <!-- INPUT -->
+  <div id="inputView">
+    <div class="eyebrow">Run an analysis</div>
+    <div class="input-card">
+      <div class="field">
+        <label for="toolData">Your tool list <span class="hint">— paste the SaaS and AI tools you pay for, one per line or comma-separated</span></label>
+        <textarea id="toolData" placeholder="HubSpot&#10;Klaviyo&#10;Yotpo&#10;Gorgias&#10;Zapier&#10;Make.com&#10;Shopify&#10;Recharge&#10;..."></textarea>
+      </div>
+
+      <!-- honeypot -->
+      <div class="hp" aria-hidden="true">
+        <label>Leave this empty<input type="text" id="hp" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <button type="button" class="context-toggle" id="ctxToggle" aria-expanded="false">
+        <span class="chev">▶</span> Add context for a sharper read (optional)
+      </button>
+      <div class="context-panel" id="ctxPanel">
+        <div class="context-grid">
+          <div class="field">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Acme Co" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="domain">Website</label>
+            <input type="text" id="domain" placeholder="acme.com" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="employees">Employees</label>
+            <input type="text" id="employees" placeholder="200" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="industry">Industry</label>
+            <input type="text" id="industry" placeholder="Ecommerce" autocomplete="off">
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px;">
+          <label for="notes">Notes <span class="hint">— anything we should know (renewal coming up, a tool you suspect is dead weight, etc.)</span></label>
+          <textarea id="notes" style="min-height:80px;" placeholder="Klaviyo renews next month. Not sure we still use Yotpo."></textarea>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="button" class="btn-run" id="runBtn" disabled>Analyze my stack →</button>
+        <span class="run-note">Takes about 30 seconds · free · no signup</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loader" id="loader">
+    <div class="loader-head">Reading your stack…</div>
+    <div class="loader-sub">A real analysis takes a moment — this isn't a template. About 30 seconds.</div>
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    <ul class="progress-steps" id="progSteps">
+      <li data-step="0"><span class="dot"></span> Cataloging every tool and its category</li>
+      <li data-step="1"><span class="dot"></span> Finding redundancy pairs and overlap</li>
+      <li data-step="2"><span class="dot"></span> Checking spend against per-employee benchmarks</li>
+      <li data-step="3"><span class="dot"></span> Writing your 4C consolidation report</li>
+    </ul>
+  </div>
+
+  <!-- TEASER + GATE (hybrid: shown after run, before email) -->
+  <div class="teaser" id="teaser">
+    <div class="eyebrow">Your read is ready</div>
+    <div class="summary-card" id="teaserSummary"></div>
+    <div class="teaser-hook" id="teaserHook"></div>
+    <div class="gate">
+      <div class="gate-inner">
+        <div class="g-label">Unlock the full 4C plan</div>
+        <h3>The savings number is the headline. The plan is the part you act on.</h3>
+        <p class="g-sub">Where it's coming from, what to cut first, which tools to renegotiate, what Make.com can replace, and the questions that turn this into real numbers. Enter your details to unlock the full report.</p>
+        <div class="gate-fields">
+          <div class="gf-row">
+            <div>
+              <label for="gFirst">First name</label>
+              <input type="text" id="gFirst" placeholder="Sarah" autocomplete="given-name">
+            </div>
+            <div>
+              <label for="gSize">Company size</label>
+              <select id="gSize">
+                <option value="">Select…</option>
+                <option value="1-49">1–49 employees</option>
+                <option value="50-149">50–149 employees</option>
+                <option value="150-500">150–500 employees</option>
+                <option value="500+">500+ employees</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="gEmail">Work email</label>
+            <input type="text" id="gEmail" placeholder="sarah@yourbrand.com" autocomplete="email" inputmode="email">
+          </div>
+        </div>
+        <button type="button" class="btn-unlock" id="unlockBtn">Unlock my full 4C report →</button>
+        <div class="g-err" id="gateErr"></div>
+        <div class="g-fine">Free. We'll never share your details. One follow-up from a human, not a drip sequence.</div>
+      </div>
+    </div>
+
+    <!-- blurred peek of what's behind the gate -->
+    <div class="locked-peek">
+      <div class="lp-blur">
+        <div class="lp-line w1"></div><div class="lp-line w3"></div>
+        <div class="lp-line w2"></div><div class="lp-line w4"></div>
+        <div class="lp-line w3"></div><div class="lp-line w1"></div>
+      </div>
+      <div class="lp-badge">🔒 Full catalog · cut / renegotiate / replace · discovery questions</div>
+    </div>
+  </div>
+
+  <!-- RESULT (full, unlocked) -->
+  <div class="result" id="result"></div>
+
+  <!-- ERROR -->
+  <div class="err" id="errView">
+    <div class="err-card">
+      <h3>The analysis didn't complete</h3>
+      <p id="errMsg">Something interrupted the run. Give it another go — or skip straight to a real audit with a human.</p>
+      <div class="err-actions">
+        <button type="button" class="btn-retry" id="retryBtn">Try again</button>
+        <a class="btn-alt" href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener">Book a free audit instead</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER CTA ── -->
+<section class="footer-cta">
+  <h2>This is the first ten minutes of a real engagement.</h2>
+  <p>We install consolidations like this for mid-market ecommerce brands every day.</p>
+  <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener" class="btn-primary">Book a Free Audit →</a>
+  <div class="footer-cta-note">Currently accepting Q3 2026 engagements — limited slots per month</div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>© 2026 The Clear Stack · theclearstack.com</span>
+  <div style="display:flex;gap:24px;align-items:center;">
+    <a href="../index.html">Home</a>
+    <a href="../method.html">Method</a>
+    <a href="../contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // ── nav drawer ──
+  document.getElementById('burger').addEventListener('click', () =>
+    document.getElementById('drawer').classList.toggle('open'));
+
+  // ── context toggle ──
+  var ctxToggle = document.getElementById('ctxToggle');
+  var ctxPanel = document.getElementById('ctxPanel');
+  ctxToggle.addEventListener('click', function () {
+    var open = ctxPanel.classList.toggle('open');
+    ctxToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  // ── enable run button only when paste box has real content ──
+  var toolData = document.getElementById('toolData');
+  var runBtn = document.getElementById('runBtn');
+  function syncRunBtn() { runBtn.disabled = toolData.value.trim().length < 15; }
+  toolData.addEventListener('input', syncRunBtn);
+  syncRunBtn();
+
+  // ── views ──
+  var inputView = document.getElementById('inputView');
+  var loader = document.getElementById('loader');
+  var result = document.getElementById('result');
+  var errView = document.getElementById('errView');
+
+  // ── narrated loading sequence ──
+  var progFill = document.getElementById('progFill');
+  var stepEls = Array.prototype.slice.call(document.querySelectorAll('#progSteps li'));
+  var loadTimers = [];
+  // step start times (ms) across a ~30s expected run; final step holds until response lands
+  var stepStarts = [0, 7000, 15000, 23000];
+  function startLoading() {
+    clearLoading();
+    stepEls.forEach(function (el) { el.classList.remove('active', 'done'); });
+    progFill.style.width = '4%';
+    stepStarts.forEach(function (t, i) {
+      loadTimers.push(setTimeout(function () {
+        stepEls.forEach(function (el, j) {
+          el.classList.toggle('done', j < i);
+          el.classList.toggle('active', j === i);
+        });
+        progFill.style.width = ([8, 34, 62, 88][i]) + '%';
+      }, t));
+    });
+  }
+  function clearLoading() { loadTimers.forEach(clearTimeout); loadTimers = []; }
+  function finishLoading() {
+    clearLoading();
+    stepEls.forEach(function (el) { el.classList.remove('active'); el.classList.add('done'); });
+    progFill.style.width = '100%';
+  }
+
+  // ── helpers ──
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function arr(x) { return Array.isArray(x) ? x : []; }
+
+  // ── submit ──
+  var lastPayload = null;
+  runBtn.addEventListener('click', runAnalysis);
+  document.getElementById('retryBtn').addEventListener('click', function () {
+    if (lastPayload) sendRequest(lastPayload);
+  });
+
+  function runAnalysis() {
+    var payload = {
+      tool_data: toolData.value.trim(),
+      company: document.getElementById('company').value.trim(),
+      domain: document.getElementById('domain').value.trim(),
+      employees: document.getElementById('employees').value.trim(),
+      industry: document.getElementById('industry').value.trim(),
+      notes: document.getElementById('notes').value.trim(),
+      _hp: document.getElementById('hp').value
+    };
+    lastPayload = payload;
+    gtag('event', 'seastatezero_submit', {
+      has_context: !!(payload.company || payload.domain || payload.employees || payload.industry || payload.notes)
+    });
+    sendRequest(payload);
+  }
+
+  function showOnly(view) {
+    inputView.style.display = (view === 'input') ? 'block' : 'none';
+    loader.classList.toggle('show', view === 'loading');
+    teaser.classList.toggle('show', view === 'teaser');
+    result.classList.toggle('show', view === 'result');
+    errView.classList.toggle('show', view === 'error');
+  }
+
+  var teaser = document.getElementById('teaser');
+  var pendingReport = null; // full report held client-side until the gate is passed
+
+  function sendRequest(payload) {
+    showOnly('loading');
+    startLoading();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    fetch('/api/seastatezero', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.body || !res.body.success || !res.body.report) {
+          throw new Error((res.body && res.body.error) || 'The analysis engine returned an error.');
+        }
+        pendingReport = res.body.report;
+        finishLoading();
+        setTimeout(function () {
+          renderTeaser(pendingReport);
+          showOnly('teaser');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          gtag('event', 'seastatezero_result', {
+            tool_count: pendingReport.tool_count_real || 0
+          });
+        }, 500);
+      })
+      .catch(function (err) {
+        clearLoading();
+        document.getElementById('errMsg').textContent =
+          (err && err.message) ? err.message : 'Something interrupted the run. Give it another go.';
+        showOnly('error');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        gtag('event', 'seastatezero_error');
+      });
+  }
+
+  // ── teaser: summary + headline savings only (ungated hook) ──
+  function renderTeaser(r) {
+    var sc = document.getElementById('teaserSummary');
+    var scHtml = '';
+    if (r.company) scHtml += '<div class="sc-company">' + esc(r.company) + '</div>';
+    scHtml += '<div class="sc-label">The read</div>';
+    scHtml += '<div class="sc-text">' + esc(r.summary) + '</div>';
+    sc.innerHTML = scHtml;
+
+    var savings = r.estimated_monthly_savings_range || 'Not estimable';
+    document.getElementById('teaserHook').innerHTML =
+      '<div class="th-label">Estimated monthly savings</div>' +
+      '<div class="th-savings">' + esc(savings) + '</div>' +
+      '<div class="th-cap">directional estimate · real numbers come from your invoices</div>';
+  }
+
+  // ── gate: validate, fire capture, then reveal full report ──
+  var unlockBtn = document.getElementById('unlockBtn');
+  var gateErr = document.getElementById('gateErr');
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  unlockBtn.addEventListener('click', function () {
+    var first = document.getElementById('gFirst').value.trim();
+    var email = document.getElementById('gEmail').value.trim();
+    var size = document.getElementById('gSize').value;
+
+    gateErr.textContent = '';
+    if (!first) { gateErr.textContent = 'Please add your first name.'; return; }
+    if (!emailRe.test(email)) { gateErr.textContent = 'Please enter a valid work email.'; return; }
+    if (!size) { gateErr.textContent = 'Please select your company size.'; return; }
+
+    unlockBtn.disabled = true;
+    unlockBtn.textContent = 'Unlocking…';
+
+    var capturePayload = {
+      action: 'capture',
+      first_name: first,
+      email: email,
+      company_size: size,
+      company: (lastPayload && lastPayload.company) || '',
+      domain: (lastPayload && lastPayload.domain) || '',
+      industry: (lastPayload && lastPayload.industry) || '',
+      tool_data: (lastPayload && lastPayload.tool_data) || '',
+      notes: (lastPayload && lastPayload.notes) || ''
+    };
+
+    gtag('event', 'seastatezero_lead_capture', { company_size: size });
+
+    // Fire capture, then reveal — but never block the reveal on a capture hiccup.
+    fetch('/api/seastatezero', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(capturePayload)
+    })
+      .catch(function () { /* swallow — reveal regardless */ })
+      .then(function () { revealFullReport(); });
+  });
+
+  function revealFullReport() {
+    if (!pendingReport) return;
+    renderReport(pendingReport);
+    showOnly('result');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    gtag('event', 'seastatezero_unlocked');
+  }
+
+  // ── render the live v2 report shape ──
+  function renderReport(r) {
+    var c = r.consolidate || {};
+    var html = '';
+
+    // summary card
+    html += '<div class="summary-card">';
+    if (r.company) html += '<div class="sc-company">' + esc(r.company) + '</div>';
+    html += '<div class="sc-label">The read</div>';
+    html += '<div class="sc-text">' + esc(r.summary) + '</div>';
+    html += '</div>';
+
+    // headline stats
+    html += '<div class="stats-row">';
+    html += stat('Tools running', (r.tool_count_real != null ? r.tool_count_real : '—'), false);
+    html += stat('Est. monthly spend', r.estimated_monthly_spend_range || 'Not estimable', false);
+    html += stat('Est. monthly savings', r.estimated_monthly_savings_range || 'Not estimable', true);
+    html += '</div>';
+
+    // honesty caveats
+    if (r.confidence_note)
+      html += '<div class="caveat"><strong>Confidence:</strong> ' + esc(r.confidence_note) + '</div>';
+    if (r.spend_sanity_check)
+      html += '<div class="caveat"><strong>Spend sanity check:</strong> ' + esc(r.spend_sanity_check) + '</div>';
+
+    // 4C collapsible sections
+    html += '<div class="sections">';
+
+    // CATALOG
+    html += section('01', 'Catalog', arr(r.catalog).length + ' tools', renderCatalog(arr(r.catalog)), true);
+
+    // CONSOLIDATE
+    html += section('02', 'Consolidate', countConsolidate(c) + ' moves', renderConsolidate(c), true);
+
+    // CONNECT
+    html += section('03', 'Connect', arr(r.connect).length + ' workflows', renderConnect(arr(r.connect)), false);
+
+    // risk flags (part of the honest read)
+    if (arr(r.risk_flags).length)
+      html += section('!', 'Risk flags', arr(r.risk_flags).length, renderFlags(arr(r.risk_flags)), false);
+
+    html += '</div>';
+
+    // COACH → discovery questions + booking CTA
+    html += renderCoach(arr(r.discovery_questions));
+
+    result.innerHTML = html;
+    wireSections();
+  }
+
+  function stat(label, value, accent) {
+    return '<div class="stat' + (accent ? ' accent' : '') + '">' +
+      '<div class="s-label">' + esc(label) + '</div>' +
+      '<div class="s-value">' + esc(value) + '</div></div>';
+  }
+
+  function section(num, title, count, bodyHtml, openByDefault) {
+    return '<div class="csec">' +
+      '<button type="button" class="csec-head" aria-expanded="' + (openByDefault ? 'true' : 'false') + '">' +
+        '<span class="ch-left"><span class="ch-num">' + esc(num) + '</span>' +
+        '<span class="ch-title">' + esc(title) + '</span>' +
+        '<span class="ch-count">' + esc(count) + '</span></span>' +
+        '<span class="ch-chev">▶</span>' +
+      '</button>' +
+      '<div class="csec-body' + (openByDefault ? ' open' : '') + '">' + bodyHtml + '</div>' +
+    '</div>';
+  }
+
+  function renderCatalog(items) {
+    if (!items.length) return '<div class="empty">No tools catalogued.</div>';
+    return items.map(function (t) {
+      return '<div class="row"><div class="r-top">' +
+        '<span class="r-tool">' + esc(t.name) + '</span>' +
+        (t.category ? '<span class="r-cat">' + esc(t.category) + '</span>' : '') +
+        (t.confidence ? '<span class="r-conf" style="margin-left:auto;">' + esc(t.confidence) + ' confidence</span>' : '') +
+        '</div>' +
+        (t.what_it_does ? '<div class="r-reason">' + esc(t.what_it_does) + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  function countConsolidate(c) {
+    return arr(c.cut).length + arr(c.renegotiate).length + arr(c.replace_with_make).length +
+           arr(c.already_covered).length + arr(c.redundancy_pairs).length;
+  }
+
+  function renderConsolidate(c) {
+    var h = '';
+
+    if (arr(c.redundancy_pairs).length) {
+      h += '<div class="subhead">Redundancy pairs</div>';
+      h += arr(c.redundancy_pairs).map(function (p) {
+        return '<div class="pair">' +
+          '<div class="p-tools">' + arr(p.tools).map(esc).join(' · ') + '</div>' +
+          (p.issue ? '<div class="p-issue">' + esc(p.issue) + '</div>' : '') +
+          (p.recommendation ? '<div class="p-rec"><strong>Move:</strong> ' + esc(p.recommendation) + '</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    if (arr(c.cut).length) {
+      h += '<div class="subhead">Cut</div>';
+      h += arr(c.cut).map(function (x) {
+        return '<div class="row"><div class="r-top">' +
+          '<span class="r-tool">' + esc(x.tool) + '</span>' +
+          (x.estimated_monthly_saving ? '<span class="r-save">' + esc(x.estimated_monthly_saving) + '</span>' : '') +
+          '</div>' + (x.reason ? '<div class="r-reason">' + esc(x.reason) + '</div>' : '') + '</div>';
+      }).join('');
+    }
+
+    if (arr(c.renegotiate).length) {
+      h += '<div class="subhead">Renegotiate</div>';
+      h += arr(c.renegotiate).map(function (x) {
+        return '<div class="row"><div class="r-top">' +
+          '<span class="r-tool">' + esc(x.tool) + '</span>' +
+          (x.estimated_monthly_saving ? '<span class="r-save">' + esc(x.estimated_monthly_saving) + '</span>' : '') +
+          '</div>' + (x.reason ? '<div class="r-reason">' + esc(x.reason) + '</div>' : '') + '</div>';
+      }).join('');
+    }
+
+    if (arr(c.replace_with_make).length) {
+      h += '<div class="subhead">Replace with Make.com</div>';
+      h += arr(c.replace_with_make).map(function (x) {
+        var flag = (x.make_justified === false)
+          ? '<div class="mj-flag">⚑ Make.com not the right call here — honest flag</div>' : '';
+        return '<div class="row"><div class="r-top">' +
+          '<span class="r-tool">' + esc(x.tool) + '</span></div>' +
+          (x.reason ? '<div class="r-reason">' + esc(x.reason) + '</div>' : '') + flag + '</div>';
+      }).join('');
+    }
+
+    if (arr(c.already_covered).length) {
+      h += '<div class="subhead">Already covered</div>';
+      h += arr(c.already_covered).map(function (x) {
+        return '<div class="row"><div class="r-top">' +
+          '<span class="r-tool">' + esc(x.tool) + '</span>' +
+          (x.covered_by ? '<span class="r-cat">covered by ' + esc(x.covered_by) + '</span>' : '') +
+          '</div>' + (x.reason ? '<div class="r-reason">' + esc(x.reason) + '</div>' : '') + '</div>';
+      }).join('');
+    }
+
+    if (arr(c.keep).length) {
+      h += '<div class="subhead">Keep</div>';
+      h += arr(c.keep).map(function (x) {
+        return '<div class="row"><div class="r-top">' +
+          '<span class="r-tool">' + esc(x.tool) + '</span></div>' +
+          (x.reason ? '<div class="r-reason">' + esc(x.reason) + '</div>' : '') + '</div>';
+      }).join('');
+    }
+
+    return h || '<div class="empty">No consolidation moves identified.</div>';
+  }
+
+  function renderConnect(items) {
+    if (!items.length) return '<div class="empty">No automation workflows proposed.</div>';
+    return items.map(function (w) {
+      var flag = (w.make_justified === false)
+        ? '<div class="mj-flag">⚑ A native integration beats Make.com here — honest flag</div>' : '';
+      return '<div class="conn">' +
+        '<div class="c-flow">' + esc(w.workflow) + '</div>' +
+        (arr(w.tools_involved).length ? '<div class="c-tools">' + arr(w.tools_involved).map(esc).join(' → ') + '</div>' : '') +
+        (w.impact ? '<div class="c-impact">' + esc(w.impact) + '</div>' : '') +
+        flag + '</div>';
+    }).join('');
+  }
+
+  function renderFlags(flags) {
+    return '<ul class="flag-list">' + flags.map(function (f) {
+      return '<li>' + esc(f) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function renderCoach(questions) {
+    var h = '<div class="coach-card">';
+    h += '<div class="cc-label">Coach · turn this into real numbers</div>';
+    h += '<h3>The directional read is free. The real numbers come from your invoices.</h3>';
+    h += '<p class="cc-intro">This analysis is built from what you pasted. To turn it into a defensible plan with hard figures, here\'s exactly what we\'d work through together — starting with the one thing that grounds everything:</p>';
+    if (questions.length) {
+      h += '<ul class="q-list">';
+      questions.forEach(function (q, i) {
+        h += '<li><span class="q-num">' + (i + 1 < 10 ? '0' + (i + 1) : (i + 1)) + '</span><span>' + esc(q) + '</span></li>';
+      });
+      h += '</ul>';
+    }
+    h += '<a class="btn-book" href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener">Book a free audit →</a>';
+    h += '</div>';
+    return h;
+  }
+
+  // ── collapsible wiring (event delegation, no inline handlers) ──
+  function wireSections() {
+    var heads = result.querySelectorAll('.csec-head');
+    Array.prototype.forEach.call(heads, function (head) {
+      head.addEventListener('click', function () {
+        var open = head.getAttribute('aria-expanded') === 'true';
+        head.setAttribute('aria-expanded', open ? 'false' : 'true');
+        var body = head.nextElementSibling;
+        if (body) body.classList.toggle('open', !open);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>

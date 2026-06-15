@@ -328,6 +328,140 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 </div>
 </section>
 
+
+<!-- ============================================================
+     SAVINGS CALCULATOR  ·  live ROI estimate
+     Inherits page :root vars + .btn .btn-primary. Namespaced .csc-.
+     Math assumptions documented in the CFG block (script).
+     ============================================================ -->
+<section class="csc-sec" id="calculator">
+  <style>
+    .csc-sec{padding:88px 48px;background:var(--white);border-top:1px solid var(--line);}
+    .csc-wrap{max-width:1160px;margin:0 auto;}
+    .csc-kicker{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;}
+    .csc-sub{font-size:17px;color:var(--gray);font-weight:300;line-height:1.6;margin-bottom:40px;max-width:600px;}
+    .csc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;}
+    .csc-inputs{background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:34px 30px;}
+    .csc-field{margin-bottom:28px;}
+    .csc-field:last-child{margin-bottom:0;}
+    .csc-flabel{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;gap:10px;}
+    .csc-flabel .lab{font-size:14px;font-weight:500;color:var(--charcoal);line-height:1.3;}
+    .csc-flabel .val{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--navy);white-space:nowrap;}
+    .csc-mref{font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);margin-top:8px;display:block;}
+    .csc-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;background:var(--line);outline:none;cursor:pointer;}
+    .csc-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--navy);cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px rgba(11,31,74,.3);}
+    .csc-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--navy);cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px rgba(11,31,74,.3);}
+    .csc-result{background:var(--white);border:1.5px solid var(--line);border-radius:6px;padding:34px 30px;display:flex;flex-direction:column;}
+    .csc-rlab{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:10px;}
+    .csc-big{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(46px,8vw,62px);line-height:1;color:var(--orange);margin-bottom:4px;letter-spacing:-.01em;}
+    .csc-bigsub{font-size:13.5px;color:var(--gray);font-weight:300;margin-bottom:24px;}
+    .csc-rows{border-top:1px solid var(--line);padding-top:18px;margin-bottom:18px;}
+    .csc-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;gap:12px;}
+    .csc-row .k{font-size:14px;color:var(--gray);font-weight:300;line-height:1.3;}
+    .csc-row .v{font-family:'DM Mono',monospace;font-size:14px;color:var(--navy);white-space:nowrap;}
+    .csc-payback{font-size:14px;color:var(--charcoal);font-weight:300;line-height:1.5;background:var(--light);border-radius:4px;padding:13px 15px;margin-bottom:24px;}
+    .csc-payback strong{color:var(--navy);font-weight:600;}
+    .csc-disc{font-size:12px;color:var(--gray);font-weight:300;line-height:1.5;margin-top:16px;}
+    .csc-cross{font-size:13.5px;color:var(--gray);font-weight:300;margin-top:28px;}
+    .csc-cross a{color:var(--navy);font-weight:600;text-decoration:underline;}
+    @media(max-width:900px){.csc-sec{padding:64px 24px;}.csc-grid{grid-template-columns:1fr;}.csc-inputs,.csc-result{padding:28px 22px;}}
+  </style>
+
+  <div class="csc-wrap">
+    <span class="csc-kicker">The math</span>
+    <h2>What your fragmented<br>stack costs you per year.</h2>
+    <p class="csc-sub">Tooling spend is the line you see. Recovered hours are the real number. Drag to estimate both.</p>
+
+    <div class="csc-grid reveal">
+      <div class="csc-inputs">
+        <div class="csc-field">
+          <div class="csc-flabel"><span class="lab">Current monthly AI / SaaS spend</span><span class="val" id="csc-vSpend">$2,400/mo</span></div>
+          <input class="csc-slider" id="csc-spend" type="range" min="0" max="20000" step="100" value="2400">
+          <span class="csc-mref">Median mid-market spend runs ~$46/employee/mo.</span>
+        </div>
+        <div class="csc-field">
+          <div class="csc-flabel"><span class="lab">Overlapping / redundant tools</span><span class="val" id="csc-vTools">6</span></div>
+          <input class="csc-slider" id="csc-tools" type="range" min="0" max="20" step="1" value="6">
+        </div>
+        <div class="csc-field">
+          <div class="csc-flabel"><span class="lab">Hours/week on automatable manual work</span><span class="val" id="csc-vHours">12 hrs/wk</span></div>
+          <input class="csc-slider" id="csc-hours" type="range" min="0" max="40" step="1" value="12">
+        </div>
+        <div class="csc-field">
+          <div class="csc-flabel"><span class="lab">Fully-loaded labor rate</span><span class="val" id="csc-vRate">$100/hr</span></div>
+          <input class="csc-slider" id="csc-rate" type="range" min="25" max="250" step="5" value="100">
+        </div>
+      </div>
+
+      <div class="csc-result">
+        <p class="csc-rlab">Estimated year-one savings</p>
+        <div class="csc-big" id="csc-net">$51,216</div>
+        <p class="csc-bigsub">After consolidating to a clear stack.</p>
+        <div class="csc-rows">
+          <div class="csc-row"><span class="k">Tooling: from / to</span><span class="v" id="csc-tool">$2,400 → $1,512/mo</span></div>
+          <div class="csc-row"><span class="k">Tooling saved / yr</span><span class="v" id="csc-toolyr">$10,656</span></div>
+          <div class="csc-row"><span class="k">Labor recovered / yr</span><span class="v" id="csc-laboryr">$40,560</span></div>
+        </div>
+        <p class="csc-payback" id="csc-payback"></p>
+        <a class="btn btn-primary" href="contact.html" style="text-align:center;font-size:16px;padding:16px 28px;margin-top:auto;">Book a discovery call</a>
+        <p class="csc-disc">Estimate based on typical 4C outcomes. Your real numbers come out of the Catalog phase.</p>
+      </div>
+    </div>
+
+    <p class="csc-cross">Not sure which engagement fits? <a href="usecases.html#router">Take the 2-minute path finder →</a></p>
+  </div>
+
+  <script>
+  (function(){
+    var root = document.getElementById('calculator');
+    // ---- CONFIG (tune here) ----
+    var CFG = { rateFloor:0.10, ratePerTool:0.045, rateCap:0.60, laborCapture:0.65, dfyAnchor:17500 };
+    var els = {
+      spend:root.querySelector('#csc-spend'), tools:root.querySelector('#csc-tools'),
+      hours:root.querySelector('#csc-hours'), rate:root.querySelector('#csc-rate'),
+      vSpend:root.querySelector('#csc-vSpend'), vTools:root.querySelector('#csc-vTools'),
+      vHours:root.querySelector('#csc-vHours'), vRate:root.querySelector('#csc-vRate'),
+      net:root.querySelector('#csc-net'), tool:root.querySelector('#csc-tool'),
+      toolyr:root.querySelector('#csc-toolyr'), laboryr:root.querySelector('#csc-laboryr'),
+      payback:root.querySelector('#csc-payback')
+    };
+    function money(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+    function fill(s){
+      var pct = (s.value - s.min)/(s.max - s.min)*100;
+      s.style.background = 'linear-gradient(90deg, var(--navy) 0%, var(--navy) '+pct+'%, var(--line) '+pct+'%, var(--line) 100%)';
+    }
+    function calc(){
+      var spend=+els.spend.value, tools=+els.tools.value, hours=+els.hours.value, rate=+els.rate.value;
+      els.vSpend.textContent = money(spend)+'/mo';
+      els.vTools.textContent = tools;
+      els.vHours.textContent = hours+' hrs/wk';
+      els.vRate.textContent  = money(rate)+'/hr';
+      var cRate = CFG.rateFloor + tools*CFG.ratePerTool; if(cRate>CFG.rateCap) cRate=CFG.rateCap;
+      var newSpend = spend*(1-cRate);
+      var toolSavedYr = (spend-newSpend)*12;
+      var laborYr = hours*CFG.laborCapture*rate*52;
+      var net = toolSavedYr + laborYr;
+      els.tool.textContent = money(spend)+' \u2192 '+money(newSpend)+'/mo';
+      els.toolyr.textContent = money(toolSavedYr);
+      els.laboryr.textContent = money(laborYr);
+      els.net.textContent = money(net);
+      if(net<=0){ els.payback.innerHTML='Add your real numbers above to see payback.'; }
+      else{
+        var weeks = Math.round(CFG.dfyAnchor/(net/52));
+        els.payback.innerHTML = weeks<=52
+          ? 'A <strong>Done-For-You</strong> engagement pays back in about <strong>'+weeks+' weeks</strong>.'
+          : 'A <strong>Done-For-You</strong> engagement pays for itself within <strong>year one</strong>.';
+      }
+    }
+    ['spend','tools','hours','rate'].forEach(function(k){
+      els[k].addEventListener('input', function(){ fill(els[k]); calc(); });
+      fill(els[k]);
+    });
+    calc();
+  })();
+  </script>
+</section>
+
 <!-- FAQ -->
 <section class="sec" style="background:var(--white);border-top:1px solid var(--line);">
 <div class="si">
