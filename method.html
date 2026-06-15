@@ -494,6 +494,32 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 </div>
 </section>
 
+<!-- ============================================================
+     ROUTER POINTER BAND  ·  drives to usecases.html#router
+     Secondary CTA (navy, subordinate to page's primary audit CTA)
+     ============================================================ -->
+<section class="sec router-band" style="background:var(--light);border-top:1px solid var(--line);">
+  <style>
+    .router-band-inner{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;}
+    .router-band-copy{flex:1;min-width:280px;}
+    .router-band-copy h2{margin-bottom:10px;}
+    .router-band-side{flex-shrink:0;}
+    .btn-navy-out{background:transparent;color:var(--navy);border:1.5px solid rgba(11,31,74,.28);padding:16px 34px;}
+    .btn-navy-out:hover{border-color:var(--navy);box-shadow:0 6px 20px rgba(11,31,74,.1);transform:translateY(-2px);}
+    @media(max-width:760px){.router-band-inner{gap:22px;}}
+  </style>
+  <div class="si router-band-inner reveal">
+    <div class="router-band-copy">
+      <span class="tag">Find your path</span>
+      <h2>Three questions.<br>We'll tell you where to start.</h2>
+      <p style="font-size:17px;font-weight:300;max-width:480px;">No call required. Answer three taps and we'll point you to the right engagement.</p>
+    </div>
+    <div class="router-band-side">
+      <a href="usecases.html#router" class="btn btn-navy-out" style="font-size:16px;">Find your path →</a>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <div class="cta-close">
   <div class="cta-bot"></div>
@@ -506,7 +532,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     </div>
     <div class="cta-btns">
       <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 40px;">Book Free Stack Audit</a>
-      <a href="contact.html" class="btn btn-ghost">Get the Free Audit Checklist →</a>
+      <a href="contact.html#audit-form" class="btn btn-ghost">Playbook ($49) — join the waitlist</a>
       <span class="cta-note-sm">No commitment required</span>
     </div>
   </div>

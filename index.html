@@ -388,10 +388,25 @@ h1 em { font-style: italic; color: var(--orange); }
     <div class="svc-grid reveal">
       <div class="svc">
         <div class="svc-n">01</div>
-        <svg class="svc-ico" viewBox="0 0 36 36" fill="none"><rect x="2" y="5" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".18"/><rect x="2" y="15" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".45"/><rect x="2" y="25" width="32" height="6" rx="2" fill="#0B1F4A" opacity=".82"/></svg>
+        <svg class="svc-ico" viewBox="0 0 64 72" width="64" height="72" style="width:32px;height:36px;" fill="none" role="img" aria-label="The Clear Stack logo">
+          <defs>
+            <linearGradient id="pb-base" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+            <linearGradient id="pb-mid" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+            <linearGradient id="pb-top" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+          </defs>
+          <polygon points="4,50 32,36 60,50 32,64" fill="url(#pb-base)"/>
+          <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+          <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+          <polygon points="4,36 32,22 60,36 32,50" fill="url(#pb-mid)"/>
+          <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+          <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+          <polygon points="4,22 32,8 60,22 32,36" fill="url(#pb-top)"/>
+          <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+          <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+        </svg>
         <h3>The Clear Stack Playbook</h3>
         <p>Our complete PDF methodology — audit templates, consolidation scorecard, and the 4C Framework. Self-serve version of everything we do for clients.</p>
-        <span class="svc-price">$49 — Instant download</span>
+        <span class="svc-price">$49 — coming soon</span>
       </div>
       <div class="svc">
         <div class="svc-n">02</div>
@@ -573,6 +588,32 @@ h1 em { font-style: italic; color: var(--orange); }
   </div>
 </section>
 
+<!-- ============================================================
+     ROUTER POINTER BAND  ·  drives to usecases.html#router
+     Secondary CTA (navy, subordinate to page's primary audit CTA)
+     ============================================================ -->
+<section class="sec router-band" style="background:var(--light);border-top:1px solid var(--line);">
+  <style>
+    .router-band-inner{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;}
+    .router-band-copy{flex:1;min-width:280px;}
+    .router-band-copy h2{margin-bottom:10px;}
+    .router-band-side{flex-shrink:0;}
+    .btn-navy-out{background:transparent;color:var(--navy);border:1.5px solid rgba(11,31,74,.28);padding:16px 34px;}
+    .btn-navy-out:hover{border-color:var(--navy);box-shadow:0 6px 20px rgba(11,31,74,.1);transform:translateY(-2px);}
+    @media(max-width:760px){.router-band-inner{gap:22px;}}
+  </style>
+  <div class="si router-band-inner reveal">
+    <div class="router-band-copy">
+      <span class="tag">Find your path</span>
+      <h2>Three questions.<br>We'll tell you where to start.</h2>
+      <p style="font-size:17px;font-weight:300;max-width:480px;">No call required. Answer three taps and we'll point you to the right engagement.</p>
+    </div>
+    <div class="router-band-side">
+      <a href="usecases.html#router" class="btn btn-navy-out" style="font-size:16px;">Find your path →</a>
+    </div>
+  </div>
+</section>
+
 <!-- CTA CLOSE — stays dark -->
 <section id="cta-close">
   <div class="cta-bot"></div>
@@ -585,7 +626,7 @@ h1 em { font-style: italic; color: var(--orange); }
     </div>
     <div class="cta-btns">
       <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 40px;">Book Free Stack Audit</a>
-      <a href="contact.html" class="btn btn-ghost">Buy the Playbook — $49</a>
+      <a href="contact.html#audit-form" class="btn btn-ghost">Playbook — join the waitlist</a>
       <span class="cta-note-sm">No commitment required</span>
     </div>
   </div>

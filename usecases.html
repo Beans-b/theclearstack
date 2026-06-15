@@ -25,6 +25,8 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
 .btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
 .btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
 .btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-ghost{background:transparent;color:rgba(247,244,239,.75);border:1px solid rgba(247,244,239,.22);padding:14px 34px;}
+.btn-ghost:hover{color:#F7F4EF;border-color:rgba(247,244,239,.5);}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease;}
 .reveal.in{opacity:1;transform:none;}
 
@@ -364,10 +366,10 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     var cur = 0;
 
     var OUTCOMES = {
-      playbook:{title:'The AI Stack Playbook',price:'$49 · instant download',
+      playbook:{title:'The Clear Stack Playbook',price:'$49 · coming soon',
         body:'Start here. Audit your own stack with the 4C Framework \u2014 Catalog, Consolidate, Connect, Coach \u2014 and find the redundancy yourself.',
-        note:'Want it done with you instead of by yourself? Ask about the <a href="#cohort">Coaching Cohort</a>.',
-        cta:'Get the Playbook \u2014 $49',href:'#playbook'},
+        note:'The self-serve Playbook launches soon \u2014 join the waitlist and we\u2019ll let you know. Want it done with you instead? Ask about the <a href="#cohort">Coaching Cohort</a>.',
+        cta:'Join the waitlist \u2014 $49',href:'contact.html#audit-form'},
       dfy:{title:'Done-For-You Implementation',price:'$10K \u2013 $25K · fixed scope',
         body:'We catalog your stack, consolidate the redundancy, connect what\u2019s left into automated workflows, and coach your team. You keep a clear stack you own.',
         note:'Currently accepting Q3 2026 engagements \u2014 limited slots per month.',
@@ -431,6 +433,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     <h2>What would we find<br>in your stack?</h2>
     <p>Start with a free 30-minute audit call. No prep required — we ask the questions.</p>
     <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 44px;">Book Free Stack Audit</a>
+    <a href="contact.html#audit-form" class="btn btn-ghost" style="margin-top:14px;">Playbook ($49) — join the waitlist</a>
     <span class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots</span>
   </div>
 </div>
