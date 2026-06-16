@@ -366,10 +366,10 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     var cur = 0;
 
     var OUTCOMES = {
-      playbook:{title:'The Clear Stack Playbook',price:'$49 · coming soon',
+      playbook:{title:'The Clear Stack Playbook',price:'$49 · instant download',
         body:'Start here. Audit your own stack with the 4C Framework \u2014 Catalog, Consolidate, Connect, Coach \u2014 and find the redundancy yourself.',
-        note:'The self-serve Playbook launches soon \u2014 join the waitlist and we\u2019ll let you know. Want it done with you instead? Ask about the <a href="#cohort">Coaching Cohort</a>.',
-        cta:'Join the waitlist \u2014 $49',href:'contact.html#audit-form'},
+        note:'Instant PDF download. Want it done with you instead? Ask about the <a href="#cohort">Coaching Cohort</a>.',
+        cta:'Get the Playbook \u2014 $49',href:'https://buy.stripe.com/3cIdR8dtybXQ7ihev06EU01'},
       dfy:{title:'Done-For-You Implementation',price:'$10K \u2013 $25K · fixed scope',
         body:'We catalog your stack, consolidate the redundancy, connect what\u2019s left into automated workflows, and coach your team. You keep a clear stack you own.',
         note:'Currently accepting Q3 2026 engagements \u2014 limited slots per month.',
@@ -406,6 +406,8 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
       note.innerHTML = o.note; note.style.display = o.note ? 'block':'none';
       var cta = root.querySelector('#csrRCta');
       cta.textContent = o.cta; cta.setAttribute('href', o.href);
+      if (o.href.indexOf('http') === 0) { cta.setAttribute('target','_blank'); cta.setAttribute('rel','noopener'); }
+      else { cta.removeAttribute('target'); cta.removeAttribute('rel'); }
       steps.forEach(function(s){ s.classList.remove('active'); });
       for(var p=0;p<prog.length;p++){ prog[p].classList.add('on'); }
       result.classList.add('active');
@@ -433,7 +435,7 @@ p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
     <h2>What would we find<br>in your stack?</h2>
     <p>Start with a free 30-minute audit call. No prep required — we ask the questions.</p>
     <a href="contact.html" class="btn btn-primary" style="font-size:16px;padding:18px 44px;">Book Free Stack Audit</a>
-    <a href="contact.html#audit-form" class="btn btn-ghost" style="margin-top:14px;">Playbook ($49) — join the waitlist</a>
+    <a href="https://buy.stripe.com/3cIdR8dtybXQ7ihev06EU01" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:14px;">Get the Playbook — $49</a>
     <span class="cta-urg">⬤&nbsp; Currently accepting Q3 2026 engagements — limited slots</span>
   </div>
 </div>
