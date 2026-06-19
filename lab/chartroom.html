@@ -258,17 +258,14 @@
       <button class="seg" role="radio" aria-checked="false" data-mode="simple">
         <span class="name">Simple</span>
         <span class="desc">Lean prompt. Objective, a few goals, compressed loop.</span>
-        <span class="cost">~$0.01 / run</span>
       </button>
       <button class="seg" role="radio" aria-checked="true" data-mode="average">
         <span class="name">Average</span>
         <span class="desc">Balanced. Full sections, moderate detail.</span>
-        <span class="cost">~$0.016 / run</span>
       </button>
       <button class="seg" role="radio" aria-checked="false" data-mode="expert">
         <span class="name">Expert</span>
         <span class="desc">Full rigor. Detailed goals, explicit verify checklist, full loop.</span>
-        <span class="cost">~$0.028 / run</span>
       </button>
     </div>
 
@@ -277,12 +274,10 @@
       <button class="seg" role="radio" aria-checked="true" data-ref="off">
         <span class="name">Off</span>
         <span class="desc">Fast, single pass. No web lookups.</span>
-        <span class="cost">included</span>
       </button>
       <button class="seg" role="radio" aria-checked="false" data-ref="on">
         <span class="name">On — cite sources</span>
         <span class="desc">Researches the topic live and lists the real sources it used.</span>
-        <span class="cost">+ ~$0.03–$0.15 / run</span>
       </button>
     </div>
 
@@ -315,25 +310,6 @@
     <ul class="refs-list" id="refsList"></ul>
     <p class="refs-empty" id="refsEmpty" hidden>No external sources were needed for this prompt.</p>
   </div>
-
-  <details class="costs">
-    <summary>Per-mode cost &amp; token estimate</summary>
-    <div class="costs-body">
-      <table>
-        <thead><tr><th>Mode</th><th>Output tokens (est.)</th><th>Cost / run</th></tr></thead>
-        <tbody>
-          <tr><td>Simple</td><td class="num">~450</td><td class="num">$0.007 – $0.013</td></tr>
-          <tr><td>Average</td><td class="num">~900</td><td class="num">$0.012 – $0.022</td></tr>
-          <tr><td>Expert</td><td class="num">~1,700</td><td class="num">$0.020 – $0.040</td></tr>
-        </tbody>
-      </table>
-      <p class="costs-note">
-        Priced at Claude Sonnet 4.6 standard rates ($3.00 / 1M input tokens, $15.00 / 1M output tokens) with ~900 input tokens per call.
-        1 token ≈ 4 characters. Output length varies, so treat these as a <b>±40% certainty band</b>, not a quote.
-        With <b>Live references</b> on, each run also costs about $0.01 per web search (up to 3) plus the extra tokens from the results — roughly +$0.03–$0.15 when it searches, and nothing extra when it doesn't.
-      </p>
-    </div>
-  </details>
 
   <footer>© 2026 The Clear Stack · theclearstack.com</footer>
 </div>
