@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Chartroom — Meta-Prompt Generator · The Clear Stack</title>
+<!-- Brand fonts (Google Fonts) and the Cloudflare Turnstile widget are the only external requests.
+     No API key and no prompt engine live in this file — those are server-side in functions/api/chartroom.js. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+  :root{
+    --navy:#0B1F4A; --navy-deep:#07152F; --orange:#E07B2A;
+    --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+    --charcoal:#1A1A1A; --gray:#5A6478; --line:rgba(11,31,74,.12);
+    --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --body:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:"DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:var(--body);color:var(--charcoal);background:var(--white);
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:28px 28px;background-position:-1px -1px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 64px}
+
+  header{padding:18px 0 10px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin:0 0 10px}
+  .wordmark{font-family:var(--display);font-weight:700;font-size:clamp(40px,9vw,64px);line-height:.98;letter-spacing:-.01em;margin:0;color:var(--navy)}
+  .tagline{margin:8px 0 0;color:var(--gray);font-size:16px;max-width:56ch}
+  .byline{font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:14px}
+  .byline b{color:var(--navy);font-weight:500}
+
+  .rule{height:1px;background:var(--navy);opacity:.85;margin:22px 0 26px}
+
+  .why{margin:0 0 26px}
+  .why-lead{font-size:17px;color:var(--charcoal);margin:0 0 14px}
+  .why-lead b{color:var(--navy)}
+  .why-points{list-style:none;margin:0;padding:16px 18px;background:var(--cream);border:1px solid var(--line);border-radius:12px;display:grid;gap:11px}
+  .why-points li{font-size:14.5px;color:var(--charcoal);line-height:1.5}
+  .why-points li b{color:var(--navy)}
+  .why-tech{font-size:13.5px;color:var(--gray);line-height:1.6;background:var(--light);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:0 0 14px}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);border:1px solid rgba(11,31,74,.3);border-radius:5px;padding:2px 7px;margin-right:8px;vertical-align:1px}
+  .why-bottom{font-size:15px;color:var(--charcoal);margin:0}
+  .why-bottom b{color:var(--navy)}
+
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:20px}
+  label.field{display:block;font-weight:500;font-size:15px;color:var(--charcoal);margin:0 0 8px}
+  .hint{font-size:13px;color:var(--gray);margin:0 0 8px}
+  textarea{
+    width:100%;min-height:128px;resize:vertical;
+    font-family:var(--body);font-size:16px;color:var(--charcoal);background:var(--white);
+    border:1px solid rgba(11,31,74,.22);border-radius:10px;padding:12px 14px;line-height:1.5;
+  }
+  textarea::placeholder{color:#6b7382}
+  textarea:focus{outline:2px solid var(--navy);outline-offset:1px;border-color:var(--navy)}
+
+  .gate{margin-top:18px}
+  .gate-sub{font-weight:400;color:var(--gray);font-size:13px}
+  .email-input{
+    width:100%;font-family:var(--body);font-size:16px;color:var(--charcoal);background:var(--white);
+    border:1px solid rgba(11,31,74,.22);border-radius:10px;padding:12px 14px;
+  }
+  .email-input::placeholder{color:#6b7382}
+  .email-input:focus{outline:2px solid var(--navy);outline-offset:1px;border-color:var(--navy)}
+  .gate-msg{font-size:13px;color:#A04A14;margin:8px 2px 0;min-height:0}
+  .gate-msg:empty{display:none}
+
+  .modes-label{font-weight:500;font-size:15px;margin:18px 0 8px}
+  .segmented{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .seg{
+    appearance:none;cursor:pointer;text-align:left;background:var(--white);
+    border:1px solid rgba(11,31,74,.22);border-radius:10px;padding:12px 12px 11px;
+    font-family:var(--body);color:var(--charcoal);transition:border-color .12s, background .12s;
+  }
+  .seg:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  .seg .name{display:block;font-weight:600;font-size:15px}
+  .seg .desc{display:block;font-size:12px;color:var(--gray);margin-top:3px;min-height:30px}
+  .seg .cost{display:block;font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:6px}
+  .seg[aria-checked="true"]{border-color:var(--navy);background:var(--light);box-shadow:inset 3px 0 0 var(--orange)}
+  .seg[aria-checked="true"] .name{color:var(--navy)}
+
+  .turnstile-row{margin:16px 0 0}
+
+  .actions{margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .btn-primary{
+    appearance:none;cursor:pointer;border:none;background:var(--orange);color:var(--navy);
+    font-family:var(--body);font-weight:600;font-size:16px;padding:13px 22px;border-radius:10px;letter-spacing:.01em;
+  }
+  .btn-primary:hover{background:#cf6f22}
+  .btn-primary:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+  .run-note{font-family:var(--mono);font-size:12px;color:var(--gray)}
+  .run-note b{color:var(--navy);font-weight:500}
+
+  .out-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 10px}
+  .out-title{font-family:var(--display);font-weight:600;font-size:26px;color:var(--navy);margin:0}
+  .btn-ghost{
+    appearance:none;cursor:pointer;background:transparent;border:1px solid var(--navy);color:var(--navy);
+    font-family:var(--body);font-weight:500;font-size:14px;padding:8px 14px;border-radius:8px;
+  }
+  .btn-ghost:hover{background:var(--navy);color:var(--white)}
+  .btn-ghost:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  .btn-ghost:disabled{opacity:.45;cursor:not-allowed}
+
+  .output{
+    background:var(--navy-deep);color:#EAF0FA;border-radius:14px;padding:18px;
+    font-family:var(--mono);font-size:13.5px;line-height:1.62;white-space:pre-wrap;word-wrap:break-word;
+    min-height:80px;border:1px solid rgba(255,255,255,.08);
+  }
+  .output.placeholder{color:var(--gray);background:var(--light);border:1px dashed rgba(11,31,74,.2);font-family:var(--body);font-size:15px}
+  .error{color:#ffd9c2}
+
+  details.costs{margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--white)}
+  details.costs summary{cursor:pointer;list-style:none;padding:14px 16px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
+  details.costs summary::-webkit-details-marker{display:none}
+  .costs-body{padding:0 16px 16px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  th{font-weight:600;color:var(--navy);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  td.num{font-family:var(--mono)}
+  .costs-note{font-size:12.5px;color:var(--gray);margin:12px 2px 0;line-height:1.5}
+
+  footer{margin-top:34px;font-family:var(--mono);font-size:11px;color:var(--gray);text-align:center}
+  a{color:var(--navy)}
+
+  @media (max-width:520px){.segmented{grid-template-columns:1fr}.seg .desc{min-height:0}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Meta-Prompt Generator</p>
+    <h1 class="wordmark">Chartroom</h1>
+    <p class="tagline">Rather than learning how to prompt ChatGPT, Claude, Gemini, Perplexity, Microsoft Copilot, Meta AI, Grok, or any other AI, Chartroom writes the prompt for you. It builds a self-verifying prompt that loops — checking and fixing its own work — for a smarter, more effective answer.</p>
+    <p class="byline">A <b>SeaLegs</b> instrument · <b>The Clear Stack</b></p>
+  </header>
+
+  <div class="rule"></div>
+
+  <section class="why">
+    <ul class="why-points">
+      <li><b>It loops.</b> Drafts, critiques, fixes, repeats — instead of guessing once.</li>
+      <li><b>It fact-checks.</b> Backs every claim with a fact, a source, or your materials.</li>
+      <li><b>It knows when it's done.</b> A success checklist tells it when to stop.</li>
+      <li><b>For builders:</b> front-loads the acceptance criteria and forces a skeptical second pass — less hallucination, fewer wasted tokens.</li>
+    </ul>
+  </section>
+
+  <div class="card">
+    <label class="field" for="task">What task do you need a prompt for?</label>
+    <p class="hint">Plain language is fine — say what you want the AI to produce and any constraints.</p>
+    <textarea id="task" maxlength="4000" placeholder="e.g. Write a warm thank-you note to a friend who helped me move last weekend — short, genuine, not over the top."></textarea>
+
+    <p class="modes-label">Depth</p>
+    <div class="segmented" role="radiogroup" aria-label="Prompt depth">
+      <button class="seg" role="radio" aria-checked="false" data-mode="simple">
+        <span class="name">Simple</span>
+        <span class="desc">Lean prompt. Objective, a few goals, compressed loop.</span>
+        <span class="cost">~$0.01 / run</span>
+      </button>
+      <button class="seg" role="radio" aria-checked="true" data-mode="average">
+        <span class="name">Average</span>
+        <span class="desc">Balanced. Full sections, moderate detail.</span>
+        <span class="cost">~$0.016 / run</span>
+      </button>
+      <button class="seg" role="radio" aria-checked="false" data-mode="expert">
+        <span class="name">Expert</span>
+        <span class="desc">Full rigor. Detailed goals, explicit verify checklist, full loop.</span>
+        <span class="cost">~$0.028 / run</span>
+      </button>
+    </div>
+
+    <div class="gate" id="gate" hidden>
+      <label class="field" for="email">Your email <span class="gate-sub">— one time, to unlock your results</span></label>
+      <input class="email-input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+      <p class="gate-msg" id="gateMsg"></p>
+    </div>
+
+    <!-- Cloudflare Turnstile. Replace data-sitekey with your real SITE key from the Turnstile dashboard.
+         Test key that always passes (for previews): 1x00000000000000000000AA -->
+    <div class="turnstile-row">
+      <div class="cf-turnstile" data-sitekey="REPLACE_WITH_YOUR_TURNSTILE_SITE_KEY" data-theme="light"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="go">Generate prompt</button>
+      <span class="run-note">Mode: <b id="modeEcho">Average</b></span>
+    </div>
+  </div>
+
+  <div class="out-head">
+    <h2 class="out-title">Your task-prompt</h2>
+    <button class="btn-ghost" id="copy" disabled>Copy prompt</button>
+  </div>
+  <div class="output placeholder" id="out">Your generated prompt will appear here.</div>
+
+  <details class="costs">
+    <summary>Per-mode cost &amp; token estimate</summary>
+    <div class="costs-body">
+      <table>
+        <thead><tr><th>Mode</th><th>Output tokens (est.)</th><th>Cost / run</th></tr></thead>
+        <tbody>
+          <tr><td>Simple</td><td class="num">~450</td><td class="num">$0.007 – $0.013</td></tr>
+          <tr><td>Average</td><td class="num">~900</td><td class="num">$0.012 – $0.022</td></tr>
+          <tr><td>Expert</td><td class="num">~1,700</td><td class="num">$0.020 – $0.040</td></tr>
+        </tbody>
+      </table>
+      <p class="costs-note">
+        Priced at Claude Sonnet 4.6 standard rates ($3.00 / 1M input tokens, $15.00 / 1M output tokens) with ~900 input tokens per call.
+        1 token ≈ 4 characters. Output length varies, so treat these as a <b>±40% certainty band</b>, not a quote.
+      </p>
+    </div>
+  </details>
+
+  <footer>© 2026 The Clear Stack · theclearstack.com</footer>
+</div>
+
+<script>
+/* This file holds NO API key and NO prompt engine. It posts to the same-origin
+   Pages Function at /api/chartroom, which does the protected work server-side. */
+
+const MODE_LABELS = { simple:"Simple", average:"Average", expert:"Expert" };
+let currentMode = "average";
+
+const segs = Array.from(document.querySelectorAll(".seg"));
+const modeEcho = document.getElementById("modeEcho");
+segs.forEach((s, i) => {
+  s.addEventListener("click", () => selectMode(s));
+  s.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectMode(segs[(i+1)%segs.length], true); }
+    if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   { e.preventDefault(); selectMode(segs[(i-1+segs.length)%segs.length], true); }
+  });
+});
+function selectMode(el, focus){
+  segs.forEach(s => s.setAttribute("aria-checked", s === el ? "true" : "false"));
+  currentMode = el.dataset.mode;
+  modeEcho.textContent = MODE_LABELS[currentMode];
+  if (focus) el.focus();
+}
+
+const goBtn = document.getElementById("go");
+const out = document.getElementById("out");
+const copyBtn = document.getElementById("copy");
+const gate = document.getElementById("gate");
+const emailInput = document.getElementById("email");
+const gateMsg = document.getElementById("gateMsg");
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function isKnownUser(){ try { return /(?:^|;\s*)cs_lead=1(?:;|$)/.test(document.cookie); } catch { return false; } }
+function showGate(){ gate.hidden = false; }
+function hideGate(){ gate.hidden = true; gateMsg.textContent = ""; }
+
+// Returning visitors (cookie already set) never see the email step again.
+if (isKnownUser()) hideGate(); else showGate();
+
+goBtn.addEventListener("click", generate);
+emailInput.addEventListener("input", () => { gateMsg.textContent = ""; });
+
+async function generate(){
+  const task = document.getElementById("task").value.trim();
+  if (!task){ setOutput("Add a task description first — tell me what you want the AI to produce.", true, true); return; }
+
+  // If the email step is showing, require a valid address before spending anything.
+  let email = "";
+  if (!gate.hidden){
+    email = emailInput.value.trim();
+    if (!EMAIL_RE.test(email)){ gateMsg.textContent = "Enter a valid email to unlock your result."; emailInput.focus(); return; }
+  }
+
+  // Turnstile token (present once the widget has loaded + passed)
+  let token = "";
+  try { if (window.turnstile) token = window.turnstile.getResponse() || ""; } catch { token = ""; }
+
+  goBtn.disabled = true;
+  const origLabel = goBtn.textContent;
+  goBtn.textContent = "Generating\u2026";
+  copyBtn.disabled = true;
+  setOutput("Plotting your prompt\u2026", true, false);
+
+  try {
+    const res = await fetch("/api/chartroom", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task, mode: currentMode, token, email })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    // Server still needs an email (e.g. cookie cleared) — reveal the step, don't show a scary error.
+    if (data.need_email){
+      showGate();
+      gateMsg.textContent = data.error || "Enter your email to unlock results.";
+      setOutput("Your generated prompt will appear here.", true, false);
+      emailInput.focus();
+      return;
+    }
+    if (!res.ok || data.error){ throw new Error(data.error || ("Request failed (" + res.status + ").")); }
+
+    const text = (data.prompt || "").trim();
+    if (!text) throw new Error("Empty response.");
+    setOutput(text, false, false);
+    copyBtn.disabled = false;
+    if (data.captured) hideGate(); // cookie now set; won't ask again on this browser
+  } catch (err){
+    setOutput("Couldn't generate the prompt. " + err.message, true, true);
+  } finally {
+    goBtn.disabled = false;
+    goBtn.textContent = origLabel;
+    try { if (window.turnstile) window.turnstile.reset(); } catch { /* ignore */ }
+  }
+}
+
+function setOutput(text, placeholder, isError){
+  out.textContent = text;
+  out.classList.toggle("placeholder", !!placeholder);
+  out.classList.toggle("error", !!isError);
+}
+
+copyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(out.textContent);
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = "Copied";
+    setTimeout(() => { copyBtn.textContent = orig; }, 1600);
+  } catch {
+    copyBtn.textContent = "Press \u2318/Ctrl+C";
+  }
+});
+</script>
+</body>
+</html>
