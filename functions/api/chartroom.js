@@ -63,6 +63,10 @@ Section meanings:
 
 Rules: Output ONLY the prompt itself. No preamble, no commentary, no markdown code fences, no surrounding quotes. Tailor every section to the user's specific task.`;
 
+// Appended to the system prompt only when the user turns Live References ON.
+const REFERENCES_ADDENDUM =
+`REFERENCES MODE IS ON: Use the web_search tool to research the real-world subject of the task, and ground the prompt's specific details (facts, standards, figures, named tools) in what you find. Only search when the task genuinely benefits from current or factual information — if it needs none, do not search. Still output ONLY the 8-section prompt.`;
+
 function json(obj, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(obj), {
     status,
@@ -75,6 +79,25 @@ function isEmail(s) { return EMAIL_RE.test(s) && s.length <= 254; }
 function hasLeadCookie(request) {
   const c = request.headers.get("Cookie") || "";
   return /(?:^|;\s*)cs_lead=1(?:;|$)/.test(c);
+}
+
+// Pull the real sources Claude consulted/cited out of the response content.
+// Looks at both the web_search_tool_result blocks and any citations in text blocks.
+function collectReferences(content) {
+  const map = new Map();
+  for (const b of (content || [])) {
+    if (b.type === "web_search_tool_result" && Array.isArray(b.content)) {
+      for (const r of b.content) {
+        if (r && r.type === "web_search_result" && r.url) map.set(r.url, r.title || r.url);
+      }
+    }
+    if (b.type === "text" && Array.isArray(b.citations)) {
+      for (const c of b.citations) {
+        if (c && c.url) map.set(c.url, c.title || c.url);
+      }
+    }
+  }
+  return Array.from(map, ([url, title]) => ({ url, title }));
 }
 
 // Only POST is handled; any other method gets 405 automatically.
@@ -98,6 +121,7 @@ export async function onRequestPost(context) {
   const mode = String(body.mode || "average");
   const token = String(body.token || "");
   const email = String(body.email || "").trim().toLowerCase();
+  const references = body.references === true;
 
   if (!task) return json({ error: "Add a task description first." }, 400);
   if (task.length > 4000) return json({ error: "Task is too long (max 4000 characters)." }, 400);
@@ -173,6 +197,16 @@ export async function onRequestPost(context) {
 
   let res;
   try {
+    const apiBody = {
+      model: MODEL,
+      max_tokens: cfg.max_tokens,
+      system: references ? (SYSTEM_PROMPT + "\n\n" + REFERENCES_ADDENDUM) : SYSTEM_PROMPT,
+      messages: [{ role: "user", content: userMsg }]
+    };
+    if (references) {
+      // Live web research, capped at 3 searches to control cost.
+      apiBody.tools = [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }];
+    }
     res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -180,12 +214,7 @@ export async function onRequestPost(context) {
         "x-api-key": env.ANTHROPIC_API_KEY,
         "anthropic-version": ANTHROPIC_VERSION
       },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: cfg.max_tokens,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: userMsg }]
-      })
+      body: JSON.stringify(apiBody)
     });
   } catch {
     return json({ error: "Couldn't reach the model. Try again." }, 502);
@@ -205,6 +234,7 @@ export async function onRequestPost(context) {
     .trim();
 
   if (!text) return json({ error: "The model returned an empty response." }, 502);
+  const refs = references ? collectReferences(data.content) : [];
   const headers = setCookie ? { "Set-Cookie": setCookie } : {};
-  return json({ prompt: text, captured: !known }, 200, headers);
+  return json({ prompt: text, captured: !known, references: refs }, 200, headers);
 }

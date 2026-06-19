@@ -29,6 +29,29 @@
       linear-gradient(90deg, var(--line) 1px, transparent 1px);
     background-size:28px 28px;background-position:-1px -1px;
   }
+  /* ── STANDARD LAB NAV (matches other Clear Stack pages) ── */
+  nav{background:var(--navy);padding:0;height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+  .nav-inner{max-width:1480px;margin:0 auto;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+  .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px}
+  .logo-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em}
+  .logo-name .logo-the{font-weight:600;color:#F7F4EF}
+  .logo-name em{font-style:normal;font-weight:700;color:var(--orange)}
+  .logo-tag{font-family:'DM Mono',monospace;font-size:6.5px;letter-spacing:.14em;color:#FFFFFF;text-transform:uppercase}
+  .nav-links{display:flex;align-items:center;gap:32px;list-style:none;margin:0;padding:0}
+  .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+  .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95)}
+  .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px}
+  .nav-cta{background:var(--orange) !important;color:#fff !important;padding:9px 22px;border-radius:3px;font-size:13px !important;font-weight:600 !important;text-decoration:none;transition:background .2s}
+  .nav-cta:hover{background:#C96A1A !important}
+  .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+  .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px}
+  .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease}
+  .drawer.open{transform:none;display:block}
+  .drawer ul{list-style:none;margin:0;padding:0}
+  .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07)}
+  .d-cta{color:var(--orange) !important;font-weight:700 !important}
+
   .wrap{max-width:760px;margin:0 auto;padding:28px 20px 64px}
 
   header{padding:18px 0 10px}
@@ -75,6 +98,7 @@
 
   .modes-label{font-weight:500;font-size:15px;margin:18px 0 8px}
   .segmented{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .segmented.two{grid-template-columns:1fr 1fr}
   .seg{
     appearance:none;cursor:pointer;text-align:left;background:var(--white);
     border:1px solid rgba(11,31,74,.22);border-radius:10px;padding:12px 12px 11px;
@@ -118,6 +142,15 @@
   .output.placeholder{color:var(--gray);background:var(--light);border:1px dashed rgba(11,31,74,.2);font-family:var(--body);font-size:15px}
   .error{color:#ffd9c2}
 
+  .refs{margin-top:14px;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .refs-title{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin-bottom:10px}
+  .refs-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .refs-list li{font-size:14px;line-height:1.4}
+  .refs-list a{color:var(--navy);font-weight:500;text-decoration:none;border-bottom:1px solid rgba(11,31,74,.25)}
+  .refs-list a:hover{border-bottom-color:var(--navy)}
+  .refs-list .ref-url{display:block;font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:2px;word-break:break-all}
+  .refs-empty{font-size:14px;color:var(--gray);margin:0}
+
   details.costs{margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--white)}
   details.costs summary{cursor:pointer;list-style:none;padding:14px 16px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
   details.costs summary::-webkit-details-marker{display:none}
@@ -131,11 +164,71 @@
   footer{margin-top:34px;font-family:var(--mono);font-size:11px;color:var(--gray);text-align:center}
   a{color:var(--navy)}
 
+  @media (max-width:760px){
+    .nav-inner{padding:0 18px}
+    .burger{display:flex}
+    .nav-links,.nav-cta{display:none}
+  }
   @media (max-width:520px){.segmented{grid-template-columns:1fr}.seg .desc{min-height:0}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
+
+<!-- ── STANDARD LAB NAV ── -->
+<nav>
+  <div class="nav-inner">
+  <a href="../index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html" class="active">Lab</a></li>
+  </ul>
+  <a href="../contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../lab/index.html">Lab</a></li>
+    <li><a href="../contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
 <div class="wrap">
   <header>
     <p class="eyebrow">Meta-Prompt Generator</p>
@@ -161,7 +254,7 @@
     <textarea id="task" maxlength="4000" placeholder="e.g. Write a warm thank-you note to a friend who helped me move last weekend — short, genuine, not over the top."></textarea>
 
     <p class="modes-label">Depth</p>
-    <div class="segmented" role="radiogroup" aria-label="Prompt depth">
+    <div class="segmented" id="depthGroup" role="radiogroup" aria-label="Prompt depth">
       <button class="seg" role="radio" aria-checked="false" data-mode="simple">
         <span class="name">Simple</span>
         <span class="desc">Lean prompt. Objective, a few goals, compressed loop.</span>
@@ -176,6 +269,20 @@
         <span class="name">Expert</span>
         <span class="desc">Full rigor. Detailed goals, explicit verify checklist, full loop.</span>
         <span class="cost">~$0.028 / run</span>
+      </button>
+    </div>
+
+    <p class="modes-label">Live references</p>
+    <div class="segmented two" id="refGroup" role="radiogroup" aria-label="Live references">
+      <button class="seg" role="radio" aria-checked="true" data-ref="off">
+        <span class="name">Off</span>
+        <span class="desc">Fast, single pass. No web lookups.</span>
+        <span class="cost">included</span>
+      </button>
+      <button class="seg" role="radio" aria-checked="false" data-ref="on">
+        <span class="name">On — cite sources</span>
+        <span class="desc">Researches the topic live and lists the real sources it used.</span>
+        <span class="cost">+ ~$0.03–$0.15 / run</span>
       </button>
     </div>
 
@@ -203,6 +310,12 @@
   </div>
   <div class="output placeholder" id="out">Your generated prompt will appear here.</div>
 
+  <div class="refs" id="refs" hidden>
+    <div class="refs-title">Sources Chartroom used</div>
+    <ul class="refs-list" id="refsList"></ul>
+    <p class="refs-empty" id="refsEmpty" hidden>No external sources were needed for this prompt.</p>
+  </div>
+
   <details class="costs">
     <summary>Per-mode cost &amp; token estimate</summary>
     <div class="costs-body">
@@ -217,6 +330,7 @@
       <p class="costs-note">
         Priced at Claude Sonnet 4.6 standard rates ($3.00 / 1M input tokens, $15.00 / 1M output tokens) with ~900 input tokens per call.
         1 token ≈ 4 characters. Output length varies, so treat these as a <b>±40% certainty band</b>, not a quote.
+        With <b>Live references</b> on, each run also costs about $0.01 per web search (up to 3) plus the extra tokens from the results — roughly +$0.03–$0.15 when it searches, and nothing extra when it doesn't.
       </p>
     </div>
   </details>
@@ -230,26 +344,55 @@
 
 const MODE_LABELS = { simple:"Simple", average:"Average", expert:"Expert" };
 let currentMode = "average";
+let useReferences = false;
 
-const segs = Array.from(document.querySelectorAll(".seg"));
 const modeEcho = document.getElementById("modeEcho");
-segs.forEach((s, i) => {
-  s.addEventListener("click", () => selectMode(s));
-  s.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); selectMode(segs[(i+1)%segs.length], true); }
-    if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   { e.preventDefault(); selectMode(segs[(i-1+segs.length)%segs.length], true); }
+
+// Generic radiogroup wiring (click + arrow keys), scoped by container id.
+function wireGroup(groupId, onSelect){
+  const segs = Array.from(document.querySelectorAll('#' + groupId + ' .seg'));
+  function select(el, focus){
+    segs.forEach(s => s.setAttribute("aria-checked", s === el ? "true" : "false"));
+    onSelect(el);
+    if (focus) el.focus();
+  }
+  segs.forEach((s, i) => {
+    s.addEventListener("click", () => select(s));
+    s.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); select(segs[(i+1)%segs.length], true); }
+      if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   { e.preventDefault(); select(segs[(i-1+segs.length)%segs.length], true); }
+    });
   });
-});
-function selectMode(el, focus){
-  segs.forEach(s => s.setAttribute("aria-checked", s === el ? "true" : "false"));
-  currentMode = el.dataset.mode;
-  modeEcho.textContent = MODE_LABELS[currentMode];
-  if (focus) el.focus();
 }
+
+wireGroup("depthGroup", (el) => { currentMode = el.dataset.mode; modeEcho.textContent = MODE_LABELS[currentMode]; });
+wireGroup("refGroup",   (el) => { useReferences = el.dataset.ref === "on"; });
 
 const goBtn = document.getElementById("go");
 const out = document.getElementById("out");
 const copyBtn = document.getElementById("copy");
+const refsBox = document.getElementById("refs");
+const refsList = document.getElementById("refsList");
+const refsEmpty = document.getElementById("refsEmpty");
+
+function hideRefs(){ refsBox.hidden = true; refsList.innerHTML = ""; refsEmpty.hidden = true; }
+function renderRefs(on, refs){
+  refsList.innerHTML = "";
+  if (!on){ hideRefs(); return; }
+  if (!refs || refs.length === 0){ refsBox.hidden = false; refsEmpty.hidden = false; return; }
+  refsEmpty.hidden = true;
+  for (const r of refs){
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = r.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.textContent = r.title || r.url;
+    const span = document.createElement("span");
+    span.className = "ref-url"; span.textContent = r.url;
+    li.appendChild(a); li.appendChild(span);
+    refsList.appendChild(li);
+  }
+  refsBox.hidden = false;
+}
 const gate = document.getElementById("gate");
 const emailInput = document.getElementById("email");
 const gateMsg = document.getElementById("gateMsg");
@@ -284,13 +427,14 @@ async function generate(){
   const origLabel = goBtn.textContent;
   goBtn.textContent = "Generating\u2026";
   copyBtn.disabled = true;
-  setOutput("Plotting your prompt\u2026", true, false);
+  hideRefs();
+  setOutput(useReferences ? "Researching the web & plotting your prompt\u2026" : "Plotting your prompt\u2026", true, false);
 
   try {
     const res = await fetch("/api/chartroom", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ task, mode: currentMode, token, email })
+      body: JSON.stringify({ task, mode: currentMode, token, email, references: useReferences })
     });
     const data = await res.json().catch(() => ({}));
 
@@ -308,6 +452,7 @@ async function generate(){
     if (!text) throw new Error("Empty response.");
     setOutput(text, false, false);
     copyBtn.disabled = false;
+    renderRefs(useReferences, data.references || []);
     if (data.captured) hideGate(); // cookie now set; won't ask again on this browser
   } catch (err){
     setOutput("Couldn't generate the prompt. " + err.message, true, true);
@@ -334,6 +479,10 @@ copyBtn.addEventListener("click", async () => {
     copyBtn.textContent = "Press \u2318/Ctrl+C";
   }
 });
+
+// mobile nav drawer
+const burger = document.getElementById("burger");
+if (burger) burger.addEventListener("click", () => document.getElementById("drawer").classList.toggle("open"));
 </script>
 </body>
 </html>
