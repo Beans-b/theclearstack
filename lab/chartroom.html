@@ -123,6 +123,8 @@
   .btn-primary:disabled{opacity:.55;cursor:not-allowed}
   .run-note{font-family:var(--mono);font-size:12px;color:var(--gray)}
   .run-note b{color:var(--navy);font-weight:500}
+  .notice{margin:14px 0 0;background:#FDECEA;border:1px solid #F3C0B8;border-left:3px solid #C0392B;color:#9A2218;font-size:14px;font-weight:500;padding:11px 14px;border-radius:8px;line-height:1.45}
+  .notice[hidden]{display:none}
 
   .out-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 10px}
   .out-title{font-family:var(--display);font-weight:600;font-size:26px;color:var(--navy);margin:0}
@@ -298,6 +300,7 @@
       <button class="btn-primary" id="go">Generate prompt</button>
       <span class="run-note">Mode: <b id="modeEcho">Average</b></span>
     </div>
+    <p class="notice" id="notice" hidden></p>
   </div>
 
   <div class="out-head">
@@ -351,6 +354,9 @@ const copyBtn = document.getElementById("copy");
 const refsBox = document.getElementById("refs");
 const refsList = document.getElementById("refsList");
 const refsEmpty = document.getElementById("refsEmpty");
+const notice = document.getElementById("notice");
+function showNotice(msg){ notice.textContent = msg; notice.hidden = false; }
+function clearNotice(){ notice.textContent = ""; notice.hidden = true; }
 
 function hideRefs(){ refsBox.hidden = true; refsList.innerHTML = ""; refsEmpty.hidden = true; }
 function renderRefs(on, refs){
@@ -386,8 +392,9 @@ goBtn.addEventListener("click", generate);
 emailInput.addEventListener("input", () => { gateMsg.textContent = ""; });
 
 async function generate(){
+  clearNotice();
   const task = document.getElementById("task").value.trim();
-  if (!task){ setOutput("Add a task description first — tell me what you want the AI to produce.", true, true); return; }
+  if (!task){ showNotice("Add a task description first — tell me what you want the AI to produce."); return; }
 
   // If the email step is showing, require a valid address before spending anything.
   let email = "";
@@ -424,8 +431,9 @@ async function generate(){
       return;
     }
     if (!res.ok || data.error){
-      // Server-provided messages (rate limit, email, config) are already user-friendly — show as-is.
-      setOutput(data.error || ("Couldn't generate the prompt. Request failed (" + res.status + ")."), true, true);
+      // Server-provided messages (rate limit, email, config) are already user-friendly — show as-is, in red by the button.
+      showNotice(data.error || ("Couldn't generate the prompt. Request failed (" + res.status + ")."));
+      setOutput("Your generated prompt will appear here.", true, false);
       return;
     }
 
@@ -436,7 +444,8 @@ async function generate(){
     renderRefs(useReferences, data.references || []);
     if (data.captured) hideGate(); // cookie now set; won't ask again on this browser
   } catch (err){
-    setOutput("Couldn't generate the prompt. " + err.message, true, true);
+    showNotice("Couldn't generate the prompt. " + err.message);
+    setOutput("Your generated prompt will appear here.", true, false);
   } finally {
     goBtn.disabled = false;
     goBtn.textContent = origLabel;
