@@ -25,8 +25,8 @@ const ALLOWED_ORIGINS = [
 ];
 
 // Rate limit (only enforced if a KV namespace is bound as RL)
-const RL_LIMIT = 20;       // max generations
-const RL_WINDOW = 3600;    // per this many seconds (3600 = 1 hour) per IP
+const RL_LIMIT = 5;        // max generations per window, per IP
+const RL_WINDOW = 3600;    // window length in seconds (3600 = 1 hour)
 
 // Per-mode depth. Lives server-side so the method isn't copyable from the page.
 const MODE_CONFIG = {
@@ -176,12 +176,21 @@ export async function onRequestPost(context) {
   // 4) Optional per-IP rate limit (only if KV namespace RL is bound)
   if (env.RL) {
     const key = "rl:" + ip;
-    let cur = 0;
-    try { cur = parseInt((await env.RL.get(key)) || "0", 10) || 0; } catch { cur = 0; }
-    if (cur >= RL_LIMIT) {
-      return json({ error: "You've hit the limit for now. Try again later." }, 429);
+    const now = Date.now();
+    let rec = null;
+    try { const raw = await env.RL.get(key); rec = raw ? JSON.parse(raw) : null; } catch { rec = null; }
+    // Start a fresh window on first hit or once the previous window has elapsed.
+    if (!rec || typeof rec.resetAt !== "number" || now > rec.resetAt) {
+      rec = { count: 0, resetAt: now + RL_WINDOW * 1000 };
     }
-    try { await env.RL.put(key, String(cur + 1), { expirationTtl: RL_WINDOW }); } catch { /* non-fatal */ }
+    if (rec.count >= RL_LIMIT) {
+      return json({ error: `You've reached the limit of ${RL_LIMIT} prompts per hour. Please come back in a bit and try again.` }, 429);
+    }
+    rec.count += 1;
+    try {
+      const ttl = Math.max(60, Math.ceil((rec.resetAt - now) / 1000)); // KV min TTL is 60s
+      await env.RL.put(key, JSON.stringify(rec), { expirationTtl: ttl });
+    } catch { /* non-fatal: don't block the user on a storage hiccup */ }
   }
 
   // 5) Key present?

@@ -446,7 +446,11 @@ async function generate(){
       emailInput.focus();
       return;
     }
-    if (!res.ok || data.error){ throw new Error(data.error || ("Request failed (" + res.status + ").")); }
+    if (!res.ok || data.error){
+      // Server-provided messages (rate limit, email, config) are already user-friendly — show as-is.
+      setOutput(data.error || ("Couldn't generate the prompt. Request failed (" + res.status + ")."), true, true);
+      return;
+    }
 
     const text = (data.prompt || "").trim();
     if (!text) throw new Error("Empty response.");
