@@ -287,10 +287,11 @@
       <p class="gate-msg" id="gateMsg"></p>
     </div>
 
-    <!-- Cloudflare Turnstile. Replace data-sitekey with your real SITE key from the Turnstile dashboard.
-         Test key that always passes (for previews): 1x00000000000000000000AA -->
+    <!-- Cloudflare Turnstile — live Site key for theclearstack.com.
+         The widget renders here; server-side verification turns ON once you add the matching
+         TURNSTILE_SECRET_KEY (Secret) in Cloudflare Pages and redeploy. -->
     <div class="turnstile-row">
-      <div class="cf-turnstile" data-sitekey="REPLACE_WITH_YOUR_TURNSTILE_SITE_KEY" data-theme="light"></div>
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADn5Q4-twfJSHLLl" data-theme="light"></div>
     </div>
 
     <div class="actions">
