@@ -24,9 +24,10 @@ const ALLOWED_ORIGINS = [
   "https://www.theclearstack.ai"
 ];
 
-// Rate limit (only enforced if a KV namespace is bound as RL)
-const RL_LIMIT = 5;        // max generations per window, per IP
-const RL_WINDOW = 3600;    // window length in seconds (3600 = 1 hour)
+// Rate limits (only enforced if a KV namespace is bound as RL). Counted per UTC calendar day.
+const USER_LIMIT = 3;       // generations per IP per day
+const GLOBAL_LIMIT = 15;    // generations across ALL users per day — your hard daily spend lid
+const RL_TTL = 172800;      // KV key lifetime in seconds (2 days), so day-keys auto-clean up
 
 // Per-mode depth. Lives server-side so the method isn't copyable from the page.
 const MODE_CONFIG = {
@@ -79,6 +80,27 @@ function isEmail(s) { return EMAIL_RE.test(s) && s.length <= 254; }
 function hasLeadCookie(request) {
   const c = request.headers.get("Cookie") || "";
   return /(?:^|;\s*)cs_lead=1(?:;|$)/.test(c);
+}
+
+// Create or update a HubSpot contact by email, tagged with where the lead came from.
+// Create sets the source; if the contact already exists (409), PATCH updates it by email.
+// Fully non-fatal — lead capture must never block on a CRM hiccup.
+async function pushToHubSpot(token, email, source) {
+  const headers = { "content-type": "application/json", "authorization": "Bearer " + token };
+  try {
+    const res = await fetch("https://api.hubapi.com/crm/v3/objects/contacts", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ properties: { email, lead_source: source } })
+    });
+    if (res.status === 409) {
+      await fetch("https://api.hubapi.com/crm/v3/objects/contacts/" + encodeURIComponent(email) + "?idProperty=email", {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ properties: { lead_source: source } })
+      });
+    }
+  } catch { /* non-fatal */ }
 }
 
 // Pull the real sources Claude consulted/cited out of the response content.
@@ -168,29 +190,36 @@ export async function onRequestPost(context) {
         await env.LEADS.put(k, JSON.stringify(rec));
       } catch { /* non-fatal: don't block the user on a storage hiccup */ }
     }
+    // Send the new lead to HubSpot, tagged with its source. Runs in the background
+    // (waitUntil) so it never slows the user's response; non-fatal on failure.
+    if (env.HUBSPOT_TOKEN) {
+      context.waitUntil(pushToHubSpot(env.HUBSPOT_TOKEN, email, "Chartroom — theclearstack.com/lab/chartroom"));
+    }
     // Remember this user for a year. Not HttpOnly so the page can hide the email
     // field on return visits; it carries no sensitive data (just "cs_lead=1").
     setCookie = "cs_lead=1; Max-Age=31536000; Path=/; Secure; SameSite=Lax";
   }
 
-  // 4) Optional per-IP rate limit (only if KV namespace RL is bound)
+  // 4) Rate limits — per-IP and global, per day (only if KV namespace RL is bound)
   if (env.RL) {
-    const key = "rl:" + ip;
-    const now = Date.now();
-    let rec = null;
-    try { const raw = await env.RL.get(key); rec = raw ? JSON.parse(raw) : null; } catch { rec = null; }
-    // Start a fresh window on first hit or once the previous window has elapsed.
-    if (!rec || typeof rec.resetAt !== "number" || now > rec.resetAt) {
-      rec = { count: 0, resetAt: now + RL_WINDOW * 1000 };
+    const day = new Date().toISOString().slice(0, 10); // UTC YYYY-MM-DD
+    const userKey = "rlu:" + ip + ":" + day;
+    const globalKey = "rlg:" + day;
+
+    let uCount = 0, gCount = 0;
+    try { uCount = parseInt((await env.RL.get(userKey)) || "0", 10) || 0; } catch { uCount = 0; }
+    try { gCount = parseInt((await env.RL.get(globalKey)) || "0", 10) || 0; } catch { gCount = 0; }
+
+    if (uCount >= USER_LIMIT) {
+      return json({ error: `You've reached your daily limit of ${USER_LIMIT} prompts. Please come back tomorrow.` }, 429);
     }
-    if (rec.count >= RL_LIMIT) {
-      return json({ error: `You've reached the limit of ${RL_LIMIT} prompts per hour. Please come back in a bit and try again.` }, 429);
+    if (gCount >= GLOBAL_LIMIT) {
+      return json({ error: "Chartroom has reached today's overall limit. Please check back tomorrow." }, 429);
     }
-    rec.count += 1;
-    try {
-      const ttl = Math.max(60, Math.ceil((rec.resetAt - now) / 1000)); // KV min TTL is 60s
-      await env.RL.put(key, JSON.stringify(rec), { expirationTtl: ttl });
-    } catch { /* non-fatal: don't block the user on a storage hiccup */ }
+
+    // Passed both — count this generation against both buckets.
+    try { await env.RL.put(userKey, String(uCount + 1), { expirationTtl: RL_TTL }); } catch { /* non-fatal */ }
+    try { await env.RL.put(globalKey, String(gCount + 1), { expirationTtl: RL_TTL }); } catch { /* non-fatal */ }
   }
 
   // 5) Key present?
