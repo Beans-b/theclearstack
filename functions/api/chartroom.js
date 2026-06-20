@@ -2,8 +2,11 @@
 // Endpoint becomes:  POST /api/chartroom   (same origin as your site)
 //
 // SECRETS — set these in Cloudflare Pages > your project > Settings > Variables and secrets
-//   ANTHROPIC_API_KEY     (Secret)  your Anthropic key. NEVER goes in the HTML.
-//   TURNSTILE_SECRET_KEY  (Secret)  Cloudflare Turnstile secret key.
+//   ANTHROPIC_API_KEY        (Secret)  your Anthropic key. NEVER goes in the HTML.
+//   TURNSTILE_SECRET_KEY     (Secret)  Cloudflare Turnstile secret key.
+//   MAKE_THANKYOU_WEBHOOK    (Plain or Secret)  the Make custom-webhook URL that
+//                            sends the Chartroom thank-you email. If unset, the
+//                            thank-you step is simply skipped (non-fatal).
 //
 // OPTIONAL — for in-code rate limiting, create a KV namespace and bind it as "RL"
 //   Settings > Functions > KV namespace bindings  ->  Variable name: RL
@@ -103,6 +106,25 @@ async function pushToHubSpot(token, email, source) {
   } catch { /* non-fatal */ }
 }
 
+// Fire-and-forget POST to a Make custom webhook so Make sends the Chartroom
+// thank-you email (Gmail, brian@theclearstack.com). Fully non-fatal — the user's
+// result must never block or fail because of this background notification.
+// The x-make-apikey header matches the API-key guard on the Make webhook so only
+// this Function can trigger the scenario. The key is your standard stack guard;
+// it lives server-side only and is never sent to the browser.
+async function notifyMakeThankYou(url, email) {
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-make-apikey": "12DmiDdYXQyTx4"
+      },
+      body: JSON.stringify({ email })
+    });
+  } catch { /* non-fatal */ }
+}
+
 // Pull the real sources Claude consulted/cited out of the response content.
 // Looks at both the web_search_tool_result blocks and any citations in text blocks.
 function collectReferences(content) {
@@ -194,6 +216,12 @@ export async function onRequestPost(context) {
     // (waitUntil) so it never slows the user's response; non-fatal on failure.
     if (env.HUBSPOT_TOKEN) {
       context.waitUntil(pushToHubSpot(env.HUBSPOT_TOKEN, email, "Chartroom — theclearstack.com/lab/chartroom"));
+    }
+    // Tell Make to send the thank-you email. Same first-capture gate as the HubSpot
+    // push, same background pattern (waitUntil), same non-fatal contract. Only fires
+    // when MAKE_THANKYOU_WEBHOOK is configured, so deploys without the env var are safe.
+    if (env.MAKE_THANKYOU_WEBHOOK) {
+      context.waitUntil(notifyMakeThankYou(env.MAKE_THANKYOU_WEBHOOK, email));
     }
     // Remember this user for a year. Not HttpOnly so the page can hide the email
     // field on return visits; it carries no sensitive data (just "cs_lead=1").
