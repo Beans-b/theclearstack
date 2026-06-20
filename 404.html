@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Not Found — The Clear Stack</title>
+<meta name="description" content="That page isn't part of the stack. Head back to The Clear Stack home, the Lab, or book a free 30-minute stack audit.">
+<meta name="robots" content="noindex, follow">
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F4A;--navy-deep:#07152F;--navy-mid:#122260;--orange:#E07B2A;--orange-h:#C96A1A;--white:#FFFFFF;--cream:#F7F4EF;--charcoal:#1A1A1A;--gray:#5A6478;--line:#E4E6EA;--light:#F4F5F7;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--white);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:68px;}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;line-height:1.1;}
+p{font-size:15px;line-height:1.75;color:var(--gray);font-weight:300;}
+.btn{display:inline-block;font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;transition:all .22s ease;cursor:pointer;border:none;}
+.btn-primary{background:var(--orange);color:#fff;padding:15px 34px;}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px);box-shadow:0 10px 32px rgba(224,123,42,.28);}
+.btn-navy{background:var(--navy);color:#fff;padding:15px 34px;}
+.btn-navy:hover{background:var(--navy-deep);transform:translateY(-2px);box-shadow:0 10px 32px rgba(11,31,74,.25);}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow .3s;}
+#nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+.logo-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:0.01em;}
+.logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+.logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+.logo-tag{font-family:'DM Mono',monospace;font-size:6.5px;letter-spacing:0.14em;color:#FFFFFF;text-transform:uppercase;}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+.nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;text-decoration:none;}
+.nav-cta:hover{background:var(--orange-h)!important;}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease;}
+.drawer.open{transform:none;}
+.drawer ul{list-style:none;}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07);}
+.d-cta{color:var(--orange)!important;font-weight:700!important;}
+
+/* 404 HERO */
+.e404{min-height:calc(100vh - 68px - 121px);display:flex;align-items:center;justify-content:center;text-align:center;padding:72px 48px;background:var(--white);}
+.e404-inner{max-width:620px;}
+.e404-num{font-family:'DM Mono',monospace;font-size:clamp(72px,14vw,140px);font-weight:500;line-height:1;color:var(--orange);letter-spacing:.04em;margin-bottom:8px;}
+.e404 h1{font-size:clamp(32px,4.5vw,52px);font-weight:700;color:var(--navy);margin-bottom:18px;}
+.e404 p{font-size:18px;max-width:480px;margin:0 auto 32px;}
+.e404-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.e404-links{margin-top:34px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;}
+.e404-links a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);text-decoration:none;transition:color .2s;}
+.e404-links a:hover{color:var(--navy);}
+
+/* FOOTER */
+#footer{background:var(--navy-deep);border-top:1px solid rgba(255,255,255,.06);padding:40px 48px;}
+.fi{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.flogo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.flogo span{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:rgba(247,244,239,.5);}
+.flogo em{font-style:normal;color:var(--orange);}
+.fnav{display:flex;gap:28px;list-style:none;}
+.fnav a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,239,.3);text-decoration:none;transition:color .2s;}
+.fnav a:hover{color:rgba(247,244,239,.7);}
+.fcopy{font-family:'DM Mono',monospace;font-size:11px;color:rgba(247,244,239,.2);}
+
+@media(max-width:960px){
+  #nav{padding:0 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+  .drawer{display:block;}
+  .e404,#footer{padding-left:24px;padding-right:24px;}
+  .fi{flex-direction:column;gap:16px;}
+  #footer{padding:32px 24px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="/index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="mcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="tcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#bcnt)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mcnt)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#tcnt)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="/index.html">What We Do</a></li>
+    <li><a href="/method.html">How It Works</a></li>
+    <li><a href="/usecases.html">Use Cases</a></li>
+    <li><a href="/lab/index.html">Lab</a></li>
+  </ul>
+  <a href="/contact.html" class="nav-cta">Work With Us</a>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="/index.html">What We Do</a></li>
+    <li><a href="/method.html">How It Works</a></li>
+    <li><a href="/usecases.html">Use Cases</a></li>
+    <li><a href="/lab/index.html">Lab</a></li>
+    <li><a href="/contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<section class="e404">
+  <div class="e404-inner">
+    <div class="e404-num">404</div>
+    <h1>This page isn't in the stack.</h1>
+    <p>The link may be broken, or the page may have moved. Let's get you back to something useful.</p>
+    <div class="e404-actions">
+      <a href="/index.html" class="btn btn-primary">Back to Home</a>
+      <a href="/contact.html" class="btn btn-navy">Book a Free Audit</a>
+    </div>
+    <div class="e404-links">
+      <a href="/method.html">How It Works</a>
+      <a href="/usecases.html">Use Cases</a>
+      <a href="/lab/index.html">The Lab</a>
+    </div>
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="fi">
+    <a href="/index.html" class="flogo"><svg width="20" height="23" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fbcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2550A8"/>
+          <stop offset="100%" stop-color="#193C82"/>
+        </linearGradient>
+        <linearGradient id="fmcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
+        </linearGradient>
+        <linearGradient id="ftcnt" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
+        </linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#fbcnt)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#fmcnt)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ftcnt)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg><span>the <em>clear</em> stack</span></a>
+    <ul class="fnav"><li><a href="/index.html">Services</a></li><li><a href="/method.html">Method</a></li><li><a href="/usecases.html">Use Cases</a></li><li><a href="/lab/index.html">Lab</a></li>
+      <li><a href="/contact.html">Contact</a></li></ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.com</span>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>40),{passive:true});
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+</script>
+</body>
+</html>
