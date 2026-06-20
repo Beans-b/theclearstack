@@ -1,98 +1,24 @@
 # robots.txt — theclearstack.com
-# Last updated 2026-06-15
-# Strategy: maximize AI-answer-engine citation visibility (AEO).
-# Allow all compliant search + training crawlers. Block known bad
-# actors at the Cloudflare WAF too — they ignore this file.
+# Last updated 2026-06-19
+# Policy: OPTION 1 — allow ALL compliant search + AI crawlers (citation AND
+# training) for maximum visibility and long-term brand recall in AI models.
+# IP is protected by NOT publishing the proprietary methodology, not by
+# blocking crawlers.
 #
-# NOTE: the paid Playbook download lives under /playbook/ and on
-# playbook-download.html. These are disallowed from indexing so they
-# don't surface in search. The directory path (not the obscure
-# filename) is listed on purpose — never publish the real PDF URL here.
+# Only the paid Playbook is disallowed. Known abusive crawlers are blocked.
+#
+# RULE: exactly ONE group per user-agent. Cloudflare "Managed robots.txt"
+# must stay OFF so it cannot prepend a conflicting block that disallows the
+# AI crawlers (GPTBot, ClaudeBot, etc.) this file intends to allow.
 
-# --- Traditional search ---
-User-agent: Googlebot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: Bingbot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- OpenAI ---
-User-agent: GPTBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: OAI-SearchBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: ChatGPT-User
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- Anthropic ---
-User-agent: ClaudeBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: Claude-SearchBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: Claude-User
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: anthropic-ai
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- Perplexity ---
-User-agent: PerplexityBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: Perplexity-User
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- Google / Apple generative ---
-User-agent: Google-Extended
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-User-agent: Applebot-Extended
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- Common Crawl (feeds many models) ---
-User-agent: CCBot
-Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
-
-# --- Known abusive crawler: ignores robots.txt; also block at Cloudflare WAF ---
-User-agent: Bytespider
-Disallow: /
-
-# --- Everything else ---
+# --- Default: every compliant crawler ---
 User-agent: *
 Allow: /
 Disallow: /playbook/
 Disallow: /playbook-download.html
 
 Sitemap: https://theclearstack.com/sitemap.xml
+
+# --- Known abusive crawler: ignores robots.txt; also block at Cloudflare WAF ---
+User-agent: Bytespider
+Disallow: /
