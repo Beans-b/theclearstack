@@ -470,25 +470,32 @@ function makeMarket(seed, mode){
   mode = mode || "random";
   const rng = mulberry32(seed);
   const instruments = [
-    {symbol:"BTC-USD", cls:"spot"},
-    {symbol:"ETH-USD", cls:"spot"},
-    {symbol:"SOL-USD", cls:"spot"},
-    {symbol:"SPY-IDX", cls:"equity"},   // benchmark proxy
-    {symbol:"BTC-PERP", cls:"perp"},    // leveraged sleeve
-    {symbol:"ETH-PERP", cls:"perp"},    // leveraged sleeve
+    {symbol:"BTC-USD",  cls:"spot"},     // crypto spot
+    {symbol:"ETH-USD",  cls:"spot"},
+    {symbol:"SOL-USD",  cls:"spot"},
+    {symbol:"XAU-USD",  cls:"spot"},     // gold
+    {symbol:"XAG-USD",  cls:"spot"},     // silver
+    {symbol:"SPX-500",  cls:"equity"},   // Fortune-500 index (benchmark)
+    {symbol:"AAPL",     cls:"equity"},   // tokenized stock
+    {symbol:"TSLA",     cls:"equity"},   // tokenized stock
+    {symbol:"BTC-PERP", cls:"perp"},     // crypto futures (leveraged)
+    {symbol:"ETH-PERP", cls:"perp"},     // crypto futures
+    {symbol:"GOLD-FUT", cls:"perp"},     // gold futures (leveraged)
+    {symbol:"SPX-FUT",  cls:"perp"},     // index future (leveraged)
   ];
-  const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"SPY-IDX":540,"BTC-PERP":64000,"ETH-PERP":3200};
+  const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"XAU-USD":2350,"XAG-USD":28,
+    "SPX-500":5400,"AAPL":190,"TSLA":250,"BTC-PERP":64000,"ETH-PERP":3200,"GOLD-FUT":2350,"SPX-FUT":5400};
   const closes={}, history={}, drift={}, vol={}, anchor={};
   for (const i of instruments){
     closes[i.symbol]=[]; history[i.symbol]=[]; anchor[i.symbol]=price[i.symbol];
-    if (mode==="trending"){ drift[i.symbol]=0; vol[i.symbol]=0.0025; }      // calm, clean trend
+    if (mode==="trending"){ drift[i.symbol]=0; vol[i.symbol]=0.006; }       // trend with real wiggle
     else if (mode==="meanrev"){ drift[i.symbol]=0; vol[i.symbol]=0.008; }
     else { drift[i.symbol]=0; vol[i.symbol]=0.012; }
   }
   let mTrend = 0.0004;   // shared market-wide bull factor (trending mode)
   return {
     instruments, price, closes, history, rng, mode,
-    benchmark(){ return price["SPY-IDX"]; },
+    benchmark(){ return price["SPX-500"]; },
     step(){
       for (const inst of instruments){
         const s=inst.symbol;
@@ -676,8 +683,8 @@ function makeAgent(seed, mode){
   // ---- risk math ----
   function equity(){
     let eq = A.cash;
-    for (const s in A.positions){
-      const p=A.positions[s], mark=A.mkt.price[s];
+    for (const k in A.positions){
+      const p=A.positions[k], mark=A.mkt.price[p.symbol];
       eq += LEVERAGED.has(p.cls) ? unreal(p,mark) : p.qty*mark;   // futures: cash+unreal; spot: mtm
     }
     return eq;
@@ -685,15 +692,16 @@ function makeAgent(seed, mode){
   function unreal(p, mark){ return p.side==="long" ? (mark-p.entry)*p.qty : (p.entry-mark)*p.qty; }
   function distToStop(p, mark){ return p.side==="long" ? Math.max(0,(mark-p.stop))*p.qty : Math.max(0,(p.stop-mark))*p.qty; }
   function levMargin(){
-    let t=0; for (const s in A.positions){ const p=A.positions[s]; if (LEVERAGED.has(p.cls)) t += p.notional/CFG.MAX_EFFECTIVE_LEVERAGE; } return t;
+    let t=0; for (const k in A.positions){ const p=A.positions[k]; if (LEVERAGED.has(p.cls)) t += p.notional/CFG.MAX_EFFECTIVE_LEVERAGE; } return t;
   }
   function heat(){
     const eq=equity(); if (eq<=0) return 1;
-    let r=0; for (const s in A.positions) r += distToStop(A.positions[s], A.mkt.price[s]); return r/eq;
+    let r=0; for (const k in A.positions){ const p=A.positions[k]; r += distToStop(p, A.mkt.price[p.symbol]); } return r/eq;
   }
-  function exposureIn(sym){
-    const eq=equity(); if (eq<=0 || !A.positions[sym]) return 0;
-    const p=A.positions[sym]; return Math.abs(p.qty*A.mkt.price[sym])/eq;
+  function exposureIn(sym){   // total exposure in an underlying, summed across all strategies
+    const eq=equity(); if (eq<=0) return 0;
+    let v=0; for (const k in A.positions){ const p=A.positions[k]; if (p.symbol===sym) v += Math.abs(p.qty*A.mkt.price[sym]); }
+    return v/eq;
   }
 
   // plan(): smallest qty allowed by every rule; 0 = stand down
@@ -750,19 +758,19 @@ function makeAgent(seed, mode){
     const f = fill(sig.entry, sig.side), notional = qty*f, fe = fee(notional);
     A.cash -= fe;
     if (!LEVERAGED.has(sig.cls)) A.cash -= notional;   // buy asset; equity re-adds qty*mark
-    A.positions[sig.symbol] = {symbol:sig.symbol, cls:sig.cls, side:sig.side, qty, entry:f,
+    A.positions[sig.symbol+"::"+sig.strat] = {symbol:sig.symbol, cls:sig.cls, side:sig.side, qty, entry:f,
       stop:sig.stop, tp:sig.tp, notional, strat:sig.strat};
     logit("open", `OPEN ${sig.symbol} ${sig.strat} ${qty.toFixed(4)}@${f.toFixed(2)} stop ${sig.stop.toFixed(2)}`);
   }
-  function close(sym, reason){
-    const p=A.positions[sym]; delete A.positions[sym];
-    const mark=A.mkt.price[sym], f=fill(mark, p.side==="long"?"short":"long");
+  function close(key, reason){
+    const p=A.positions[key]; delete A.positions[key];
+    const mark=A.mkt.price[p.symbol], f=fill(mark, p.side==="long"?"short":"long");
     const pnl=unreal(p,f), notional=p.qty*f, fe=fee(notional);
     if (LEVERAGED.has(p.cls)) A.cash += pnl - fe; else A.cash += notional - fe;
     record(p.strat, pnl);
-    logit("close", `CLOSE ${sym} ${reason} pnl $${pnl.toFixed(2)}`);
+    logit("close", `CLOSE ${p.symbol} ${reason} pnl $${pnl.toFixed(2)}`);
   }
-  function flatten(reason){ for (const s of Object.keys(A.positions)) close(s, reason); }
+  function flatten(reason){ for (const k of Object.keys(A.positions)) close(k, reason); }
   function record(strat, pnl){
     const s = A.strat[strat] || (A.strat[strat]={trades:0,wins:0,gw:0,gl:0});
     s.trades++; if (pnl>=0){ s.wins++; s.gw+=pnl; } else s.gl += -pnl;
@@ -775,15 +783,15 @@ function makeAgent(seed, mode){
   function profitFactor(s){ return s.gl? s.gw/s.gl : Infinity; }
 
   function manage(){
-    for (const sym of Object.keys(A.positions)){
-      const p=A.positions[sym], mark=A.mkt.price[sym];
+    for (const key of Object.keys(A.positions)){
+      const p=A.positions[key], mark=A.mkt.price[p.symbol];
       if (p.side!=="long") continue;
-      if (mark<=p.stop){ close(sym,"stop"); continue; }      // disaster backstop
-      if (mark>=p.tp){ close(sym,"take_profit"); continue; }
+      if (mark<=p.stop){ close(key,"stop"); continue; }      // disaster backstop
+      if (mark>=p.tp){ close(key,"take_profit"); continue; }
       if (p.strat==="position"){
         // ride from golden cross to death cross — hold through noise, no tight trail
-        const c=A.mkt.closes[sym], e21=emaLast(c,21), e50=emaLast(c,50);
-        if (e21!==null && e50!==null && e21<e50) close(sym,"trend_break");
+        const c=A.mkt.closes[p.symbol], e21=emaLast(c,21), e50=emaLast(c,50);
+        if (e21!==null && e50!==null && e21<e50) close(key,"trend_break");
       } else {
         const ns=Math.max(p.stop, mark-(p.entry-p.stop)); if (ns>p.stop) p.stop=ns;  // trail others
       }
@@ -791,7 +799,7 @@ function makeAgent(seed, mode){
   }
 
   function reconcile(){
-    for (const s in A.positions){ const p=A.positions[s]; if (p.qty<=0 || !(s in A.mkt.price)){ A.lastAnomaly=`bad position ${s}`; return false; } }
+    for (const k in A.positions){ const p=A.positions[k]; if (p.qty<=0 || !(p.symbol in A.mkt.price)){ A.lastAnomaly=`bad position ${k}`; return false; } }
     A.reconClean++; return true;
   }
   function tripKill(reason){
@@ -825,7 +833,7 @@ function makeAgent(seed, mode){
 
     manage();
     for (const sig of generateSignals(A)){
-      if (A.positions[sig.symbol]) continue;       // one position per underlying
+      if (A.positions[sig.symbol+"::"+sig.strat]) continue;   // one position per underlying *per strategy*
       const {qty} = plan(sig);
       if (qty>0) open(sig, qty);
     }
@@ -1079,24 +1087,29 @@ if (typeof document !== "undefined") {
     document.querySelectorAll(".lamp").forEach(el=>{ el.classList.toggle("lit", !!agent.gates[el.dataset.k]); });
 
     // positions
-    const syms=Object.keys(agent.positions);
-    $("posCount").textContent = syms.length+" open";
+    const keys=Object.keys(agent.positions);
+    $("posCount").textContent = keys.length+" open";
     const pw=$("posWrap");
-    if (!syms.length){ pw.innerHTML='<div class="empty">Flat. Cash is a position — no setup cleared the gates.</div>'; }
+    if (!keys.length){ pw.innerHTML='<div class="empty">Flat. Cash is a position — no setup cleared the gates.</div>'; }
     else {
+      keys.sort((a,b)=> agent.positions[a].symbol.localeCompare(agent.positions[b].symbol));
       let r="<table><thead><tr><th>Instrument</th><th>Strat</th><th class='num'>Qty</th><th class='num'>Entry</th><th class='num'>Stop</th><th class='num'>U/PnL</th></tr></thead><tbody>";
-      for (const s of syms){ const p=agent.positions[s], up=f.unreal(p, agent.mkt.price[s]);
-        r+=`<tr><td>${s}</td><td>${p.strat}</td><td class='num'>${p.qty.toFixed(4)}</td><td class='num'>${p.entry.toFixed(2)}</td><td class='num'>${p.stop.toFixed(2)}</td><td class='num ${up>=0?"pos":"neg"}'>${fmt$(up)}</td></tr>`; }
+      for (const k of keys){ const p=agent.positions[k], up=f.unreal(p, agent.mkt.price[p.symbol]);
+        r+=`<tr><td>${p.symbol}</td><td>${STRAT_LABELS[p.strat]||p.strat}</td><td class='num'>${p.qty.toFixed(4)}</td><td class='num'>${p.entry.toFixed(2)}</td><td class='num'>${p.stop.toFixed(2)}</td><td class='num ${up>=0?"pos":"neg"}'>${fmt$(up)}</td></tr>`; }
       pw.innerHTML=r+"</tbody></table>";
     }
 
-    // strategy ledger
-    const sw=$("stratWrap"); const names=Object.keys(agent.strat);
-    if (!names.length){ sw.innerHTML='<div class="empty">No closed trades yet.</div>'; }
+    // strategy ledger — full enabled roster, ranked by realized P&L
+    const sw=$("stratWrap");
+    const STRAT_ORDER=["rulebook","bottom_feeder","position","loose_cannon","bluebird"];
+    const roster=STRAT_ORDER.filter(k=>agent.enabled[k]);
+    if (!roster.length){ sw.innerHTML='<div class="empty">No strategies enabled.</div>'; }
     else {
+      const rows=roster.map(k=>{ const s=agent.strat[k]||{trades:0,wins:0,gw:0,gl:0}; return {k,s,net:s.gw-s.gl}; });
+      rows.sort((a,b)=> b.net-a.net);
       let r="<table><thead><tr><th>Strategy</th><th class='num'>Trades</th><th class='num'>Win%</th><th class='num'>Exp</th><th class='num'>PF</th></tr></thead><tbody>";
-      for (const n of names){ const s=agent.strat[n], e=f.expectancy(s), pf=f.profitFactor(s), wr=s.trades?s.wins/s.trades*100:0;
-        r+=`<tr><td>${STRAT_LABELS[n]||n}</td><td class='num'>${s.trades}</td><td class='num'>${wr.toFixed(0)}</td><td class='num ${e>=0?"pos":"neg"}'>${fmt$(e)}</td><td class='num'>${pf===Infinity?"∞":pf.toFixed(2)}</td></tr>`; }
+      for (const {k,s} of rows){ const e=f.expectancy(s), pf=f.profitFactor(s), wr=s.trades?s.wins/s.trades*100:0;
+        r+=`<tr><td>${STRAT_LABELS[k]||k}</td><td class='num'>${s.trades}</td><td class='num'>${s.trades?wr.toFixed(0):"—"}</td><td class='num ${e>=0?"pos":"neg"}'>${s.trades?fmt$(e):"—"}</td><td class='num'>${s.trades?(pf===Infinity?"∞":pf.toFixed(2)):"—"}</td></tr>`; }
       sw.innerHTML=r+"</tbody></table>";
     }
 
