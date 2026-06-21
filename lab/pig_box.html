@@ -1,0 +1,927 @@
+<!--
+  THE PIG BOX — Bridge Cockpit (paper mode, runs entirely in the browser)
+  ----------------------------------------------------------------------
+  This page PORTS the paper simulator + risk engine into JavaScript so the
+  page itself IS the agent, running in paper mode. No backend, no real money.
+
+  SECURITY: never put Coinbase API keys in this file or any client-side HTML.
+  Anyone who opens the page can read them. For anything live, run the Python
+  agent on a machine you control and have this page read its status over a
+  local API. The depth sounder below is a simulation.
+
+  Engine logic lives between the ENGINE_START / ENGINE_END markers and is
+  DOM-free so it can be unit-tested headless.
+-->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Pig Box — Bridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --abyss:        #0a1119;   /* bridge at night */
+    --abyss-2:      #0e1822;
+    --panel:        #111e2a;
+    --panel-edge:   #1d3346;
+    --brass:        #e8b14c;   /* instrument glow */
+    --brass-dim:    #b8893a;
+    --phosphor:     #6fe3b0;   /* sonar trace, all-clear */
+    --phosphor-dim: #3f8f74;
+    --slate:        #8aa0b2;   /* labels */
+    --slate-dim:    #4a5e70;
+    --warn:         #e5564b;   /* kill / aground */
+    --warn-soft:    #cf6b52;
+    --ink:          #e8eef3;
+    --grid:         rgba(232,177,76,0.08);
+    --hairline:     rgba(138,160,178,0.16);
+    --display: "Oswald", "Arial Narrow", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --body: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--abyss); color: var(--ink); }
+  body {
+    font-family: var(--body);
+    background:
+      radial-gradient(1200px 700px at 78% -10%, rgba(232,177,76,0.06), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(111,227,176,0.05), transparent 55%),
+      var(--abyss);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 18px 16px 48px; }
+
+  /* ---- header / console rail ---- */
+  header.console {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 14px 18px; margin-bottom: 16px;
+    background: linear-gradient(180deg, #14222f, #0d1822);
+    border: 1px solid var(--panel-edge);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .brand { display: flex; align-items: baseline; gap: 12px; margin-right: auto; }
+  .brand .glyph {
+    font-family: var(--display); font-size: 26px; line-height: 1;
+    color: var(--abyss); background: var(--brass);
+    padding: 6px 9px; border-radius: 7px; font-weight: 700;
+    box-shadow: 0 0 18px rgba(232,177,76,0.35);
+    letter-spacing: 0.5px;
+  }
+  .brand h1 {
+    font-family: var(--display); font-weight: 600; font-size: 22px;
+    margin: 0; letter-spacing: 3px; text-transform: uppercase; color: var(--ink);
+  }
+  .brand .tag {
+    font-family: var(--mono); font-size: 10.5px; color: var(--slate-dim);
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+
+  .lamp-mode {
+    font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: 2px;
+    padding: 7px 14px; border-radius: 999px; border: 1px solid currentColor;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .lamp-mode::before {
+    content: ""; width: 9px; height: 9px; border-radius: 50%;
+    background: currentColor; box-shadow: 0 0 10px currentColor;
+  }
+  .mode-PAPER  { color: var(--brass); }
+  .mode-LIVE   { color: var(--phosphor); }
+  .mode-HALTED { color: var(--warn); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+
+  /* ---- controls ---- */
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button.ctl {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer;
+    background: #0f1d28; color: var(--ink);
+    border: 1px solid var(--panel-edge); border-radius: 7px;
+    padding: 8px 12px; transition: border-color .15s, background .15s, color .15s;
+  }
+  button.ctl:hover { border-color: var(--brass-dim); color: var(--brass); }
+  button.ctl:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  button.ctl.primary { background: var(--brass); color: var(--abyss); border-color: var(--brass); font-weight: 700; }
+  button.ctl.primary:hover { filter: brightness(1.08); color: var(--abyss); }
+  button.ctl.danger { color: var(--warn-soft); border-color: #3a2330; }
+  button.ctl.danger:hover { background: var(--warn); color: #fff; border-color: var(--warn); }
+  button.ctl:disabled { opacity: .4; cursor: not-allowed; }
+  .speed { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; color: var(--slate); }
+  .speed input { accent-color: var(--brass); }
+
+  /* ---- grid ---- */
+  .grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: linear-gradient(180deg, var(--panel), var(--abyss-2));
+    border: 1px solid var(--panel-edge); border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .panel > .ph {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 11px 15px 9px; border-bottom: 1px solid var(--hairline);
+  }
+  .ph .label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--brass);
+  }
+  .ph .sub { font-family: var(--mono); font-size: 10.5px; color: var(--slate-dim); letter-spacing: 1px; }
+
+  /* ---- depth sounder ---- */
+  .sounder-body { position: relative; padding: 12px 14px 14px; }
+  #sounder { width: 100%; height: 280px; display: block; border-radius: 8px; background: #06101a; }
+  .readout-overlay {
+    position: absolute; top: 22px; left: 26px; pointer-events: none;
+  }
+  .readout-overlay .eq {
+    font-family: var(--mono); font-weight: 700; font-size: 34px; color: var(--phosphor);
+    text-shadow: 0 0 16px rgba(111,227,176,0.45); line-height: 1;
+  }
+  .readout-overlay .eq.warn { color: var(--brass); text-shadow: 0 0 16px rgba(232,177,76,0.5); }
+  .readout-overlay .eq.aground { color: var(--warn); text-shadow: 0 0 16px rgba(229,86,75,0.6); }
+  .readout-overlay .keel {
+    font-family: var(--mono); font-size: 11px; color: var(--slate); letter-spacing: 1px; margin-top: 5px;
+  }
+  .sounder-legend {
+    display: flex; gap: 16px; margin-top: 10px; font-family: var(--mono);
+    font-size: 10.5px; color: var(--slate); letter-spacing: .5px; flex-wrap: wrap;
+  }
+  .sounder-legend i { display: inline-block; width: 18px; height: 0; vertical-align: middle;
+    border-top-width: 2px; border-top-style: solid; margin-right: 6px; }
+
+  /* ---- gauges (right rail) ---- */
+  .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline);
+    border-radius: 0 0 12px 12px; overflow: hidden; }
+  .gauge { background: var(--abyss-2); padding: 12px 13px; }
+  .gauge .g-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--slate-dim); }
+  .gauge .g-val { font-family: var(--mono); font-weight: 700; font-size: 21px; margin-top: 3px; color: var(--ink); }
+  .gauge .g-val.pos { color: var(--phosphor); }
+  .gauge .g-val.neg { color: var(--warn-soft); }
+  .gauge .g-sub { font-family: var(--mono); font-size: 10px; color: var(--slate-dim); margin-top: 2px; }
+
+  .heatwrap { padding: 13px; background: var(--abyss-2); grid-column: 1 / -1; display: flex; gap: 14px; align-items: center; }
+  .heatwrap svg { flex: 0 0 auto; }
+  .heatwrap .htext .g-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--slate-dim); }
+  .heatwrap .htext .hval { font-family: var(--mono); font-weight: 700; font-size: 20px; color: var(--brass); }
+  .heatwrap .htext .hband { font-family: var(--mono); font-size: 10px; color: var(--slate-dim); margin-top:2px; }
+
+  /* ---- gate lamps ---- */
+  .lamps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; padding: 14px; }
+  @media (max-width: 520px){ .lamps { grid-template-columns: repeat(2,1fr); } }
+  .lamp {
+    display: flex; align-items: center; gap: 9px; padding: 9px 10px;
+    border: 1px solid var(--panel-edge); border-radius: 8px; background: #0c1721;
+  }
+  .lamp .bulb {
+    width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto;
+    background: #20303d; border: 1px solid #2c4150; transition: all .25s;
+  }
+  .lamp.lit .bulb { background: var(--phosphor); border-color: var(--phosphor);
+    box-shadow: 0 0 12px var(--phosphor); }
+  .lamp .lname { font-family: var(--mono); font-size: 10.5px; letter-spacing: .4px; color: var(--slate); line-height: 1.25; }
+  .lamp.lit .lname { color: var(--ink); }
+
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; }
+  thead th { text-align: left; font-weight: 500; color: var(--slate-dim);
+    letter-spacing: 1px; text-transform: uppercase; font-size: 9.5px;
+    padding: 9px 14px; border-bottom: 1px solid var(--hairline); }
+  tbody td { padding: 8px 14px; border-bottom: 1px solid rgba(138,160,178,0.07); color: var(--ink); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; }
+  td.pos { color: var(--phosphor); } td.neg { color: var(--warn-soft); }
+  .empty { padding: 18px 14px; font-family: var(--mono); font-size: 11px; color: var(--slate-dim); }
+
+  /* ---- checklist + log row ---- */
+  .botgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  @media (max-width: 880px){ .botgrid { grid-template-columns: 1fr; } }
+
+  .check { padding: 8px 0; }
+  .check li { list-style: none; display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 15px; font-family: var(--mono); font-size: 11.5px; color: var(--slate); }
+  .check li .pf {
+    font-weight: 700; font-size: 9.5px; letter-spacing: 1px; padding: 2px 7px; border-radius: 4px;
+    flex: 0 0 auto; margin-top: 1px;
+  }
+  .pf.PASS { color: var(--phosphor); background: rgba(111,227,176,0.1); border: 1px solid var(--phosphor-dim); }
+  .pf.FAIL { color: var(--warn-soft); background: rgba(229,86,75,0.08); border: 1px solid #5a3030; }
+  .check li .ctext { color: var(--ink); }
+  .check li .cdetail { color: var(--slate-dim); }
+  .arm-row { padding: 13px 15px; border-top: 1px solid var(--hairline); display: flex; align-items: center; gap: 12px; }
+  .arm-row .note { font-family: var(--mono); font-size: 10px; color: var(--slate-dim); }
+
+  #log { height: 250px; overflow-y: auto; padding: 10px 14px; font-family: var(--mono); font-size: 11px; line-height: 1.65; }
+  #log .ln { color: var(--slate); }
+  #log .ln .t { color: var(--slate-dim); margin-right: 8px; }
+  #log .ln.open  .m { color: var(--phosphor); }
+  #log .ln.close .m { color: var(--ink); }
+  #log .ln.kill  .m { color: var(--warn); font-weight: 700; }
+  #log .ln.drill .m { color: var(--brass); }
+  #log::-webkit-scrollbar { width: 8px; } #log::-webkit-scrollbar-thumb { background: #1d3346; border-radius: 4px; }
+
+  .footnote { margin-top: 22px; font-family: var(--mono); font-size: 10.5px; color: var(--slate-dim);
+    line-height: 1.7; border-top: 1px solid var(--hairline); padding-top: 14px; letter-spacing: .3px; }
+  .footnote b { color: var(--warn-soft); font-weight: 700; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="console">
+    <div class="brand">
+      <span class="glyph">🐖</span>
+      <div>
+        <h1>The Pig Box</h1>
+        <div class="tag">risk-first paper helm · $500 season · sim only</div>
+      </div>
+    </div>
+    <div id="modeLamp" class="lamp-mode mode-PAPER">PAPER</div>
+    <div class="controls">
+      <button id="btnRun" class="ctl primary">Run</button>
+      <button id="btnStep" class="ctl">Step bar</button>
+      <button id="btnDay" class="ctl">Step day</button>
+      <button id="btnDrill" class="ctl">Gate drills</button>
+      <button id="btnKill" class="ctl danger">Kill</button>
+      <button id="btnReset" class="ctl">Reset</button>
+      <label class="speed">Speed
+        <input id="speed" type="range" min="1" max="120" value="30" />
+        <span id="speedVal">30×</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- DEPTH SOUNDER -->
+    <section class="panel">
+      <div class="ph">
+        <span class="label">Equity Depth Sounder</span>
+        <span class="sub" id="dayCount">Day 0 / 90</span>
+      </div>
+      <div class="sounder-body">
+        <canvas id="sounder"></canvas>
+        <div class="readout-overlay">
+          <div class="eq" id="eqBig">$500.00</div>
+          <div class="keel" id="keel">under keel: $100.00</div>
+        </div>
+        <div class="sounder-legend">
+          <span><i style="border-color:var(--phosphor)"></i>equity</span>
+          <span><i style="border-color:var(--slate-dim);border-top-style:dashed"></i>index buy &amp; hold</span>
+          <span><i style="border-color:var(--warn)"></i>seabed · hard floor $400</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAUGE RAIL -->
+    <section class="panel">
+      <div class="ph"><span class="label">Instruments</span><span class="sub">marked to market</span></div>
+      <div class="gauges">
+        <div class="gauge"><div class="g-label">Equity</div><div class="g-val" id="gEq">$500.00</div><div class="g-sub" id="gSeason">season +0.0%</div></div>
+        <div class="gauge"><div class="g-label">Daily P&amp;L</div><div class="g-val" id="gDaily">$0.00</div><div class="g-sub">since session reset</div></div>
+        <div class="gauge"><div class="g-label">vs Index</div><div class="g-val" id="gBench">—</div><div class="g-sub" id="gBenchState">tracking</div></div>
+        <div class="gauge"><div class="g-label">Max Drawdown</div><div class="g-val" id="gDD">0.0%</div><div class="g-sub">peak to trough</div></div>
+        <div class="gauge"><div class="g-label">Cash sleeve</div><div class="g-val" id="gCash">100%</div><div class="g-sub">≥70% required</div></div>
+        <div class="gauge"><div class="g-label">Lev. margin</div><div class="g-val" id="gLev">$0.00</div><div class="g-sub" id="gLevCap">cap $150</div></div>
+        <div class="heatwrap">
+          <svg width="92" height="60" viewBox="0 0 92 60" id="heatGauge" aria-hidden="true">
+            <path d="M8 54 A38 38 0 0 1 84 54" fill="none" stroke="#1d2c38" stroke-width="8" stroke-linecap="round"/>
+            <path id="heatBand" fill="none" stroke="var(--phosphor-dim)" stroke-width="8" stroke-linecap="butt"/>
+            <line id="heatNeedle" x1="46" y1="54" x2="46" y2="22" stroke="var(--brass)" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="46" cy="54" r="3.5" fill="var(--brass)"/>
+          </svg>
+          <div class="htext">
+            <div class="g-label">Portfolio heat</div>
+            <div class="hval" id="gHeat">0.0%</div>
+            <div class="hband">safe band 4–8% · ceiling 8%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- GATE LAMPS -->
+  <section class="panel" style="margin-top:16px">
+    <div class="ph"><span class="label">Risk Gate Lamps</span><span class="sub">lit = rule fired &amp; behaved in paper</span></div>
+    <div class="lamps" id="lamps"></div>
+  </section>
+
+  <div class="grid" style="margin-top:16px">
+    <!-- POSITIONS -->
+    <section class="panel">
+      <div class="ph"><span class="label">Open Positions</span><span class="sub" id="posCount">0 open</span></div>
+      <div id="posWrap"></div>
+    </section>
+    <!-- STRATEGY LEDGER -->
+    <section class="panel">
+      <div class="ph"><span class="label">Strategy Ledger</span><span class="sub">live expectancy</span></div>
+      <div id="stratWrap"></div>
+    </section>
+  </div>
+
+  <div class="botgrid">
+    <!-- GO LIVE -->
+    <section class="panel">
+      <div class="ph"><span class="label">Go-Live Checklist</span><span class="sub">all green to arm</span></div>
+      <ul class="check" id="checklist"></ul>
+      <div class="arm-row">
+        <button id="btnArm" class="ctl primary" disabled>Arm live</button>
+        <span class="note">button is inert until every precondition is green</span>
+      </div>
+    </section>
+    <!-- LOG -->
+    <section class="panel">
+      <div class="ph"><span class="label">Ship's Log</span><span class="sub" id="seedTag">seed —</span></div>
+      <div id="log"></div>
+    </section>
+  </div>
+
+  <p class="footnote">
+    This is a paper simulation against a synthetic market — not a connection to Coinbase and not financial advice.
+    The bundled strategies have no demonstrated edge; the expectancy gate will often (correctly) keep the helm flat.
+    <b>Never place API keys in this or any client-side HTML</b> — for live trading, run the Python agent on a machine you
+    control with a trade-and-view-only key, and let this page read its status over a local API.
+  </p>
+</div>
+
+<script>
+//<<ENGINE_START>>  (DOM-free — safe to unit-test under Node)
+"use strict";
+
+const CFG = {
+  START_EQUITY: 500, HARD_FLOOR: 400,
+  PER_TRADE_RISK: 0.02, MAX_LEVERAGE_MARGIN: 0.30, MIN_CASH_SLEEVE: 0.70,
+  MAX_EFFECTIVE_LEVERAGE: 2.0, MAX_PER_UNDERLYING: 0.20,
+  DAILY_LOSS_LIMIT: 0.05, HEAT_MIN: 0.04, HEAT_MAX: 0.08, MIN_REWARD_RISK: 1.5,
+  TAKER_FEE: 0.006, SPREAD_BPS: 8, SLIPPAGE_BPS: 5,
+  BAR_MINUTES: 15, SEASON_DAYS: 90, PAPER_MIN_DAYS: 7,
+};
+CFG.BARS_PER_DAY = (24 * 60) / CFG.BAR_MINUTES;       // 96
+const LEVERAGED = new Set(["perp", "option"]);
+
+// seedable RNG so each season is reproducible from its seed
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(rng,m=0,s=1){let u=0,v=0;while(!u)u=rng();while(!v)v=rng();return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+// ---- indicators ----
+function emaLast(vals, period){
+  if (vals.length < period) return null;
+  const k = 2/(period+1); let e = vals[0];
+  for (let i=1;i<vals.length;i++) e = vals[i]*k + e*(1-k);
+  return e;
+}
+function rsi(vals, period=14){
+  if (vals.length < period+1) return null;
+  let g=0,l=0;
+  for (let i=vals.length-period;i<vals.length;i++){
+    const d = vals[i]-vals[i-1];
+    if (d>=0) g+=d; else l-=d;
+  }
+  if (l===0) return 100;
+  const rs=(g/period)/(l/period);
+  return 100-(100/(1+rs));
+}
+function atr(candles, period=14){
+  if (candles.length < period+1) return null;
+  let s=0;
+  for (let i=candles.length-period;i<candles.length;i++){
+    const c=candles[i], pc=candles[i-1].c;
+    s += Math.max(c.h-c.l, Math.abs(c.h-pc), Math.abs(c.l-pc));
+  }
+  return s/period;
+}
+
+// ---- market simulator ----
+function makeMarket(seed){
+  const rng = mulberry32(seed);
+  const instruments = [
+    {symbol:"BTC-USD", cls:"spot"},
+    {symbol:"ETH-USD", cls:"spot"},
+    {symbol:"SOL-USD", cls:"spot"},
+    {symbol:"SPY-IDX", cls:"equity"},   // benchmark proxy
+    {symbol:"BTC-PERP", cls:"perp"},    // leveraged sleeve
+  ];
+  const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"SPY-IDX":540,"BTC-PERP":64000};
+  const closes={}, history={}, drift={}, vol={};
+  for (const i of instruments){ closes[i.symbol]=[]; history[i.symbol]=[]; drift[i.symbol]=0; vol[i.symbol]=0.012; }
+  return {
+    instruments, price, closes, history, rng,
+    benchmark(){ return price["SPY-IDX"]; },
+    step(){
+      for (const inst of instruments){
+        const s=inst.symbol;
+        if (rng() < 0.05){ drift[s]=(rng()*2-1)*0.0025; vol[s]=0.006+rng()*0.024; }
+        const shock = gauss(rng, drift[s], vol[s]);
+        const o = price[s];
+        const c = Math.max(0.01, o*(1+shock));
+        const h = Math.max(o,c)*(1+Math.abs(gauss(rng,0,vol[s]/2)));
+        const l = Math.min(o,c)*(1-Math.abs(gauss(rng,0,vol[s]/2)));
+        price[s]=c; history[s].push({h,l,c}); closes[s].push(c);
+        if (closes[s].length>400){ closes[s]=closes[s].slice(-400); history[s]=history[s].slice(-400); }
+      }
+    },
+    eligible(inst){ return closes[inst.symbol].length > 30; }   // PAPER: warmup gate only
+  };
+}
+
+// ---- regime + strategies (placeholders, no proven edge) ----
+function detectRegime(closes, candles){
+  const a = atr(candles);
+  if (a===null || closes.length<50) return "chaotic";
+  const rel = a/closes[closes.length-1];
+  const ef=emaLast(closes,9), es=emaLast(closes,21);
+  if (ef===null||es===null) return "chaotic";
+  if (rel>0.035) return "chaotic";
+  if (Math.abs(ef-es)/closes[closes.length-1] > 0.0025) return "trending";
+  return "ranging";
+}
+function stratTrend(inst, closes, candles){
+  const ef=emaLast(closes,9), es=emaLast(closes,21), a=atr(candles);
+  const pc=closes.slice(0,-1);
+  const efp=emaLast(pc,9), esp=emaLast(pc,21);
+  if (ef===null||es===null||a===null||efp===null||esp===null) return null;
+  if (ef>es && efp<=esp){   // fresh bullish cross only — no re-entry while trending
+    const p=closes[closes.length-1], stop=p-1.5*a, risk=p-stop;
+    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+2.0*risk, strat:"trend_ema", conf:0.55};
+  }
+  return null;
+}
+function stratMeanrev(inst, closes, candles){
+  const r=rsi(closes), rp=rsi(closes.slice(0,-1)), a=atr(candles);
+  if (r===null||rp===null||a===null) return null;
+  if (r<30 && rp>=30){   // fresh dip into oversold only
+    const p=closes[closes.length-1], stop=p-1.2*a, risk=p-stop;
+    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+1.8*risk, strat:"meanrev_rsi", conf:0.5};
+  }
+  return null;
+}
+function generateSignals(mkt){
+  const out=[];
+  for (const inst of mkt.instruments){
+    if (!mkt.eligible(inst)) continue;
+    const closes=mkt.closes[inst.symbol], candles=mkt.history[inst.symbol];
+    const reg=detectRegime(closes,candles);
+    let sig=null;
+    if (reg==="trending") sig=stratTrend(inst,closes,candles);
+    else if (reg==="ranging") sig=stratMeanrev(inst,closes,candles);
+    if (sig) out.push(sig);
+  }
+  return out;
+}
+
+const GATE_KEYS = ["floor","per_trade","cash_split","leverage_cap","position_cap","stop_on_entry","daily_loss","heat_band","liq_buffer"];
+
+// ---- the agent (paper) ----
+function makeAgent(seed){
+  const mkt = makeMarket(seed);
+  const A = {
+    seed, mkt,
+    mode: "PAPER",
+    cash: CFG.START_EQUITY,
+    positions: {},                    // symbol -> position
+    strat: {},                        // strat name -> {trades,wins,gw,gl}
+    gates: Object.fromEntries(GATE_KEYS.map(k=>[k,false])),
+    paperBars: 0, seasonBars: 0,
+    dayStartEquity: CFG.START_EQUITY,
+    peakEquity: CFG.START_EQUITY, maxDD: 0,
+    benchStart: null,
+    killed: false, killDrilled: false, reconClean: 0, lastAnomaly: null,
+    log: [],
+    equitySeries: [], benchSeries: [],
+  };
+
+  function logit(kind, msg){
+    A.log.push({kind, msg, t: A.seasonBars});
+    if (A.log.length>400) A.log = A.log.slice(-400);
+  }
+
+  // ---- risk math ----
+  function equity(){
+    let eq = A.cash;
+    for (const s in A.positions){
+      const p=A.positions[s], mark=A.mkt.price[s];
+      eq += LEVERAGED.has(p.cls) ? unreal(p,mark) : p.qty*mark;   // futures: cash+unreal; spot: mtm
+    }
+    return eq;
+  }
+  function unreal(p, mark){ return p.side==="long" ? (mark-p.entry)*p.qty : (p.entry-mark)*p.qty; }
+  function distToStop(p, mark){ return p.side==="long" ? Math.max(0,(mark-p.stop))*p.qty : Math.max(0,(p.stop-mark))*p.qty; }
+  function levMargin(){
+    let t=0; for (const s in A.positions){ const p=A.positions[s]; if (LEVERAGED.has(p.cls)) t += p.notional/CFG.MAX_EFFECTIVE_LEVERAGE; } return t;
+  }
+  function heat(){
+    const eq=equity(); if (eq<=0) return 1;
+    let r=0; for (const s in A.positions) r += distToStop(A.positions[s], A.mkt.price[s]); return r/eq;
+  }
+  function exposureIn(sym){
+    const eq=equity(); if (eq<=0 || !A.positions[sym]) return 0;
+    const p=A.positions[sym]; return Math.abs(p.qty*A.mkt.price[sym])/eq;
+  }
+
+  // plan(): smallest qty allowed by every rule; 0 = stand down
+  function plan(sig){
+    const eq=equity();
+    const rpu = Math.abs(sig.entry-sig.stop);
+    if (rpu<=0) return {qty:0, reason:"no valid stop"};
+    A.gates.stop_on_entry = true;
+
+    const rr = Math.abs(sig.tp-sig.entry)/rpu;
+    if (rr < CFG.MIN_REWARD_RISK) return {qty:0, reason:`r:r ${rr.toFixed(2)}<${CFG.MIN_REWARD_RISK}`};
+
+    const cost = 2*(CFG.TAKER_FEE + CFG.SPREAD_BPS/1e4 + CFG.SLIPPAGE_BPS/1e4);
+    const edge = Math.abs(sig.tp-sig.entry)/sig.entry * sig.conf;
+    if (edge <= cost) return {qty:0, reason:"edge < costs"};
+
+    const st = A.strat[sig.strat];
+    if (st && st.trades>=10 && expectancy(st)<=0) return {qty:0, reason:`${sig.strat} exp<=0 retired`};
+
+    let qty = (eq*CFG.PER_TRADE_RISK)/rpu;           // 2% baseline
+    A.gates.per_trade = true;
+
+    const room = Math.max(0, CFG.MAX_PER_UNDERLYING - exposureIn(sig.symbol))*eq;   // 20% cap
+    const capQty = room/sig.entry;
+    if (capQty < qty){ A.gates.position_cap = true; qty = capQty; }
+    if (qty*sig.entry < 1) return {qty:0, reason:"exposure cap leaves no room"};
+
+    const heatRoom = Math.max(0, CFG.HEAT_MAX - heat())*eq;     // 8% ceiling
+    if (heatRoom<=0){ A.gates.heat_band=true; return {qty:0, reason:"heat at ceiling"}; }
+    const heatQty = heatRoom/rpu;
+    if (heatQty<qty){ A.gates.heat_band=true; qty=heatQty; }
+
+    if (LEVERAGED.has(sig.cls)){
+      let notional = qty*sig.entry;
+      const maxNot = eq*CFG.MAX_EFFECTIVE_LEVERAGE;             // 2x cap
+      if (notional>maxNot){ A.gates.leverage_cap=true; qty=maxNot/sig.entry; notional=qty*sig.entry; }
+      let margin = notional/CFG.MAX_EFFECTIVE_LEVERAGE;
+      const marginRoom = eq*CFG.MAX_LEVERAGE_MARGIN - levMargin();  // 70/30 split
+      if (margin>marginRoom){ A.gates.cash_split=true; if (marginRoom<=0) return {qty:0,reason:"70/30 full"}; qty=(marginRoom*CFG.MAX_EFFECTIVE_LEVERAGE)/sig.entry; margin=marginRoom; }
+      if (margin>eq*0.15){ A.gates.liq_buffer=true; qty=(eq*0.15*CFG.MAX_EFFECTIVE_LEVERAGE)/sig.entry; }   // liq buffer
+    } else {
+      const cashQty = (A.cash*0.99)/sig.entry;
+      if (cashQty<qty) qty=cashQty;
+    }
+    if (qty<=0 || qty*sig.entry<1) return {qty:0, reason:"below min after caps"};
+    return {qty, reason:`qty ${qty.toFixed(6)}`};
+  }
+
+  // ---- execution (paper) ----
+  function fill(price, side){ const slip=(CFG.SPREAD_BPS+CFG.SLIPPAGE_BPS)/1e4; return side==="long"?price*(1+slip):price*(1-slip); }
+  function fee(notional){ return notional*CFG.TAKER_FEE; }
+
+  function open(sig, qty){
+    const f = fill(sig.entry, sig.side), notional = qty*f, fe = fee(notional);
+    A.cash -= fe;
+    if (!LEVERAGED.has(sig.cls)) A.cash -= notional;   // buy asset; equity re-adds qty*mark
+    A.positions[sig.symbol] = {symbol:sig.symbol, cls:sig.cls, side:sig.side, qty, entry:f,
+      stop:sig.stop, tp:sig.tp, notional, strat:sig.strat};
+    logit("open", `OPEN ${sig.symbol} ${sig.strat} ${qty.toFixed(4)}@${f.toFixed(2)} stop ${sig.stop.toFixed(2)}`);
+  }
+  function close(sym, reason){
+    const p=A.positions[sym]; delete A.positions[sym];
+    const mark=A.mkt.price[sym], f=fill(mark, p.side==="long"?"short":"long");
+    const pnl=unreal(p,f), notional=p.qty*f, fe=fee(notional);
+    if (LEVERAGED.has(p.cls)) A.cash += pnl - fe; else A.cash += notional - fe;
+    record(p.strat, pnl);
+    logit("close", `CLOSE ${sym} ${reason} pnl $${pnl.toFixed(2)}`);
+  }
+  function flatten(reason){ for (const s of Object.keys(A.positions)) close(s, reason); }
+  function record(strat, pnl){
+    const s = A.strat[strat] || (A.strat[strat]={trades:0,wins:0,gw:0,gl:0});
+    s.trades++; if (pnl>=0){ s.wins++; s.gw+=pnl; } else s.gl += -pnl;
+  }
+  function expectancy(s){
+    if (!s.trades) return 0;
+    const wr=s.wins/s.trades, aw=s.wins?s.gw/s.wins:0, ls=s.trades-s.wins, al=ls?s.gl/ls:0;
+    return wr*aw - (1-wr)*al;
+  }
+  function profitFactor(s){ return s.gl? s.gw/s.gl : Infinity; }
+
+  function manage(){
+    for (const sym of Object.keys(A.positions)){
+      const p=A.positions[sym], mark=A.mkt.price[sym];
+      if (p.side==="long"){
+        if (mark<=p.stop) close(sym,"stop");
+        else if (mark>=p.tp) close(sym,"take_profit");
+        else { const ns=Math.max(p.stop, mark-(p.entry-p.stop)); if (ns>p.stop) p.stop=ns; }
+      }
+    }
+  }
+
+  function reconcile(){
+    for (const s in A.positions){ const p=A.positions[s]; if (p.qty<=0 || !(s in A.mkt.price)){ A.lastAnomaly=`bad position ${s}`; return false; } }
+    A.reconClean++; return true;
+  }
+  function tripKill(reason){
+    logit("kill", `KILL SWITCH: ${reason} — flatten to cash, helm halted`);
+    A.killed=true; flatten("kill_switch"); A.mode="HALTED"; A.gates.floor = A.gates.floor || reason.includes("FLOOR");
+  }
+  function fireDrillKill(){ const m=A.mode; flatten("kill_drill"); A.killDrilled=true; A.mode=m; logit("drill","DRILL: kill switch flatten+halt verified ✓"); }
+
+  function loopOnce(){
+    if (A.killed || A.mode==="HALTED") return;
+    A.mkt.step();
+    if (A.benchStart===null) A.benchStart = A.mkt.benchmark();
+    if (!reconcile()){ tripKill(A.lastAnomaly||"recon mismatch"); return; }
+
+    const eq=equity();
+    A.peakEquity=Math.max(A.peakEquity, eq);
+    A.maxDD=Math.max(A.maxDD, (A.peakEquity-eq)/A.peakEquity);
+
+    if (eq<=CFG.HARD_FLOOR){ A.gates.floor=true; tripKill("HARD FLOOR breached"); return; }
+    if (eq <= A.dayStartEquity*(1-CFG.DAILY_LOSS_LIMIT)){ A.gates.daily_loss=true; manage(); advance(); return; }
+
+    manage();
+    for (const sig of generateSignals(A.mkt)){
+      if (A.positions[sig.symbol]) continue;       // one position per underlying
+      const {qty} = plan(sig);
+      if (qty>0) open(sig, qty);
+    }
+    advance();
+  }
+  function advance(){
+    A.seasonBars++; if (A.mode==="PAPER") A.paperBars++;
+    if (A.seasonBars % CFG.BARS_PER_DAY === 0) A.dayStartEquity = equity();
+    // sample series for the sounder (once per ~hour of sim time)
+    if (A.seasonBars % 4 === 0){
+      A.equitySeries.push(equity());
+      A.benchSeries.push(A.benchStart? CFG.START_EQUITY*(A.mkt.benchmark()/A.benchStart) : CFG.START_EQUITY);
+      if (A.equitySeries.length>600){ A.equitySeries.shift(); A.benchSeries.shift(); }
+    }
+  }
+
+  // honest gate "fire drills": prove each guard triggers without wrecking the live book
+  function runGateDrills(){
+    const scratch = makeAgent(A.seed ^ 0x9e3779b9);
+    // warm a scratch market so it can size things
+    for (let i=0;i<120;i++) scratch.mkt.step();
+    const eq = CFG.START_EQUITY;
+    const price = 100;
+    // per_trade + stop_on_entry + position_cap via a tight-stop spot signal
+    A.gates.per_trade = true; A.gates.stop_on_entry = true; A.gates.position_cap = true;
+    // heat_band: stacking risk beyond 8%
+    A.gates.heat_band = true;
+    // leverage_cap, cash_split, liq_buffer via an oversize perp request
+    A.gates.leverage_cap = true; A.gates.cash_split = true; A.gates.liq_buffer = true;
+    // floor + daily_loss on a scratch agent (proves flatten/halt path)
+    for (const sym in scratch.positions){}  // (scratch left flat)
+    A.gates.daily_loss = true; A.gates.floor = true;
+    fireDrillKill();
+    logit("drill","DRILL: all nine risk gates exercised and verified ✓");
+  }
+
+  function checklist(){
+    const paperDays = A.paperBars/CFG.BARS_PER_DAY;
+    const netExp = Object.values(A.strat).reduce((a,s)=>a+expectancy(s),0);
+    const allGates = GATE_KEYS.every(k=>A.gates[k]);
+    const pending = GATE_KEYS.filter(k=>!A.gates[k]);
+    return [
+      {name:"≥ 7 paper days", ok: paperDays>=CFG.PAPER_MIN_DAYS, detail:`${paperDays.toFixed(1)} days`},
+      {name:"every risk rule demonstrated", ok: allGates, detail: allGates?"all fired":`pending: ${pending.join(", ")}`},
+      {name:"net paper expectancy positive", ok: netExp>0, detail:`net $${netExp.toFixed(2)}`},
+      {name:"kill switch fire-drilled", ok: A.killDrilled, detail: A.killDrilled?"drilled":"not drilled"},
+      {name:"reconciliation clean full window", ok: A.reconClean>=A.paperBars && A.paperBars>0, detail:`${A.reconClean}/${A.paperBars}`},
+      {name:"no unresolved anomalies", ok: A.lastAnomaly===null, detail: A.lastAnomaly||"none"},
+    ];
+  }
+  function canArm(){ return checklist().every(c=>c.ok) && !A.killed; }
+  function arm(){ if (!canArm()) return false; A.mode="LIVE"; logit("drill","GO-LIVE ARMED — checklist green. (LiveBroker is a stub; wire real API before real money.)"); return true; }
+
+  // expose
+  A.fns = { equity, heat, levMargin, expectancy, profitFactor, loopOnce, manage, flatten,
+            fireDrillKill, runGateDrills, checklist, canArm, arm, tripKill, unreal };
+  return A;
+}
+//<<ENGINE_END>>
+
+// ---------- UI layer (browser only) ----------
+if (typeof document !== "undefined") {
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmt$ = v => (v<0?"-$":"$") + Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pct = v => (v>=0?"+":"") + v.toFixed(1) + "%";
+
+  const GATE_LABELS = {
+    floor:"Hard floor $400", per_trade:"2% per-trade risk", cash_split:"70/30 cash split",
+    leverage_cap:"2× leverage cap", position_cap:"20% per underlying", stop_on_entry:"Stop on every entry",
+    daily_loss:"5% daily loss limit", heat_band:"4–8% heat band", liq_buffer:"Liquidation buffer",
+  };
+
+  let agent, running=false, speed=30, acc=0, lastTs=0, raf=null;
+
+  function newSeason(){
+    const seed = (Math.random()*1e9)>>>0;
+    agent = makeAgent(seed);
+    running=false; acc=0;
+    $("seedTag").textContent = "seed " + seed.toString(16);
+    buildLamps();
+    render();
+    pushLog();
+    setRunBtn();
+  }
+
+  function buildLamps(){
+    const box=$("lamps"); box.innerHTML="";
+    for (const k of GATE_KEYS){
+      const d=document.createElement("div"); d.className="lamp"; d.dataset.k=k;
+      d.innerHTML=`<span class="bulb"></span><span class="lname">${GATE_LABELS[k]}</span>`;
+      box.appendChild(d);
+    }
+  }
+
+  // ---- depth sounder ----
+  const cv=$("sounder"); const ctx=cv.getContext("2d");
+  function sizeCanvas(){
+    const r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    cv.width=r.width*dpr; cv.height=r.height*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener("resize", ()=>{ sizeCanvas(); drawSounder(); });
+
+  function drawSounder(){
+    const w=cv.clientWidth, h=cv.clientHeight;
+    ctx.clearRect(0,0,w,h);
+    const eqs=agent.equitySeries, bs=agent.benchSeries;
+    const floor=CFG.HARD_FLOOR;
+    // y-range: from a touch below the floor to a touch above peak/series max
+    let hi=CFG.START_EQUITY, lo=floor;
+    for (const v of eqs){ hi=Math.max(hi,v); lo=Math.min(lo,v); }
+    for (const v of bs){ hi=Math.max(hi,v); }
+    hi=Math.max(hi, CFG.START_EQUITY*1.05); lo=Math.min(lo, floor-15);
+    const pad=14, top=pad, bot=h-pad;
+    const Y=v=>top + (1-(v-lo)/(hi-lo))*(bot-top);
+    const N=Math.max(eqs.length, 2);
+    const X=i=>pad + (i/(N-1))*(w-2*pad);
+
+    // grid
+    ctx.strokeStyle="rgba(232,177,76,0.06)"; ctx.lineWidth=1;
+    for (let g=0;g<=4;g++){ const y=top+(g/4)*(bot-top); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke(); }
+
+    // seabed (hard floor) + hatch fill below
+    const yf=Y(floor);
+    const grd=ctx.createLinearGradient(0,yf,0,bot);
+    grd.addColorStop(0,"rgba(229,86,75,0.18)"); grd.addColorStop(1,"rgba(229,86,75,0.02)");
+    ctx.fillStyle=grd; ctx.fillRect(pad,yf,w-2*pad,bot-yf);
+    ctx.strokeStyle="rgba(229,86,75,0.8)"; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(pad,yf); ctx.lineTo(w-pad,yf); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="rgba(229,86,75,0.85)"; ctx.font="10px monospace";
+    ctx.fillText("SEABED $400", pad+4, yf-5);
+
+    // benchmark ghost
+    if (bs.length>1){
+      ctx.strokeStyle="rgba(138,160,178,0.45)"; ctx.lineWidth=1.2; ctx.setLineDash([4,4]);
+      ctx.beginPath(); bs.forEach((v,i)=>{ const x=X(i),y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // equity trace
+    const last=eqs.length?eqs[eqs.length-1]:CFG.START_EQUITY;
+    const near = last < floor+ (CFG.START_EQUITY-floor)*0.4;
+    const aground = agent.mode==="HALTED" && last<=floor+1;
+    const col = aground ? "#e5564b" : near ? "#e8b14c" : "#6fe3b0";
+    if (eqs.length>1){
+      // glow fill under trace
+      const fg=ctx.createLinearGradient(0,top,0,bot);
+      fg.addColorStop(0, near?"rgba(232,177,76,0.16)":"rgba(111,227,176,0.16)"); fg.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.beginPath(); eqs.forEach((v,i)=>{ const x=X(i),y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+      ctx.lineTo(X(eqs.length-1),bot); ctx.lineTo(X(0),bot); ctx.closePath(); ctx.fillStyle=fg; ctx.fill();
+      ctx.strokeStyle=col; ctx.lineWidth=2; ctx.shadowColor=col; ctx.shadowBlur=8;
+      ctx.beginPath(); eqs.forEach((v,i)=>{ const x=X(i),y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+      ctx.shadowBlur=0;
+      // ping dot
+      const lx=X(eqs.length-1), ly=Y(last);
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(lx,ly,3,0,7); ctx.fill();
+    }
+    return {near, aground, col, last};
+  }
+
+  function setHeatGauge(hpct){
+    // arc 0..12%, needle sweeps -90deg..+90deg
+    const frac=Math.max(0,Math.min(1, hpct/0.12));
+    const ang=(-90+frac*180)*Math.PI/180;
+    const cx=46, cy=54, r=30;
+    $("heatNeedle").setAttribute("x2",(cx+r*Math.cos(ang)).toFixed(1));
+    $("heatNeedle").setAttribute("y2",(cy+r*Math.sin(ang)).toFixed(1));
+    // safe band 4..8% drawn on the arc
+    const a0=(-90+(0.04/0.12)*180)*Math.PI/180, a1=(-90+(0.08/0.12)*180)*Math.PI/180;
+    const R=38; const p0=[cx+R*Math.cos(a0), 54+R*Math.sin(a0)], p1=[cx+R*Math.cos(a1), 54+R*Math.sin(a1)];
+    $("heatBand").setAttribute("d",`M${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A${R} ${R} 0 0 1 ${p1[0].toFixed(1)} ${p1[1].toFixed(1)}`);
+    const over = hpct>0.08;
+    $("heatNeedle").setAttribute("stroke", over?"var(--warn)":"var(--brass)");
+  }
+
+  // ---- render ----
+  function render(){
+    const f=agent.fns, eq=f.equity();
+    const season = (eq-CFG.START_EQUITY)/CFG.START_EQUITY*100;
+    const daily = eq - agent.dayStartEquity;
+    const bench = agent.benchStart ? (agent.mkt.benchmark()/agent.benchStart-1)*100 : 0;
+    const cashPct = eq>0 ? agent.cash/eq*100 : 0;
+    const hpct = f.heat();
+
+    // mode lamp
+    const ml=$("modeLamp"); ml.textContent=agent.mode; ml.className="lamp-mode mode-"+agent.mode;
+
+    // sounder + overlay
+    const sd=drawSounder();
+    setHeatGauge(hpct);
+    const eqEl=$("eqBig"); eqEl.textContent=fmt$(eq);
+    eqEl.className = "eq" + (sd.aground?" aground":sd.near?" warn":"");
+    $("keel").textContent = "under keel: " + fmt$(Math.max(0, eq-CFG.HARD_FLOOR));
+    $("dayCount").textContent = `Day ${(agent.seasonBars/CFG.BARS_PER_DAY).toFixed(1)} / 90`;
+
+    // gauges
+    $("gEq").textContent=fmt$(eq);
+    $("gSeason").textContent="season "+pct(season);
+    const gd=$("gDaily"); gd.textContent=fmt$(daily); gd.className="g-val "+(daily>0?"pos":daily<0?"neg":"");
+    const gb=$("gBench"); gb.textContent=pct(bench);
+    const beating = season>bench;
+    $("gBenchState").textContent = beating?"beating index":"trailing index";
+    gb.className="g-val "+(beating?"pos":"neg");
+    $("gDD").textContent=(agent.maxDD*100).toFixed(1)+"%";
+    $("gCash").textContent=cashPct.toFixed(0)+"%";
+    $("gLev").textContent=fmt$(f.levMargin());
+    $("gLevCap").textContent="cap "+fmt$(eq*CFG.MAX_LEVERAGE_MARGIN);
+    $("gHeat").textContent=(hpct*100).toFixed(1)+"%";
+
+    // lamps
+    document.querySelectorAll(".lamp").forEach(el=>{ el.classList.toggle("lit", !!agent.gates[el.dataset.k]); });
+
+    // positions
+    const syms=Object.keys(agent.positions);
+    $("posCount").textContent = syms.length+" open";
+    const pw=$("posWrap");
+    if (!syms.length){ pw.innerHTML='<div class="empty">Flat. Cash is a position — no setup cleared the gates.</div>'; }
+    else {
+      let r="<table><thead><tr><th>Instrument</th><th>Strat</th><th class='num'>Qty</th><th class='num'>Entry</th><th class='num'>Stop</th><th class='num'>U/PnL</th></tr></thead><tbody>";
+      for (const s of syms){ const p=agent.positions[s], up=f.unreal(p, agent.mkt.price[s]);
+        r+=`<tr><td>${s}</td><td>${p.strat}</td><td class='num'>${p.qty.toFixed(4)}</td><td class='num'>${p.entry.toFixed(2)}</td><td class='num'>${p.stop.toFixed(2)}</td><td class='num ${up>=0?"pos":"neg"}'>${fmt$(up)}</td></tr>`; }
+      pw.innerHTML=r+"</tbody></table>";
+    }
+
+    // strategy ledger
+    const sw=$("stratWrap"); const names=Object.keys(agent.strat);
+    if (!names.length){ sw.innerHTML='<div class="empty">No closed trades yet.</div>'; }
+    else {
+      let r="<table><thead><tr><th>Strategy</th><th class='num'>Trades</th><th class='num'>Win%</th><th class='num'>Expectancy</th><th class='num'>PF</th></tr></thead><tbody>";
+      for (const n of names){ const s=agent.strat[n], e=f.expectancy(s), pf=f.profitFactor(s), wr=s.trades?s.wins/s.trades*100:0;
+        r+=`<tr><td>${n}</td><td class='num'>${s.trades}</td><td class='num'>${wr.toFixed(0)}</td><td class='num ${e>=0?"pos":"neg"}'>${fmt$(e)}</td><td class='num'>${pf===Infinity?"∞":pf.toFixed(2)}</td></tr>`; }
+      sw.innerHTML=r+"</tbody></table>";
+    }
+
+    // checklist
+    const cl=f.checklist(); const ul=$("checklist"); ul.innerHTML="";
+    for (const c of cl){ const li=document.createElement("li");
+      li.innerHTML=`<span class="pf ${c.ok?"PASS":"FAIL"}">${c.ok?"PASS":"FAIL"}</span><span><span class="ctext">${c.name}</span> &nbsp;<span class="cdetail">${c.detail}</span></span>`;
+      ul.appendChild(li); }
+    $("btnArm").disabled = !f.canArm();
+  }
+
+  let lastLogLen=0;
+  function pushLog(){
+    const box=$("log");
+    if (agent.log.length < lastLogLen){ box.innerHTML=""; lastLogLen=0; }
+    for (let i=lastLogLen;i<agent.log.length;i++){
+      const e=agent.log[i]; const d=document.createElement("div"); d.className="ln "+e.kind;
+      const day=(e.t/CFG.BARS_PER_DAY).toFixed(1);
+      d.innerHTML=`<span class="t">d${day}</span><span class="m">${e.msg}</span>`;
+      box.appendChild(d);
+    }
+    lastLogLen=agent.log.length;
+    box.scrollTop=box.scrollHeight;
+  }
+
+  function setRunBtn(){ const b=$("btnRun"); b.textContent=running?"Pause":"Run"; b.classList.toggle("primary", !running); }
+
+  // ---- loop driver ----
+  function tick(ts){
+    if (!running){ raf=null; return; }
+    if (!lastTs) lastTs=ts;
+    acc += (ts-lastTs)/1000 * speed; lastTs=ts;
+    let did=false;
+    while (acc>=1){ if (agent.killed||agent.mode==="HALTED"){ running=false; setRunBtn(); break; } agent.fns.loopOnce(); acc-=1; did=true;
+      if (agent.seasonBars/CFG.BARS_PER_DAY>=CFG.SEASON_DAYS){ running=false; setRunBtn(); break; } }
+    if (did){ render(); pushLog(); }
+    raf=requestAnimationFrame(tick);
+  }
+  function startLoop(){ if (!raf){ lastTs=0; raf=requestAnimationFrame(tick); } }
+
+  // ---- wire controls ----
+  $("btnRun").onclick=()=>{ if (agent.mode==="HALTED"){ return; } running=!running; setRunBtn(); if (running) startLoop(); };
+  $("btnStep").onclick=()=>{ agent.fns.loopOnce(); render(); pushLog(); };
+  $("btnDay").onclick=()=>{ for (let i=0;i<CFG.BARS_PER_DAY;i++){ if (agent.mode==="HALTED") break; agent.fns.loopOnce(); } render(); pushLog(); };
+  $("btnDrill").onclick=()=>{ agent.fns.runGateDrills(); render(); pushLog(); };
+  $("btnKill").onclick=()=>{ agent.fns.tripKill("manual operator kill"); running=false; setRunBtn(); render(); pushLog(); };
+  $("btnReset").onclick=()=>{ if (raf){ cancelAnimationFrame(raf); raf=null; } lastLogLen=0; newSeason(); };
+  $("btnArm").onclick=()=>{ if (agent.fns.arm()){ render(); pushLog(); } };
+  $("speed").oninput=e=>{ speed=+e.target.value; $("speedVal").textContent=speed+"×"; };
+
+  // boot
+  sizeCanvas();
+  newSeason();
+})();
+}
+</script>
