@@ -113,6 +113,14 @@
   button.ctl:disabled { opacity: .4; cursor: not-allowed; }
   .speed { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; color: var(--slate); }
   .speed input { accent-color: var(--brass); }
+  .market { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; }
+  .market .mlbl { letter-spacing: 1px; text-transform: uppercase; color: var(--slate-dim); margin-right: 2px; }
+  .mbtn { font-family: var(--mono); font-size: 11px; letter-spacing: .5px; cursor: pointer;
+    background: #0f1d28; color: var(--slate); border: 1px solid var(--panel-edge); padding: 6px 10px; border-radius: 6px;
+    transition: border-color .15s, background .15s, color .15s; }
+  .mbtn:hover { border-color: var(--brass-dim); color: var(--brass); }
+  .mbtn:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  .mbtn.on { background: var(--brass); color: var(--abyss); border-color: var(--brass); font-weight: 700; }
 
   /* ---- grid ---- */
   .grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
@@ -286,6 +294,12 @@
         <input id="speed" type="range" min="1" max="120" value="30" />
         <span id="speedVal">30×</span>
       </label>
+      <div class="market" id="marketCtl">
+        <span class="mlbl">Market</span>
+        <button class="mbtn on" data-mode="random">Random</button>
+        <button class="mbtn" data-mode="trending">Trend</button>
+        <button class="mbtn" data-mode="meanrev">Revert</button>
+      </div>
     </div>
   </header>
 
@@ -452,7 +466,8 @@ function atr(candles, period=14){
 }
 
 // ---- market simulator ----
-function makeMarket(seed){
+function makeMarket(seed, mode){
+  mode = mode || "random";
   const rng = mulberry32(seed);
   const instruments = [
     {symbol:"BTC-USD", cls:"spot"},
@@ -463,16 +478,36 @@ function makeMarket(seed){
     {symbol:"ETH-PERP", cls:"perp"},    // leveraged sleeve
   ];
   const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"SPY-IDX":540,"BTC-PERP":64000,"ETH-PERP":3200};
-  const closes={}, history={}, drift={}, vol={};
-  for (const i of instruments){ closes[i.symbol]=[]; history[i.symbol]=[]; drift[i.symbol]=0; vol[i.symbol]=0.012; }
+  const closes={}, history={}, drift={}, vol={}, anchor={};
+  for (const i of instruments){
+    closes[i.symbol]=[]; history[i.symbol]=[]; anchor[i.symbol]=price[i.symbol];
+    if (mode==="trending"){ drift[i.symbol]=0; vol[i.symbol]=0.0025; }      // calm, clean trend
+    else if (mode==="meanrev"){ drift[i.symbol]=0; vol[i.symbol]=0.008; }
+    else { drift[i.symbol]=0; vol[i.symbol]=0.012; }
+  }
+  let mTrend = 0.0004;   // shared market-wide bull factor (trending mode)
   return {
-    instruments, price, closes, history, rng,
+    instruments, price, closes, history, rng, mode,
     benchmark(){ return price["SPY-IDX"]; },
     step(){
       for (const inst of instruments){
         const s=inst.symbol;
-        if (rng() < 0.05){ drift[s]=(rng()*2-1)*0.0025; vol[s]=0.006+rng()*0.024; }
-        const shock = gauss(rng, drift[s], vol[s]);
+        let shock;
+        if (mode==="trending"){
+          // coherent market-wide bull: every instrument rides a shared, always-
+          // positive trend (so a long basket profits) plus idiosyncratic noise
+          if (rng()<0.006) mTrend = 0.0002 + rng()*0.0004;
+          shock = mTrend + gauss(rng, 0, vol[s]);
+        } else if (mode==="meanrev"){
+          // Ornstein-Uhlenbeck pull back toward a slowly drifting anchor
+          const dev=(anchor[s]-price[s])/price[s];
+          shock = 0.15*dev + gauss(rng, 0, vol[s]);
+          if (rng()<0.02) anchor[s] *= (1+(rng()*2-1)*0.008);
+        } else {
+          // random walk — zero-mean drift, no exploitable structure
+          if (rng()<0.05){ drift[s]=(rng()*2-1)*0.0025; vol[s]=0.006+rng()*0.024; }
+          shock = gauss(rng, drift[s], vol[s]);
+        }
         const o = price[s];
         const c = Math.max(0.01, o*(1+shock));
         const h = Math.max(o,c)*(1+Math.abs(gauss(rng,0,vol[s]/2)));
@@ -515,6 +550,21 @@ function stratBottomFeeder(inst, closes, candles){
   if (r<30 && rp>=30){   // fresh dip into oversold only
     const p=closes[closes.length-1], stop=p-1.2*a, risk=p-stop;
     return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+1.8*risk, strat:"bottom_feeder", conf:0.5};
+  }
+  return null;
+}
+// --- POSITION TRADER: the patient one. Enters rarely on a slow 21/50 cross,
+//     uses a wide 3x ATR stop so it isn't shaken out, and holds long while the
+//     trailing stop rides the trend. Few trades = little fee drag, so it tracks
+//     buy-and-hold and beats the churners when the market actually trends. ---
+function stratPositionTrader(inst, closes, candles){
+  const e21=emaLast(closes,21), e50=emaLast(closes,50), a=atr(candles);
+  const pc=closes.slice(0,-1);
+  const e21p=emaLast(pc,21), e50p=emaLast(pc,50);
+  if (e21===null||e50===null||a===null||e21p===null||e50p===null) return null;
+  if (e21>e50 && e21p<=e50p){   // fresh higher-timeframe golden cross — infrequent
+    const p=closes[closes.length-1], stop=p-3.0*a, risk=p-stop;
+    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+25.0*risk, strat:"position", conf:0.6};
   }
   return null;
 }
@@ -581,6 +631,7 @@ function generateSignals(A){
     if (reg==="trending" && en.rulebook) sig=stratRulebook(inst,closes,candles);
     else if (reg==="ranging" && en.bottom_feeder) sig=stratBottomFeeder(inst,closes,candles);
     if (sig) out.push(sig);
+    if (en.position){ const ps=stratPositionTrader(inst,closes,candles); if (ps) out.push(ps); }
   }
   if (en.loose_cannon && (A.seasonBars - (A.lastLooseBar ?? -999)) >= 12){   // ~3h between shots
     const lc=looseCannonPick(mkt, A.decisionRng);
@@ -596,15 +647,15 @@ function generateSignals(A){
 const GATE_KEYS = ["floor","per_trade","cash_split","leverage_cap","position_cap","stop_on_entry","daily_loss","heat_band","liq_buffer"];
 
 // ---- the agent (paper) ----
-function makeAgent(seed){
-  const mkt = makeMarket(seed);
+function makeAgent(seed, mode){
+  const mkt = makeMarket(seed, mode);
   const decisionRng = mulberry32((seed ^ 0x5bd1e995) >>> 0);   // Loose Cannon's own judgment
   const A = {
-    seed, mkt, decisionRng,
+    seed, mkt, decisionRng, marketMode: mkt.mode,
     mode: "PAPER",
     cash: CFG.START_EQUITY,
     deposited: 0,                     // extra capital added beyond the $500 start
-    enabled: { rulebook:true, bottom_feeder:true, loose_cannon:false, bluebird:false },  // loose cannon + bluebird optional
+    enabled: { rulebook:true, bottom_feeder:true, position:true, loose_cannon:false, bluebird:false },  // position on; loose cannon + bluebird optional
     positions: {},                    // symbol -> position
     strat: {},                        // strat name -> {trades,wins,gw,gl}
     gates: Object.fromEntries(GATE_KEYS.map(k=>[k,false])),
@@ -726,10 +777,15 @@ function makeAgent(seed){
   function manage(){
     for (const sym of Object.keys(A.positions)){
       const p=A.positions[sym], mark=A.mkt.price[sym];
-      if (p.side==="long"){
-        if (mark<=p.stop) close(sym,"stop");
-        else if (mark>=p.tp) close(sym,"take_profit");
-        else { const ns=Math.max(p.stop, mark-(p.entry-p.stop)); if (ns>p.stop) p.stop=ns; }
+      if (p.side!=="long") continue;
+      if (mark<=p.stop){ close(sym,"stop"); continue; }      // disaster backstop
+      if (mark>=p.tp){ close(sym,"take_profit"); continue; }
+      if (p.strat==="position"){
+        // ride from golden cross to death cross — hold through noise, no tight trail
+        const c=A.mkt.closes[sym], e21=emaLast(c,21), e50=emaLast(c,50);
+        if (e21!==null && e50!==null && e21<e50) close(sym,"trend_break");
+      } else {
+        const ns=Math.max(p.stop, mark-(p.entry-p.stop)); if (ns>p.stop) p.stop=ns;  // trail others
       }
     }
   }
@@ -845,15 +901,16 @@ if (typeof document !== "undefined") {
 
   let agent, running=false, speed=30, acc=0, lastTs=0, raf=null;
 
-  const STRAT_LABELS = { rulebook:"The Rulebook", bottom_feeder:"Bottom Feeder", loose_cannon:"Loose Cannon", bluebird:"Bluebird" };
-  const STRAT_DESC = { rulebook:"EMA cross · strictly by the book", bottom_feeder:"buys fresh oversold dips", loose_cannon:"Sandbox mind · picks its own shot", bluebird:"futures only · hunts the windfall" };
+  const STRAT_LABELS = { rulebook:"The Rulebook", bottom_feeder:"Bottom Feeder", position:"Position Trader", loose_cannon:"Loose Cannon", bluebird:"Bluebird" };
+  const STRAT_DESC = { rulebook:"EMA cross · strictly by the book", bottom_feeder:"buys fresh oversold dips", position:"patient · holds the trend, low turnover", loose_cannon:"Sandbox mind · picks its own shot", bluebird:"futures only · hunts the windfall" };
   const STRAT_OPTIONAL = { loose_cannon:true, bluebird:true };
-  let enabledChoice = { rulebook:true, bottom_feeder:true, loose_cannon:false, bluebird:false };   // carries across seasons
+  let enabledChoice = { rulebook:true, bottom_feeder:true, position:true, loose_cannon:false, bluebird:false };   // carries across seasons
   let lifetime = { seasons:0, banked:0, wins:0, losses:0 };                        // all-time, in memory
+  let marketMode = "random";                                                       // random | trending | meanrev
 
   function newSeason(){
     const seed = (Math.random()*1e9)>>>0;
-    agent = makeAgent(seed);
+    agent = makeAgent(seed, marketMode);
     agent.enabled = { ...enabledChoice };      // keep the operator's strategy choices
     running=false; acc=0;
     $("seedTag").textContent = "seed " + seed.toString(16);
@@ -866,7 +923,7 @@ if (typeof document !== "undefined") {
 
   function buildStratBay(){
     const bay=$("stratBay"); bay.innerHTML="";
-    for (const k of ["rulebook","bottom_feeder","loose_cannon","bluebird"]){
+    for (const k of ["rulebook","bottom_feeder","position","loose_cannon","bluebird"]){
       const on=!!agent.enabled[k];
       const el=document.createElement("div");
       el.className="stoggle"+(on?" on":"")+(STRAT_OPTIONAL[k]?" optional":"");
@@ -1092,6 +1149,11 @@ if (typeof document !== "undefined") {
   $("btnWipe").onclick=()=>{ lifetime={seasons:0,banked:0,wins:0,losses:0}; fullStop(); newSeason(); };
   $("btnArm").onclick=()=>{ if (agent.fns.arm()){ render(); pushLog(); } };
   $("speed").oninput=e=>{ speed=+e.target.value; $("speedVal").textContent=speed+"×"; };
+  document.querySelectorAll(".mbtn").forEach(b=>{
+    b.onclick=()=>{ marketMode=b.dataset.mode;
+      document.querySelectorAll(".mbtn").forEach(x=>x.classList.toggle("on", x===b));
+      fullStop(); newSeason(); };
+  });
 
   // boot
   sizeCanvas();
