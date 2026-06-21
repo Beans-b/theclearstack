@@ -232,6 +232,32 @@
   .footnote b { color: var(--warn-soft); font-weight: 700; }
 
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ---- ledger bar + strategy bay ---- */
+  .ledgerbar { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin-top: 16px;
+    padding: 11px 16px; background: linear-gradient(180deg,#0f1c27,#0c1620);
+    border: 1px solid var(--panel-edge); border-radius: 10px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+  .ledgerbar > span { display: inline-flex; align-items: baseline; gap: 8px; }
+  .ledgerbar b { color: var(--slate-dim); font-weight: 500; font-size: 9.5px; letter-spacing: 1.5px;
+    text-transform: uppercase; }
+  .ledgerbar .alltime { margin-left: auto; }
+  .ledgerbar .rec { color: var(--slate-dim); font-size: 11px; }
+  .ledgerbar .pos { color: var(--phosphor); } .ledgerbar .neg { color: var(--warn-soft); }
+
+  .stratbay { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px; }
+  .stoggle { display: flex; align-items: center; gap: 11px; cursor: pointer; min-width: 168px;
+    padding: 10px 13px; border: 1px solid var(--panel-edge); border-radius: 9px; background: #0c1721;
+    transition: border-color .15s, background .15s; user-select: none; }
+  .stoggle:hover { border-color: var(--brass-dim); }
+  .stoggle:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+  .stoggle .sw { width: 34px; height: 18px; border-radius: 999px; background: #22323f; position: relative; flex: 0 0 auto; transition: background .2s; }
+  .stoggle .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #5f7180; transition: transform .2s, background .2s; }
+  .stoggle.on .sw { background: var(--phosphor-dim); }
+  .stoggle.on .sw::after { transform: translateX(16px); background: var(--phosphor); }
+  .stoggle .nm { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+  .stoggle .ds { font-family: var(--mono); font-size: 9.5px; color: var(--slate-dim); letter-spacing: .3px; margin-top: 2px; }
+  .stoggle.optional .nm::after { content: " · optional"; color: var(--brass); }
 </style>
 
 <div class="wrap">
@@ -249,8 +275,10 @@
       <button id="btnStep" class="ctl">Step bar</button>
       <button id="btnDay" class="ctl">Step day</button>
       <button id="btnDrill" class="ctl">Gate drills</button>
+      <button id="btnDeposit" class="ctl">Add $100</button>
       <button id="btnKill" class="ctl danger">Kill</button>
-      <button id="btnReset" class="ctl">Reset</button>
+      <button id="btnReset" class="ctl">New season</button>
+      <button id="btnWipe" class="ctl">Wipe all</button>
       <label class="speed">Speed
         <input id="speed" type="range" min="1" max="120" value="30" />
         <span id="speedVal">30×</span>
@@ -306,6 +334,20 @@
     </section>
   </div>
 
+  <!-- LEDGER BAR -->
+  <div class="ledgerbar" id="ledgerBar">
+    <span><b>Basis</b><span id="lbBasis">$500.00</span></span>
+    <span><b>Deposited</b><span id="lbDep">$0.00</span></span>
+    <span><b>Season P&amp;L</b><span id="lbSeason">$0.00</span></span>
+    <span class="alltime"><b>All-time</b><span id="lbAll">$0.00</span><span id="lbRec" class="rec">0 seasons</span></span>
+  </div>
+
+  <!-- STRATEGY BAY -->
+  <section class="panel" style="margin-top:16px">
+    <div class="ph"><span class="label">Strategy Bay</span><span class="sub">every strategy still caged by the risk gates</span></div>
+    <div class="stratbay" id="stratBay"></div>
+  </section>
+
   <!-- GATE LAMPS -->
   <section class="panel" style="margin-top:16px">
     <div class="ph"><span class="label">Risk Gate Lamps</span><span class="sub">lit = rule fired &amp; behaved in paper</span></div>
@@ -343,10 +385,19 @@
   </div>
 
   <p class="footnote">
-    This is a paper simulation against a synthetic market — not a connection to Coinbase and not financial advice.
-    The bundled strategies have no demonstrated edge; the expectancy gate will often (correctly) keep the helm flat.
-    <b>Never place API keys in this or any client-side HTML</b> — for live trading, run the Python agent on a machine you
-    control with a trade-and-view-only key, and let this page read its status over a local API.
+    <b>Disclaimer.</b> The Pig Box is a paper-trading simulation provided for educational and informational
+    purposes only. It runs against a synthetic, randomly generated market and is not connected to Coinbase,
+    Anthropic, or any exchange, broker, or live account. Nothing presented here is financial, investment, legal,
+    or tax advice, no advisory or fiduciary relationship is created, and you should consult a licensed professional
+    before making any financial decision. The software is provided "as is," without warranties of any kind, whether
+    express or implied, including without limitation the implied warranties of merchantability, fitness for a
+    particular purpose, and non-infringement. <b>Trading and investing involve substantial risk, including the
+    possible loss of all capital.</b> Simulated and hypothetical results have inherent limitations, do not represent
+    actual trading, and are not indicative of future results; the included strategies have no demonstrated edge. You
+    are solely responsible for your own decisions, for safeguarding any account credentials, and for compliance with
+    all applicable laws, regulations, and exchange terms in your jurisdiction. To the maximum extent permitted by law,
+    the authors and contributors accept no liability for any loss or damage of any kind arising from use of, or
+    reliance on, this software. The Pig Box is not affiliated with, endorsed by, or sponsored by Coinbase or Anthropic.
   </p>
 </div>
 
@@ -441,36 +492,68 @@ function detectRegime(closes, candles){
   if (Math.abs(ef-es)/closes[closes.length-1] > 0.0025) return "trending";
   return "ranging";
 }
-function stratTrend(inst, closes, candles){
+// --- THE RULEBOOK: rigid EMA 9/21 crossover. Follows the chart strictly by the book. ---
+function stratRulebook(inst, closes, candles){
   const ef=emaLast(closes,9), es=emaLast(closes,21), a=atr(candles);
   const pc=closes.slice(0,-1);
   const efp=emaLast(pc,9), esp=emaLast(pc,21);
   if (ef===null||es===null||a===null||efp===null||esp===null) return null;
   if (ef>es && efp<=esp){   // fresh bullish cross only — no re-entry while trending
     const p=closes[closes.length-1], stop=p-1.5*a, risk=p-stop;
-    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+2.0*risk, strat:"trend_ema", conf:0.55};
+    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+2.0*risk, strat:"rulebook", conf:0.55};
   }
   return null;
 }
-function stratMeanrev(inst, closes, candles){
+// --- BOTTOM FEEDER: buys fresh dips into oversold (RSI < 30). ---
+function stratBottomFeeder(inst, closes, candles){
   const r=rsi(closes), rp=rsi(closes.slice(0,-1)), a=atr(candles);
   if (r===null||rp===null||a===null) return null;
   if (r<30 && rp>=30){   // fresh dip into oversold only
     const p=closes[closes.length-1], stop=p-1.2*a, risk=p-stop;
-    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+1.8*risk, strat:"meanrev_rsi", conf:0.5};
+    return {symbol:inst.symbol, cls:inst.cls, side:"long", entry:p, stop, tp:p+1.8*risk, strat:"bottom_feeder", conf:0.5};
   }
   return null;
 }
-function generateSignals(mkt){
-  const out=[];
+// --- LOOSE CANNON: the Sandbox philosophy ported offline. No fixed rule — it
+//     scans the whole universe and backs its single best idea on blended
+//     momentum + a dash of discretionary judgment, free to pick its own shot
+//     (including the perp). But the box still cages it: every trade it chooses
+//     still passes the same 2% / heat / leverage / floor gates as the others. ---
+function looseCannonPick(mkt, rng){
+  let best=null;
+  for (const inst of mkt.instruments){
+    if (!mkt.eligible(inst)) continue;
+    const closes=mkt.closes[inst.symbol], candles=mkt.history[inst.symbol];
+    if (closes.length<30) continue;
+    const a=atr(candles), ef=emaLast(closes,9), es=emaLast(closes,21), r=rsi(closes);
+    if (a===null||ef===null||es===null||r===null) continue;
+    const p=closes[closes.length-1];
+    const mom=(ef-es)/p;                                   // momentum
+    const recentHigh=Math.max(...closes.slice(-20));
+    const breakout=(p>=recentHigh*0.999)?0.0015:0;         // near a 20-bar high
+    const jitter=(rng()*2-1)*0.0008;                       // discretionary judgment
+    const score=mom + breakout + jitter;
+    const notOverbought = r<68;
+    if (notOverbought && (!best || score>best.score)) best={inst,p,a,score};
+  }
+  if (!best || best.score<0.0010) return null;             // low conviction -> hold
+  const stop=best.p-1.6*best.a, risk=best.p-stop;
+  return {symbol:best.inst.symbol, cls:best.inst.cls, side:"long", entry:best.p, stop, tp:best.p+2.2*risk, strat:"loose_cannon", conf:0.6};
+}
+function generateSignals(A){
+  const mkt=A.mkt, en=A.enabled, out=[];
   for (const inst of mkt.instruments){
     if (!mkt.eligible(inst)) continue;
     const closes=mkt.closes[inst.symbol], candles=mkt.history[inst.symbol];
     const reg=detectRegime(closes,candles);
     let sig=null;
-    if (reg==="trending") sig=stratTrend(inst,closes,candles);
-    else if (reg==="ranging") sig=stratMeanrev(inst,closes,candles);
+    if (reg==="trending" && en.rulebook) sig=stratRulebook(inst,closes,candles);
+    else if (reg==="ranging" && en.bottom_feeder) sig=stratBottomFeeder(inst,closes,candles);
     if (sig) out.push(sig);
+  }
+  if (en.loose_cannon && (A.seasonBars - (A.lastLooseBar ?? -999)) >= 12){   // ~3h between shots
+    const lc=looseCannonPick(mkt, A.decisionRng);
+    if (lc){ A.lastLooseBar=A.seasonBars; out.push(lc); }
   }
   return out;
 }
@@ -480,10 +563,13 @@ const GATE_KEYS = ["floor","per_trade","cash_split","leverage_cap","position_cap
 // ---- the agent (paper) ----
 function makeAgent(seed){
   const mkt = makeMarket(seed);
+  const decisionRng = mulberry32((seed ^ 0x5bd1e995) >>> 0);   // Loose Cannon's own judgment
   const A = {
-    seed, mkt,
+    seed, mkt, decisionRng,
     mode: "PAPER",
     cash: CFG.START_EQUITY,
+    deposited: 0,                     // extra capital added beyond the $500 start
+    enabled: { rulebook:true, bottom_feeder:true, loose_cannon:false },  // loose cannon optional
     positions: {},                    // symbol -> position
     strat: {},                        // strat name -> {trades,wins,gw,gl}
     gates: Object.fromEntries(GATE_KEYS.map(k=>[k,false])),
@@ -491,7 +577,7 @@ function makeAgent(seed){
     dayStartEquity: CFG.START_EQUITY,
     peakEquity: CFG.START_EQUITY, maxDD: 0,
     benchStart: null,
-    killed: false, killDrilled: false, reconClean: 0, lastAnomaly: null,
+    killed: false, killDrilled: false, reconClean: 0, lastAnomaly: null, haltReason: null, lastLooseBar: -999,
     log: [],
     equitySeries: [], benchSeries: [],
   };
@@ -619,7 +705,17 @@ function makeAgent(seed){
   }
   function tripKill(reason){
     logit("kill", `KILL SWITCH: ${reason} — flatten to cash, helm halted`);
-    A.killed=true; flatten("kill_switch"); A.mode="HALTED"; A.gates.floor = A.gates.floor || reason.includes("FLOOR");
+    A.killed=true; A.haltReason=reason; flatten("kill_switch"); A.mode="HALTED"; A.gates.floor = A.gates.floor || reason.includes("FLOOR");
+  }
+  function deposit(amt){
+    amt=+amt; if (!(amt>0)) return;
+    A.cash += amt; A.deposited += amt; A.dayStartEquity += amt;
+    A.peakEquity = Math.max(A.peakEquity, equity());
+    logit("deposit", `DEPOSIT +$${amt.toFixed(2)} — cash now $${A.cash.toFixed(2)}`);
+    if (A.mode==="HALTED" && (A.haltReason||"").includes("FLOOR") && equity()>CFG.HARD_FLOOR){
+      A.killed=false; A.mode="PAPER"; A.haltReason=null;
+      logit("deposit", "REFLOAT — equity back above the seabed, helm returned to PAPER");
+    }
   }
   function fireDrillKill(){ const m=A.mode; flatten("kill_drill"); A.killDrilled=true; A.mode=m; logit("drill","DRILL: kill switch flatten+halt verified ✓"); }
 
@@ -637,7 +733,7 @@ function makeAgent(seed){
     if (eq <= A.dayStartEquity*(1-CFG.DAILY_LOSS_LIMIT)){ A.gates.daily_loss=true; manage(); advance(); return; }
 
     manage();
-    for (const sig of generateSignals(A.mkt)){
+    for (const sig of generateSignals(A)){
       if (A.positions[sig.symbol]) continue;       // one position per underlying
       const {qty} = plan(sig);
       if (qty>0) open(sig, qty);
@@ -693,7 +789,7 @@ function makeAgent(seed){
   function arm(){ if (!canArm()) return false; A.mode="LIVE"; logit("drill","GO-LIVE ARMED — checklist green. (LiveBroker is a stub; wire real API before real money.)"); return true; }
 
   // expose
-  A.fns = { equity, heat, levMargin, expectancy, profitFactor, loopOnce, manage, flatten,
+  A.fns = { equity, heat, levMargin, expectancy, profitFactor, loopOnce, manage, flatten, deposit,
             fireDrillKill, runGateDrills, checklist, canArm, arm, tripKill, unreal };
   return A;
 }
@@ -714,16 +810,55 @@ if (typeof document !== "undefined") {
 
   let agent, running=false, speed=30, acc=0, lastTs=0, raf=null;
 
+  const STRAT_LABELS = { rulebook:"The Rulebook", bottom_feeder:"Bottom Feeder", loose_cannon:"Loose Cannon" };
+  const STRAT_DESC = { rulebook:"EMA cross · strictly by the book", bottom_feeder:"buys fresh oversold dips", loose_cannon:"Sandbox mind · picks its own shot" };
+  const STRAT_OPTIONAL = { loose_cannon:true };
+  let enabledChoice = { rulebook:true, bottom_feeder:true, loose_cannon:false };   // carries across seasons
+  let lifetime = { seasons:0, banked:0, wins:0, losses:0 };                        // all-time, in memory
+
   function newSeason(){
     const seed = (Math.random()*1e9)>>>0;
     agent = makeAgent(seed);
+    agent.enabled = { ...enabledChoice };      // keep the operator's strategy choices
     running=false; acc=0;
     $("seedTag").textContent = "seed " + seed.toString(16);
     buildLamps();
+    buildStratBay();
     render();
     pushLog();
     setRunBtn();
   }
+
+  function buildStratBay(){
+    const bay=$("stratBay"); bay.innerHTML="";
+    for (const k of ["rulebook","bottom_feeder","loose_cannon"]){
+      const on=!!agent.enabled[k];
+      const el=document.createElement("div");
+      el.className="stoggle"+(on?" on":"")+(STRAT_OPTIONAL[k]?" optional":"");
+      el.tabIndex=0; el.setAttribute("role","switch"); el.setAttribute("aria-checked",on);
+      el.innerHTML=`<span class="sw"></span><span><span class="nm">${STRAT_LABELS[k]}</span><div class="ds">${STRAT_DESC[k]}</div></span>`;
+      const toggle=()=>{ const v=!agent.enabled[k]; agent.enabled[k]=v; enabledChoice[k]=v; el.classList.toggle("on",v); el.setAttribute("aria-checked",v); };
+      el.onclick=toggle;
+      el.onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); toggle(); } };
+      bay.appendChild(el);
+    }
+  }
+
+  function renderLedger(){
+    const eq=agent.fns.equity(), basis=CFG.START_EQUITY+agent.deposited, pnl=eq-basis;
+    $("lbBasis").textContent=fmt$(basis);
+    $("lbDep").textContent=fmt$(agent.deposited);
+    const s=$("lbSeason"); s.textContent=fmt$(pnl); s.className=pnl>0?"pos":pnl<0?"neg":"";
+    const a=$("lbAll"); a.textContent=fmt$(lifetime.banked); a.className=lifetime.banked>0?"pos":lifetime.banked<0?"neg":"";
+    $("lbRec").textContent=`${lifetime.seasons} season${lifetime.seasons===1?"":"s"} · ${lifetime.wins}W ${lifetime.losses}L`;
+  }
+
+  function bankSeason(){
+    const eq=agent.fns.equity(), basis=CFG.START_EQUITY+agent.deposited, pnl=eq-basis;
+    lifetime.seasons++; lifetime.banked+=pnl; if (pnl>=0) lifetime.wins++; else lifetime.losses++;
+  }
+
+  function fullStop(){ if (raf){ cancelAnimationFrame(raf); raf=null; } running=false; lastLogLen=0; }
 
   function buildLamps(){
     const box=$("lamps"); box.innerHTML="";
@@ -816,7 +951,8 @@ if (typeof document !== "undefined") {
   // ---- render ----
   function render(){
     const f=agent.fns, eq=f.equity();
-    const season = (eq-CFG.START_EQUITY)/CFG.START_EQUITY*100;
+    const basis=CFG.START_EQUITY+agent.deposited;
+    const season = (eq-basis)/basis*100;
     const daily = eq - agent.dayStartEquity;
     const bench = agent.benchStart ? (agent.mkt.benchmark()/agent.benchStart-1)*100 : 0;
     const cashPct = eq>0 ? agent.cash/eq*100 : 0;
@@ -868,7 +1004,7 @@ if (typeof document !== "undefined") {
     else {
       let r="<table><thead><tr><th>Strategy</th><th class='num'>Trades</th><th class='num'>Win%</th><th class='num'>Expectancy</th><th class='num'>PF</th></tr></thead><tbody>";
       for (const n of names){ const s=agent.strat[n], e=f.expectancy(s), pf=f.profitFactor(s), wr=s.trades?s.wins/s.trades*100:0;
-        r+=`<tr><td>${n}</td><td class='num'>${s.trades}</td><td class='num'>${wr.toFixed(0)}</td><td class='num ${e>=0?"pos":"neg"}'>${fmt$(e)}</td><td class='num'>${pf===Infinity?"∞":pf.toFixed(2)}</td></tr>`; }
+        r+=`<tr><td>${STRAT_LABELS[n]||n}</td><td class='num'>${s.trades}</td><td class='num'>${wr.toFixed(0)}</td><td class='num ${e>=0?"pos":"neg"}'>${fmt$(e)}</td><td class='num'>${pf===Infinity?"∞":pf.toFixed(2)}</td></tr>`; }
       sw.innerHTML=r+"</tbody></table>";
     }
 
@@ -878,6 +1014,7 @@ if (typeof document !== "undefined") {
       li.innerHTML=`<span class="pf ${c.ok?"PASS":"FAIL"}">${c.ok?"PASS":"FAIL"}</span><span><span class="ctext">${c.name}</span> &nbsp;<span class="cdetail">${c.detail}</span></span>`;
       ul.appendChild(li); }
     $("btnArm").disabled = !f.canArm();
+    renderLedger();
   }
 
   let lastLogLen=0;
@@ -915,7 +1052,9 @@ if (typeof document !== "undefined") {
   $("btnDay").onclick=()=>{ for (let i=0;i<CFG.BARS_PER_DAY;i++){ if (agent.mode==="HALTED") break; agent.fns.loopOnce(); } render(); pushLog(); };
   $("btnDrill").onclick=()=>{ agent.fns.runGateDrills(); render(); pushLog(); };
   $("btnKill").onclick=()=>{ agent.fns.tripKill("manual operator kill"); running=false; setRunBtn(); render(); pushLog(); };
-  $("btnReset").onclick=()=>{ if (raf){ cancelAnimationFrame(raf); raf=null; } lastLogLen=0; newSeason(); };
+  $("btnDeposit").onclick=()=>{ agent.fns.deposit(100); render(); pushLog(); setRunBtn(); };
+  $("btnReset").onclick=()=>{ bankSeason(); fullStop(); newSeason(); };
+  $("btnWipe").onclick=()=>{ lifetime={seasons:0,banked:0,wins:0,losses:0}; fullStop(); newSeason(); };
   $("btnArm").onclick=()=>{ if (agent.fns.arm()){ render(); pushLog(); } };
   $("speed").oninput=e=>{ speed=+e.target.value; $("speedVal").textContent=speed+"×"; };
 
