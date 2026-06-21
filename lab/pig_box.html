@@ -193,11 +193,14 @@
   table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; }
   thead th { text-align: left; font-weight: 500; color: var(--slate-dim);
     letter-spacing: 1px; text-transform: uppercase; font-size: 9.5px;
-    padding: 9px 14px; border-bottom: 1px solid var(--hairline); }
-  tbody td { padding: 8px 14px; border-bottom: 1px solid rgba(138,160,178,0.07); color: var(--ink); }
+    padding: 9px 10px; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
+  tbody td { padding: 8px 10px; border-bottom: 1px solid rgba(138,160,178,0.07); color: var(--ink); }
   tbody tr:last-child td { border-bottom: none; }
   td.num { text-align: right; }
   td.pos { color: var(--phosphor); } td.neg { color: var(--warn-soft); }
+  #stratWrap, #posWrap { overflow-x: auto; }
+  #stratWrap::-webkit-scrollbar, #posWrap::-webkit-scrollbar { height: 7px; }
+  #stratWrap::-webkit-scrollbar-thumb, #posWrap::-webkit-scrollbar-thumb { background: #1d3346; border-radius: 4px; }
   .empty { padding: 18px 14px; font-family: var(--mono); font-size: 11px; color: var(--slate-dim); }
 
   /* ---- checklist + log row ---- */
@@ -457,8 +460,9 @@ function makeMarket(seed){
     {symbol:"SOL-USD", cls:"spot"},
     {symbol:"SPY-IDX", cls:"equity"},   // benchmark proxy
     {symbol:"BTC-PERP", cls:"perp"},    // leveraged sleeve
+    {symbol:"ETH-PERP", cls:"perp"},    // leveraged sleeve
   ];
-  const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"SPY-IDX":540,"BTC-PERP":64000};
+  const price = {"BTC-USD":64000,"ETH-USD":3200,"SOL-USD":145,"SPY-IDX":540,"BTC-PERP":64000,"ETH-PERP":3200};
   const closes={}, history={}, drift={}, vol={};
   for (const i of instruments){ closes[i.symbol]=[]; history[i.symbol]=[]; drift[i.symbol]=0; vol[i.symbol]=0.012; }
   return {
@@ -540,6 +544,33 @@ function looseCannonPick(mkt, rng){
   const stop=best.p-1.6*best.a, risk=best.p-stop;
   return {symbol:best.inst.symbol, cls:best.inst.cls, side:"long", entry:best.p, stop, tp:best.p+2.2*risk, strat:"loose_cannon", conf:0.6};
 }
+// --- BLUEBIRD: a "bluebird" is desk slang for a windfall that drops in your
+//     lap. Futures-only by design — it ignores spot entirely and hunts
+//     leveraged momentum breakouts on the perps. Biggest target of the bunch,
+//     and the one that leans on the leverage sleeve, so it's where the 2x cap /
+//     70-30 split / liquidation-buffer gates earn their keep. Still caged. ---
+function bluebirdPick(mkt, rng){
+  let best=null;
+  for (const inst of mkt.instruments){
+    if (!LEVERAGED.has(inst.cls)) continue;            // futures only
+    if (!mkt.eligible(inst)) continue;
+    const closes=mkt.closes[inst.symbol], candles=mkt.history[inst.symbol];
+    if (closes.length<30) continue;
+    const a=atr(candles), ef=emaLast(closes,9), es=emaLast(closes,21);
+    if (a===null||ef===null||es===null) continue;
+    const p=closes[closes.length-1];
+    const recentHigh=Math.max(...closes.slice(-15));
+    const mom=(ef-es)/p;
+    const breakout = p>=recentHigh*0.999;              // fresh push to new highs
+    if (mom>0 && breakout){
+      const score=mom + 0.002 + (rng()*2-1)*0.0006;
+      if (!best || score>best.score) best={inst,p,a,score};
+    }
+  }
+  if (!best) return null;
+  const stop=best.p-1.4*best.a, risk=best.p-stop;
+  return {symbol:best.inst.symbol, cls:best.inst.cls, side:"long", entry:best.p, stop, tp:best.p+2.5*risk, strat:"bluebird", conf:0.6};
+}
 function generateSignals(A){
   const mkt=A.mkt, en=A.enabled, out=[];
   for (const inst of mkt.instruments){
@@ -555,6 +586,10 @@ function generateSignals(A){
     const lc=looseCannonPick(mkt, A.decisionRng);
     if (lc){ A.lastLooseBar=A.seasonBars; out.push(lc); }
   }
+  if (en.bluebird && (A.seasonBars - (A.lastBlueBar ?? -999)) >= 16){        // patient windfall hunter
+    const bb=bluebirdPick(mkt, A.decisionRng);
+    if (bb){ A.lastBlueBar=A.seasonBars; out.push(bb); }
+  }
   return out;
 }
 
@@ -569,7 +604,7 @@ function makeAgent(seed){
     mode: "PAPER",
     cash: CFG.START_EQUITY,
     deposited: 0,                     // extra capital added beyond the $500 start
-    enabled: { rulebook:true, bottom_feeder:true, loose_cannon:false },  // loose cannon optional
+    enabled: { rulebook:true, bottom_feeder:true, loose_cannon:false, bluebird:false },  // loose cannon + bluebird optional
     positions: {},                    // symbol -> position
     strat: {},                        // strat name -> {trades,wins,gw,gl}
     gates: Object.fromEntries(GATE_KEYS.map(k=>[k,false])),
@@ -577,7 +612,7 @@ function makeAgent(seed){
     dayStartEquity: CFG.START_EQUITY,
     peakEquity: CFG.START_EQUITY, maxDD: 0,
     benchStart: null,
-    killed: false, killDrilled: false, reconClean: 0, lastAnomaly: null, haltReason: null, lastLooseBar: -999,
+    killed: false, killDrilled: false, reconClean: 0, lastAnomaly: null, haltReason: null, lastLooseBar: -999, lastBlueBar: -999,
     log: [],
     equitySeries: [], benchSeries: [],
   };
@@ -810,10 +845,10 @@ if (typeof document !== "undefined") {
 
   let agent, running=false, speed=30, acc=0, lastTs=0, raf=null;
 
-  const STRAT_LABELS = { rulebook:"The Rulebook", bottom_feeder:"Bottom Feeder", loose_cannon:"Loose Cannon" };
-  const STRAT_DESC = { rulebook:"EMA cross · strictly by the book", bottom_feeder:"buys fresh oversold dips", loose_cannon:"Sandbox mind · picks its own shot" };
-  const STRAT_OPTIONAL = { loose_cannon:true };
-  let enabledChoice = { rulebook:true, bottom_feeder:true, loose_cannon:false };   // carries across seasons
+  const STRAT_LABELS = { rulebook:"The Rulebook", bottom_feeder:"Bottom Feeder", loose_cannon:"Loose Cannon", bluebird:"Bluebird" };
+  const STRAT_DESC = { rulebook:"EMA cross · strictly by the book", bottom_feeder:"buys fresh oversold dips", loose_cannon:"Sandbox mind · picks its own shot", bluebird:"futures only · hunts the windfall" };
+  const STRAT_OPTIONAL = { loose_cannon:true, bluebird:true };
+  let enabledChoice = { rulebook:true, bottom_feeder:true, loose_cannon:false, bluebird:false };   // carries across seasons
   let lifetime = { seasons:0, banked:0, wins:0, losses:0 };                        // all-time, in memory
 
   function newSeason(){
@@ -831,7 +866,7 @@ if (typeof document !== "undefined") {
 
   function buildStratBay(){
     const bay=$("stratBay"); bay.innerHTML="";
-    for (const k of ["rulebook","bottom_feeder","loose_cannon"]){
+    for (const k of ["rulebook","bottom_feeder","loose_cannon","bluebird"]){
       const on=!!agent.enabled[k];
       const el=document.createElement("div");
       el.className="stoggle"+(on?" on":"")+(STRAT_OPTIONAL[k]?" optional":"");
@@ -1002,7 +1037,7 @@ if (typeof document !== "undefined") {
     const sw=$("stratWrap"); const names=Object.keys(agent.strat);
     if (!names.length){ sw.innerHTML='<div class="empty">No closed trades yet.</div>'; }
     else {
-      let r="<table><thead><tr><th>Strategy</th><th class='num'>Trades</th><th class='num'>Win%</th><th class='num'>Expectancy</th><th class='num'>PF</th></tr></thead><tbody>";
+      let r="<table><thead><tr><th>Strategy</th><th class='num'>Trades</th><th class='num'>Win%</th><th class='num'>Exp</th><th class='num'>PF</th></tr></thead><tbody>";
       for (const n of names){ const s=agent.strat[n], e=f.expectancy(s), pf=f.profitFactor(s), wr=s.trades?s.wins/s.trades*100:0;
         r+=`<tr><td>${STRAT_LABELS[n]||n}</td><td class='num'>${s.trades}</td><td class='num'>${wr.toFixed(0)}</td><td class='num ${e>=0?"pos":"neg"}'>${fmt$(e)}</td><td class='num'>${pf===Infinity?"∞":pf.toFixed(2)}</td></tr>`; }
       sw.innerHTML=r+"</tbody></table>";
