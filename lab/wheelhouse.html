@@ -436,6 +436,13 @@
     .wh-bt-lbl{font-size:12px;line-height:1.35;color:var(--charcoal);}
     .wh-bt-prog{height:4px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px;}
     .wh-bt-prog i{display:block;height:100%;background:var(--live);transition:width .3s;}
+    .wh-bt-add{width:100%;border:1px dashed var(--border2);background:transparent;border-radius:6px;padding:8px;font-size:11px;font-family:var(--font-mono);letter-spacing:.06em;color:var(--gray);margin-bottom:12px;transition:all .15s;}
+    .wh-bt-add:hover{border-color:var(--navy);color:var(--navy);background:var(--light);}
+    .wh-bt-ctrls{display:flex;gap:3px;margin-left:auto;opacity:0;transition:opacity .12s;flex-shrink:0;}
+    .wh-bt-item:hover .wh-bt-ctrls{opacity:1;}
+    .wh-bt-mini{width:20px;height:20px;border:1px solid var(--border);background:var(--white);border-radius:4px;font-size:10px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;}
+    .wh-bt-mini:hover{border-color:var(--navy);}
+    .wh-bt-box{cursor:pointer;} .wh-bt-lbl{cursor:pointer;}
     /* TOOL LIBRARY */
     .wh-tl-search{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font-body);margin-bottom:10px;outline:none;}
     .wh-tl-search:focus{border-color:var(--navy);}
@@ -841,6 +848,7 @@ function ccUpdateAdminUI(){
     if(pfTag) pfTag.textContent='Wired · Supabase';
   }
   whRenderSettings(); whRenderWorkforce(); whRenderMarketing();
+  whRenderTracker();
   if(ccIsAdmin){ whReadTools().then(whRenderToolLib); } else { WH_TOOLS_LOADED=false; whRenderToolLib(); }
 }
 (function ccRestoreSession(){ const t=sessionStorage.getItem('cc_token'); if(t){ccIsAdmin=true;ccToken=t;} })();
@@ -1585,11 +1593,12 @@ function whRenderSysmap(){
     `<div class="wh-sm-sec"><div class="wh-sm-h">Gaps</div>${WH_GAPS.map(g=>`<div class="wh-sm-gap">${whEsc(g)}</div>`).join('')}</div>`;
 }
 
-/* ════ BUILD TRACKER — live checklist from Supabase build_tracker ════ */
+/* ════ BUILD TRACKER — live checklist + CRUD (admin) from Supabase build_tracker ════ */
 let WH_TRACKER=[];
+const WH_BT_HDR={'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`,'Content-Type':'application/json'};
 async function whReadTracker(){
   try{
-    const r=await fetch(`${CC_URL}/rest/v1/build_tracker?select=*&order=phase.asc,sort_order.asc`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    const r=await fetch(`${CC_URL}/rest/v1/build_tracker?select=*&order=phase.asc,sort_order.asc`,{headers:WH_BT_HDR});
     WH_TRACKER=await r.json()||[];
   }catch(e){ console.warn('Tracker read failed:',e); WH_TRACKER=[]; }
 }
@@ -1597,18 +1606,52 @@ async function whToggleTracker(id){
   const it=WH_TRACKER.find(t=>t.id===id); if(!it) return;
   const next=!it.done; it.done=next; whRenderTracker(); // optimistic
   try{
-    await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'PATCH',headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({done:next,updated_at:new Date().toISOString()})});
+    await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR),body:JSON.stringify({done:next,updated_at:new Date().toISOString()})});
   }catch(e){ console.warn('Tracker toggle failed:',e); it.done=!next; whRenderTracker(); }
+}
+async function whAddTrackerItem(){
+  if(!ccIsAdmin) return;
+  const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
+  const ph=prompt('Phase / group (existing or new):\n\n'+phases.join('\n'), phases[0]||'New Phase');
+  if(ph==null||!ph.trim()) return;
+  const item=prompt('New item text:'); if(item==null||!item.trim()) return;
+  const inPhase=WH_TRACKER.filter(t=>t.phase===ph.trim());
+  const sort=inPhase.length?Math.max(...inPhase.map(t=>t.sort_order||0))+1:1;
+  try{
+    const r=await fetch(`${CC_URL}/rest/v1/build_tracker`,{method:'POST',headers:Object.assign({'Prefer':'return=representation'},WH_BT_HDR),body:JSON.stringify({phase:ph.trim(),item:item.trim(),done:false,sort_order:sort})});
+    const rows=await r.json(); if(rows&&rows[0]) WH_TRACKER.push(rows[0]);
+    whReadTracker().then(whRenderTracker);
+  }catch(e){ console.warn('Add failed:',e); alert('Add failed — see console.'); }
+}
+async function whEditTrackerItem(id,ev){
+  ev&&ev.stopPropagation(); if(!ccIsAdmin) return;
+  const it=WH_TRACKER.find(t=>t.id===id); if(!it) return;
+  const v=prompt('Edit item:',it.item); if(v==null||!v.trim()) return;
+  it.item=v.trim(); whRenderTracker();
+  try{ await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR),body:JSON.stringify({item:v.trim(),updated_at:new Date().toISOString()})}); }
+  catch(e){ console.warn('Edit failed:',e); }
+}
+async function whDeleteTrackerItem(id,ev){
+  ev&&ev.stopPropagation(); if(!ccIsAdmin) return;
+  const it=WH_TRACKER.find(t=>t.id===id); if(!it) return;
+  if(!confirm('Delete this item?\n\n'+it.item)) return;
+  WH_TRACKER=WH_TRACKER.filter(t=>t.id!==id); whRenderTracker();
+  try{ await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'DELETE',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR)}); }
+  catch(e){ console.warn('Delete failed:',e); whReadTracker().then(whRenderTracker); }
 }
 function whRenderTracker(){
   const host=document.getElementById('wh-tracker-body'); if(!host) return;
-  if(!WH_TRACKER.length){ host.innerHTML='<div class="wh-tl-locked">Loading… (run build-tracker-table.sql if empty)</div>'; return; }
+  const addBtn=ccIsAdmin?`<button class="wh-bt-add" onclick="whAddTrackerItem()">+ Add item</button>`:'';
+  if(!WH_TRACKER.length){ host.innerHTML=addBtn+'<div class="wh-tl-locked">No items yet'+(ccIsAdmin?' — tap “+ Add item”.':' (run build-tracker-table.sql).')+'</div>'; return; }
   const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
-  host.innerHTML=phases.map(ph=>{
+  host.innerHTML=addBtn+phases.map(ph=>{
     const items=WH_TRACKER.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length, pct=Math.round(done/items.length*100);
     return `<div class="wh-bt-phase"><div class="wh-bt-ph">${whEsc(ph)}<span class="ct">${done}/${items.length}</span></div>`+
       `<div class="wh-bt-prog"><i style="width:${pct}%"></i></div>`+
-      items.map(it=>`<div class="wh-bt-item ${it.done?'done':''}" onclick="whToggleTracker('${it.id}')"><span class="wh-bt-box">${it.done?'✓':''}</span><span class="wh-bt-lbl">${whEsc(it.item)}</span></div>`).join('')+
+      items.map(it=>{
+        const ctrls=ccIsAdmin?`<span class="wh-bt-ctrls"><button class="wh-bt-mini" onclick="whEditTrackerItem('${it.id}',event)" title="Edit">✏️</button><button class="wh-bt-mini" onclick="whDeleteTrackerItem('${it.id}',event)" title="Delete">🗑️</button></span>`:'';
+        return `<div class="wh-bt-item ${it.done?'done':''}"><span class="wh-bt-box" onclick="whToggleTracker('${it.id}')">${it.done?'✓':''}</span><span class="wh-bt-lbl" onclick="whToggleTracker('${it.id}')">${whEsc(it.item)}</span>${ctrls}</div>`;
+      }).join('')+
       `</div>`;
   }).join('');
 }
