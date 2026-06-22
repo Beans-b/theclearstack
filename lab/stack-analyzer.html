@@ -531,15 +531,18 @@ function ccUpdateAdminUI(){
   const badge=document.getElementById('cc-demo-badge');
   const note=document.getElementById('sa-stage-note');
   const panel=document.getElementById('sa-admin');
+  const pub=document.getElementById('pub');
   if(ccIsAdmin){
     lockBtn.textContent='\uD83D\uDD13'; lockBtn.classList.add('unlocked'); lockBtn.title='Admin — click to lock';
     badge.textContent='Admin'; badge.className='wh-badge admin';
-    note.textContent='Admin mode. Enter a stack above and run the analyzer.';
+    note.textContent='Admin mode. Enter a client stack below and run the analyzer.';
+    if(pub) pub.style.display='none';
     panel.style.display='block';
   }else{
     lockBtn.textContent='\uD83D\uDD12'; lockBtn.classList.remove('unlocked'); lockBtn.title='Admin login';
     badge.textContent='Demo Mode'; badge.className='wh-badge demo';
     note.textContent='Below: a sample of the full report. Run your own stack above for an instant read.';
+    if(pub) pub.style.display='';
     panel.style.display='none';
   }
 }
