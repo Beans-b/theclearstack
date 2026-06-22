@@ -3,11 +3,20 @@
  * File: functions/api/submit.js
  * Route: POST /api/submit
  *
- * Receives contact form submissions from contact.html,
- * validates input, and fires the Make.com inbound lead webhook.
- * Make.com handles all downstream actions: Supabase, HubSpot, Brian notification, T2 Research trigger.
+ * Receives lead submissions from contact.html AND the Stack Analyzer gate
+ * (lab/stack-analyzer.html), validates input, and fires the Make.com inbound
+ * lead webhook. Make.com handles downstream: Supabase, HubSpot, Brian
+ * notification, T2 Research trigger.
  *
- * REQUIRED environment variables (set in Cloudflare Pages dashboard → Settings → Environment Variables):
+ * Two lead shapes are accepted, distinguished by `source`:
+ *   - "inbound_form"     (contact.html) — requires company_size.
+ *   - "stack_analyzer"   (analyzer gate) — name + email + company only;
+ *                         carries provenance + the entered tools/overlaps.
+ *
+ * No secrets ever reach the browser. The Make webhook URL + key live only
+ * in env vars here.
+ *
+ * REQUIRED environment variables (Cloudflare Pages → Settings → Environment Variables):
  *   MAKECOM_INBOUND_WEBHOOK_URL — your Make.com webhook URL (treat as a secret)
  *   MAKECOM_WEBHOOK_API_KEY     — API key sent as x-make-apikey header to authenticate with Make.com
  */
@@ -44,10 +53,16 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ success: true }), { status: 200, headers });
   }
 
-  // --- Required field validation ---
-  const required = ["first_name", "last_name", "email", "company_name", "company_size"];
+  // --- Which lead shape is this? ---
+  const source = (data.source || "inbound_form").toString().trim() || "inbound_form";
+  const isAnalyzer = source === "stack_analyzer";
+
+  // --- Required field validation (analyzer asks fewer fields) ---
+  const required = isAnalyzer
+    ? ["first_name", "email", "company_name"]
+    : ["first_name", "last_name", "email", "company_name", "company_size"];
   for (const field of required) {
-    if (!data[field] || data[field].trim() === "") {
+    if (!data[field] || data[field].toString().trim() === "") {
       return new Response(
         JSON.stringify({ success: false, error: `Missing required field: ${field}` }),
         { status: 422, headers }
@@ -69,17 +84,28 @@ export async function onRequestPost(context) {
 
   // --- Build payload for Make.com ---
   const payload = {
-    source: "inbound_form",
+    source,
     submitted_at: new Date().toISOString(),
-    first_name: data.first_name.trim(),
-    last_name: data.last_name.trim(),
+    first_name: (data.first_name || "").trim(),
+    last_name: (data.last_name || "").trim(),
     email: data.email.trim().toLowerCase(),
     company_name: data.company_name.trim(),
-    company_size: data.company_size,
+    company_size: data.company_size || null,
     industry: data.industry || null,
     monthly_ai_spend: data.monthly_ai_spend || null,
     pain_point: data.pain_point ? data.pain_point.trim() : null,
     prospect_domain,
+
+    // --- Provenance: where the lead came from (page + form + campaign) ---
+    source_page: data.source_page || null,
+    source_url: data.source_url || null,
+    source_form: data.source_form || null,
+    referrer: data.referrer || null,
+    utm: data.utm || null,
+
+    // --- Stack Analyzer extras (null for the contact form) ---
+    tools: Array.isArray(data.tools) ? data.tools : null,
+    redundancies: Array.isArray(data.redundancies) ? data.redundancies : null,
   };
 
   // --- Fire Make.com webhook ---
