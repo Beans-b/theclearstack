@@ -401,6 +401,7 @@
     .tool-card:nth-child(2) { animation-delay: 0.12s; }
     .tool-card:nth-child(3) { animation-delay: 0.19s; }
     .tool-card:nth-child(4) { animation-delay: 0.26s; }
+    .tool-card:nth-child(5) { animation-delay: 0.33s; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
@@ -485,6 +486,23 @@
   <div class="lab-eyebrow">Available Now</div>
 
   <div class="tool-grid">
+
+    <!-- Stack Analyzer — consolidation audit + report -->
+    <a href="stack-analyzer.html" class="tool-card">
+      <div class="tool-card-icon">🔍</div>
+      <div class="tool-card-tag">Consolidation Audit</div>
+      <div class="tool-card-name">Stack Analyzer</div>
+      <div class="tool-card-desc">List the software you pay for and see where it overlaps, on the spot. The full report lays out what to keep, replace, or cut, ordered by renewal date, with the savings calculated from your own numbers.</div>
+      <div class="tool-card-footer">
+        <div class="tool-card-badges">
+          <span class="badge">Free</span>
+          <span class="badge-orange badge">Instant Audit</span>
+        </div>
+        <span class="tool-launch-btn">
+          Launch <span class="arrow">→</span>
+        </span>
+      </div>
+    </a>
 
     <!-- The Pig Box — autonomous trading simulator -->
     <a href="pig_box.html" class="tool-card">
@@ -574,6 +592,15 @@
 
 <script>
 document.getElementById('burger').addEventListener('click', () => document.getElementById('drawer').classList.toggle('open'));
+
+/* Selection analytics — fire a GA4 event when a tool card is chosen */
+document.querySelectorAll('.tool-card').forEach(function(card){
+  card.addEventListener('click', function(){
+    var n=card.querySelector('.tool-card-name');
+    var name=n?n.textContent.trim():(card.getAttribute('href')||'');
+    try{ gtag('event','lab_tool_select',{tool_name:name, link_url:card.getAttribute('href')||''}); }catch(e){}
+  });
+});
 </script>
 
 </body>

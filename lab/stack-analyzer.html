@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack Analyzer — Free SaaS Consolidation Report | The Clear Stack</title>
+<meta name="description" content="Map your software stack in one click. The Stack Analyzer shows where your tools overlap, what to keep, replace, or cut, and the savings in your own numbers.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Clear Stack">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Stack Analyzer — Free SaaS Consolidation Report">
+<meta property="og:description" content="Enter your tools and get a one page report showing overlap, what to keep, replace, or cut, and the savings in your own numbers.">
+<meta property="og:url" content="https://theclearstack.com/lab/stack-analyzer.html">
+<meta property="og:image" content="https://theclearstack.com/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Clear Stack, AI clarity for mid market companies">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stack Analyzer — Free SaaS Consolidation Report">
+<meta name="twitter:description" content="See what your software stack consolidates to, and the savings in your own numbers.">
+<meta name="twitter:image" content="https://theclearstack.com/og-cover.png">
+<link rel="canonical" href="https://theclearstack.com/lab/stack-analyzer.html">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://theclearstack.com/#organization","name":"The Clear Stack","url":"https://theclearstack.com/","logo":"https://theclearstack.com/logo.svg","description":"AI consolidation consulting for mid market companies (50 to 500 employees). We audit fragmented AI and SaaS stacks, eliminate redundancy, and build Make.com automation that connects what remains.","slogan":"AI clarity for mid market companies","areaServed":{"@type":"Country","name":"United States"}},
+{"@type":"WebSite","@id":"https://theclearstack.com/#website","url":"https://theclearstack.com/","name":"The Clear Stack","publisher":{"@id":"https://theclearstack.com/#organization"},"inLanguage":"en-US"},
+{"@type":"WebApplication","@id":"https://theclearstack.com/lab/stack-analyzer.html#app","name":"Stack Analyzer","url":"https://theclearstack.com/lab/stack-analyzer.html","applicationCategory":"BusinessApplication","operatingSystem":"Web","provider":{"@id":"https://theclearstack.com/#organization"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Enter a company's software stack and get a one page consolidation report: where tools overlap, what to keep, replace, or cut, and the projected savings based on entered costs."},
+{"@type":"WebPage","@id":"https://theclearstack.com/lab/stack-analyzer.html#webpage","url":"https://theclearstack.com/lab/stack-analyzer.html","name":"Stack Analyzer — Free SaaS Consolidation Report","isPartOf":{"@id":"https://theclearstack.com/#website"},"about":{"@id":"https://theclearstack.com/#organization"},"mainEntity":{"@id":"https://theclearstack.com/lab/stack-analyzer.html#app"},"breadcrumb":{"@id":"https://theclearstack.com/lab/stack-analyzer.html#breadcrumb"},"inLanguage":"en-US"},
+{"@type":"BreadcrumbList","@id":"https://theclearstack.com/lab/stack-analyzer.html#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://theclearstack.com/"},{"@type":"ListItem","position":2,"name":"Lab","item":"https://theclearstack.com/lab/index.html"},{"@type":"ListItem","position":3,"name":"Stack Analyzer","item":"https://theclearstack.com/lab/stack-analyzer.html"}]}
+]}
+</script>
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B1F4A; --navy-deep:#07152F; --navy-mid:#122260; --deep:#07152F;
+  --orange:#E07B2A; --orange-h:#C96A1A;
+  --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7; --ink:#1A1A1A; --charcoal:#1A1A1A;
+  --gray:#5A6478; --line:#E4E2DC; --border2:#E4E6EA;
+  --cut:#A23A2E; --watch:#7A6A3A;
+  --serif:'Cormorant Garamond',Georgia,serif; --font-head:'Cormorant Garamond',Georgia,serif;
+  --body:'Outfit',-apple-system,system-ui,sans-serif; --font-body:'Outfit',sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace; --font-mono:'DM Mono',monospace;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--light);color:var(--ink);-webkit-font-smoothing:antialiased;padding-top:68px}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(7,21,47,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07)}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px}
+.logo-name{font-family:var(--serif);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em}
+.logo-name .logo-the{font-weight:600;color:#F7F4EF}
+.logo-name em{font-style:normal;font-weight:700;color:var(--orange)}
+.logo-tag{font-family:var(--mono);font-size:6.5px;letter-spacing:.14em;color:#fff;text-transform:uppercase}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95)}
+.nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-cta{background:var(--orange);color:#fff;padding:9px 22px;border-radius:3px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--orange-h)}
+.lock-btn{background:transparent;border:1px solid rgba(255,255,255,.18);color:#cdd6e6;border-radius:4px;width:34px;height:30px;font-size:14px;cursor:pointer;line-height:1}
+.lock-btn.unlocked{border-color:#4A9E6B;background:rgba(74,158,107,.12)}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px}
+.burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px}
+.drawer{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:var(--navy-deep);z-index:999;padding:32px 24px;transform:translateX(-100%);transition:transform .3s ease}
+.drawer.open{display:block;transform:none}
+.drawer ul{list-style:none}
+.drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.07)}
+.d-cta{color:var(--orange);font-weight:700}
+
+/* ── HERO ── */
+#hero{background:var(--white);padding:64px 32px 40px;border-bottom:1px solid var(--line)}
+.hero-in{max-width:820px;margin:0 auto}
+.h-badge{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px}
+.h-badge-text{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+.pulse{width:7px;height:7px;background:var(--orange);border-radius:50%}
+#hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,5vw,54px);line-height:1.06;color:var(--navy);margin-bottom:16px}
+#hero h1 em{font-style:italic;color:var(--orange)}
+.hero-sub{font-size:17px;line-height:1.65;color:var(--gray);font-weight:300;max-width:620px;margin-bottom:24px}
+.hero-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn-primary{display:inline-block;background:var(--orange);color:#fff;font-weight:600;font-size:15px;text-decoration:none;border-radius:3px;padding:14px 30px;transition:all .2s}
+.btn-primary:hover{background:var(--orange-h);transform:translateY(-2px)}
+.cta-note{font-family:var(--mono);font-size:12px;color:var(--gray)}
+
+/* ── ADMIN PANEL ── */
+#sa-admin{display:none;background:var(--white);border-bottom:1px solid var(--line);padding:24px 32px}
+.sa-admin-in{max-width:820px;margin:0 auto}
+.sa-admin-in h2{font-family:var(--serif);font-size:22px;color:var(--navy);margin-bottom:4px}
+.sa-admin-in .sa-hint{font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:16px}
+.sa-field{margin-bottom:14px}
+.sa-field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
+.sa-field input,.sa-field textarea{width:100%;background:var(--light);border:1px solid var(--border2);border-radius:5px;padding:10px 12px;font-size:14px;font-family:var(--body);color:var(--ink);outline:none}
+.sa-field textarea{min-height:120px;resize:vertical;font-family:var(--mono);font-size:13px}
+.sa-field input:focus,.sa-field textarea:focus{border-color:var(--orange)}
+.sa-run{background:var(--navy);color:#fff;border:0;border-radius:4px;padding:11px 24px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.sa-run:hover{background:var(--navy-mid)}
+.sa-status{font-family:var(--mono);font-size:12px;color:var(--gray);margin-top:10px}
+
+/* ── PUBLIC ANALYZER ── */
+#pub{background:var(--white);border-bottom:1px solid var(--line);padding:40px 32px}
+.pub-in{max-width:820px;margin:0 auto}
+.pub-in h2{font-family:var(--serif);font-weight:700;font-size:clamp(26px,3.5vw,38px);color:var(--navy);margin-bottom:8px}
+.pub-sub{font-size:15px;color:var(--gray);font-weight:300;margin-bottom:20px;max-width:600px}
+.pub-card{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:22px}
+.pub-field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
+.pub-field textarea{width:100%;min-height:110px;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:13px;color:var(--ink);outline:none;resize:vertical}
+.pub-field textarea:focus{border-color:var(--orange)}
+.pub-analyze{margin-top:12px;background:var(--orange);color:#fff;border:0;border-radius:4px;padding:12px 26px;font-weight:600;font-size:15px;cursor:pointer}
+.pub-analyze:hover{background:var(--orange-h)}
+.pub-result{display:none;margin-top:20px}
+.pub-result.show{display:block}
+.pub-rhead{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--navy);margin-bottom:4px}
+.pub-rsub{font-family:var(--mono);font-size:11px;color:var(--gray);margin-bottom:14px}
+.pub-group{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:14px;color:var(--ink)}
+.pub-group .pg-cat{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--cut);display:block;margin-bottom:3px}
+.pub-group b{color:var(--navy);font-weight:600}
+.pub-gate{margin-top:18px;border-top:1px dashed var(--line);padding-top:18px}
+.pub-gate .pg-h{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--navy);margin-bottom:4px}
+.pub-gate .pg-p{font-size:13.5px;color:var(--gray);margin-bottom:14px}
+.pub-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pub-form .f-full{grid-column:1/-1}
+.pub-form input{width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-size:14px;font-family:var(--body);color:var(--ink);outline:none}
+.pub-form input:focus{border-color:var(--orange)}
+.pub-send{grid-column:1/-1;background:var(--navy);color:#fff;border:0;border-radius:4px;padding:12px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.pub-send:hover{background:var(--navy-mid)}
+.pub-msg{font-family:var(--mono);font-size:12px;color:var(--gray);margin-top:4px;grid-column:1/-1}
+.pub-success{display:none;background:#eef6f0;border:1px solid rgba(74,158,107,.35);border-radius:8px;padding:18px;color:#2f7a4f;font-size:14px;line-height:1.5}
+.pub-success.show{display:block}
+.pub-success a{color:var(--navy);font-weight:600}
+@media(max-width:600px){.pub-form{grid-template-columns:1fr}}
+
+/* ── STATE BADGE ── */
+.sa-stage{background:var(--light);padding:14px 32px;border-bottom:1px solid var(--line)}
+.sa-stage-in{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wh-badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.wh-badge.demo{background:#eef2f8;color:var(--navy);border:1px solid #c3cee0}
+.wh-badge.admin{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35)}
+.sa-stage-note{font-size:12.5px;color:var(--gray)}
+
+/* ── REPORT WRAP ── */
+.report-wrap{padding:30px 16px}
+
+/* ===== REPORT SHEET (the deliverable) ===== */
+.sheet{width:100%;max-width:820px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px -24px rgba(7,21,47,.45)}
+.hd{background:var(--navy);color:#fff;padding:24px 34px;display:flex;justify-content:space-between;align-items:flex-end}
+.htitle{text-align:right}
+.htitle .doc-title{font-family:var(--serif);font-weight:600;font-size:27px;line-height:1.05;color:#fff}
+.htitle .meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#9fb0cc;margin-top:5px}
+.lead{padding:18px 34px;background:var(--cream);border-bottom:1px solid var(--line)}
+.lead .bluf{font-family:var(--serif);font-weight:600;font-size:21px;line-height:1.2;color:var(--navy)}
+.lead .inaction{font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--cut);margin-top:6px}
+.lead p{font-size:13px;line-height:1.5;color:var(--gray);max-width:680px;margin-top:11px}
+.hero-row{display:grid;grid-template-columns:1fr 1fr 1.3fr;background:var(--light);border-bottom:1px solid var(--line)}
+.cell{padding:22px 34px;border-right:1px solid var(--line)}
+.cell:last-child{border-right:0;background:var(--cream)}
+.lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray)}
+.num{font-family:var(--serif);font-weight:600;font-size:38px;line-height:1;margin-top:8px;color:var(--navy)}
+.cell.save .num{color:var(--orange);font-size:46px}
+.subm{font-family:var(--mono);font-size:12px;color:var(--gray);margin-top:6px}
+.subm b{color:var(--ink);font-weight:500}
+.conline{padding:14px 34px;font-family:var(--body);font-size:14px;color:var(--ink);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.conline b{font-weight:600}
+.pill{font-family:var(--mono);font-size:11px;background:var(--navy);color:#fff;padding:3px 9px;border-radius:20px}
+.tbl{padding:8px 34px 2px}
+.trow{display:grid;grid-template-columns:2fr .85fr 1fr 1fr;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);column-gap:8px}
+.trow.head{border-bottom:1.5px solid var(--ink);padding:8px 0}
+.trow.head span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray)}
+.tname{display:flex;align-items:center;gap:7px;font-weight:500;font-size:14.5px}
+.tlogo{width:18px;height:18px;border-radius:4px;flex:none;object-fit:contain;background:#fff}
+.tlink{color:var(--navy);text-decoration:none}
+.tlink:hover{text-decoration:underline}
+.tcell .tmeta{font-size:12px;color:var(--gray);margin-top:2px}
+.tcost{display:flex;align-items:center;gap:2px;justify-self:start}
+.tcost .cur{color:var(--gray);font-family:var(--mono);font-size:13px}
+.tcost input{width:62px;font-family:var(--mono);font-size:13.5px;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 6px;text-align:right;background:#fff}
+.tren input{font-family:var(--mono);font-size:12.5px;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:#fff;width:130px}
+.tcost input:focus,.tren input:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:transparent}
+.badge{justify-self:start;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:3px 10px;border-radius:20px;border:1px solid;white-space:nowrap}
+.keep{color:var(--navy);border-color:#c3cee0;background:#eef2f8}
+.watch{color:var(--watch);border-color:#e0d4b0;background:#faf6ea}
+.repl{color:var(--cut);background:#fbeae7;border-color:#e7c3bd}
+.cut{color:#fff;border-color:var(--cut);background:var(--cut)}
+.trow.isgone .tname{text-decoration:line-through;text-decoration-color:#c9938c;color:var(--gray)}
+.trow.isgone .tlink{color:var(--gray)}
+.trow.isgone .tcost input{background:#fbeae7;border-color:#e7c3bd}
+.note{padding:8px 34px 0;font-family:var(--mono);font-size:10.5px;color:var(--gray)}
+.seq{padding:16px 34px 22px}
+.seq .seq-h{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--navy);margin-bottom:4px}
+.seq .seqsub{font-family:var(--mono);font-size:10.5px;color:var(--gray);margin-bottom:10px}
+.step{display:flex;gap:12px;padding:5px 0;font-size:13.5px;color:var(--ink);align-items:baseline}
+.stepn{font-family:var(--mono);font-size:12px;color:var(--navy);font-weight:500;min-width:18px}
+.step .when{font-family:var(--mono);font-size:11px;color:var(--gray)}
+.ft{background:var(--deep);color:#9fb0cc;padding:16px 34px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ft .l{font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.btn-export{font-family:var(--body);font-weight:500;font-size:13px;background:var(--orange);color:#fff;border:0;border-radius:8px;padding:9px 18px;cursor:pointer}
+.btn-export:hover{filter:brightness(1.05)}
+
+/* ── CTA CLOSE ── */
+#cta-close{background:var(--navy-deep);color:#fff;padding:64px 32px}
+.cta-in{max-width:820px;margin:0 auto;display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;align-items:center}
+#cta-close h2{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-height:1.1;color:#fff}
+#cta-close p{font-size:15px;line-height:1.7;color:#9fb0cc;font-weight:300;max-width:420px;margin-top:10px}
+.cta-note-sm{display:block;font-family:var(--mono);font-size:11px;color:#9fb0cc;margin-top:10px}
+
+/* ── FOOTER ── */
+#footer{background:#050e22;padding:32px}
+.fi{max-width:820px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.flogo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#F7F4EF;font-family:var(--serif);font-size:17px}
+.flogo em{font-style:normal;color:var(--orange);font-weight:700}
+.fnav{list-style:none;display:flex;gap:20px;flex-wrap:wrap}
+.fnav a{color:rgba(247,244,239,.6);text-decoration:none;font-size:13px}
+.fnav a:hover{color:rgba(247,244,239,.95)}
+.fcopy{font-family:var(--mono);font-size:11px;color:rgba(247,244,239,.4)}
+
+@media (max-width:760px){
+  #nav{padding:0 18px}
+  .nav-links{display:none}
+  .burger{display:flex}
+}
+@media (max-width:620px){
+  .hero-row{grid-template-columns:1fr}
+  .cell{border-right:0;border-bottom:1px solid var(--line)}
+  .trow.head{display:none}
+  .trow{grid-template-columns:1fr 1fr;row-gap:8px;padding:12px 0}
+  .tcell{grid-column:1/-1}
+  .tren input{width:100%}
+  .badge{justify-self:end}
+}
+@media print{
+  @page{size:Letter;margin:0}
+  body{background:#fff;padding:0}
+  #nav,.drawer,#hero,#sa-admin,.sa-stage,#cta-close,#footer,.no-print,#cc-auth-overlay{display:none!important}
+  .report-wrap{padding:0}
+  .sheet{box-shadow:none;border-radius:0;max-width:none}
+  .tcost input,.tren input{border:0;padding:0;background:transparent}
+  .tcost input{width:auto}.tren input{width:auto}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hero-row .num{font-size:32px}.cell.save .num{font-size:38px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="../index.html" class="nav-logo" aria-label="The Clear Stack home">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bidx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="midx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="tidx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#bidx)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#midx)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#tidx)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <span class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </span>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../about.html">Founder</a></li>
+    <li><a href="index.html" class="active">Lab</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="lock-btn" id="cc-lock-btn" onclick="ccLockClick()" title="Admin login" aria-label="Admin login">&#128274;</button>
+    <a href="../contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../about.html">Founder</a></li>
+    <li><a href="index.html">Lab</a></li>
+    <li><a href="../contact.html" class="d-cta">Work With Us &rarr;</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-in">
+    <div class="h-badge"><span class="pulse"></span><span class="h-badge-text">Lab · Stack Analyzer</span></div>
+    <h1>See what your software stack <em>consolidates to</em>.</h1>
+    <p class="hero-sub">Most mid market companies pay for tools that quietly do the same job. The Stack Analyzer maps the overlap, shows what to keep, replace, or cut, and puts the savings in your own numbers, on one page.</p>
+    <div class="hero-cta">
+      <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener" class="btn-primary">Book a Working Session</a>
+      <span class="cta-note">30 minutes. No commitment.</span>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLIC ANALYZER -->
+<section id="pub">
+  <div class="pub-in">
+    <h2>Is your stack paying twice?</h2>
+    <p class="pub-sub">List the tools you pay for, one per line. We'll flag where they overlap on the spot. The full report — the exact keep, replace, or cut plan and the savings in your numbers — lands in your inbox.</p>
+    <div class="pub-card">
+      <div class="pub-field">
+        <label>Your tools — one per line (name or website)</label>
+        <textarea id="pub-tools" placeholder="klaviyo.com&#10;attentive&#10;gorgias&#10;help scout&#10;yotpo&#10;okendo"></textarea>
+      </div>
+      <button class="pub-analyze" onclick="pubAnalyze()">Analyze my stack</button>
+
+      <div class="pub-result" id="pub-result">
+        <div class="pub-rhead" id="pub-rhead"></div>
+        <div class="pub-rsub" id="pub-rsub"></div>
+        <div id="pub-groups"></div>
+
+        <div class="pub-gate" id="pub-gate">
+          <div class="pg-h">Get your full one page report</div>
+          <div class="pg-p">The keep / replace / cut plan, a renewal ordered sequence, and the savings calculated from your own costs.</div>
+          <div class="pub-form">
+            <input type="text" name="_hp" id="pub-hp" style="display:none" tabindex="-1" autocomplete="off">
+            <input class="f-full" type="text" id="pub-name" placeholder="Your name">
+            <input type="email" id="pub-email" placeholder="Work email">
+            <input type="text" id="pub-company" placeholder="Company">
+            <button class="pub-send" onclick="pubSend()">Send my report</button>
+            <div class="pub-msg" id="pub-msg"></div>
+          </div>
+        </div>
+
+        <div class="pub-success" id="pub-success">
+          <strong>On its way.</strong> We'll email your full consolidation report shortly. Want to walk through it live? <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener">Book a working session</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATE BADGE -->
+<div class="sa-stage">
+  <div class="sa-stage-in">
+    <span class="wh-badge demo" id="cc-demo-badge">Demo Mode</span>
+    <span class="sa-stage-note" id="sa-stage-note">Below: a sample of the full report. Run your own stack above for an instant read.</span>
+  </div>
+</div>
+
+<!-- ADMIN INPUT (revealed on unlock) -->
+<section id="sa-admin">
+  <div class="sa-admin-in">
+    <h2>Run an analysis</h2>
+    <div class="sa-hint">Admin only. Enter a client's stack and run it through the engine.</div>
+    <div class="sa-field">
+      <label>Company name</label>
+      <input type="text" id="sa-company" placeholder="Acme Co.">
+    </div>
+    <div class="sa-field">
+      <label>Tools — one per line (name or domain)</label>
+      <textarea id="sa-tools" placeholder="klaviyo.com&#10;attentive.com&#10;gorgias.com&#10;help scout"></textarea>
+    </div>
+    <button class="sa-run" onclick="ccRunAnalysis()">Run analysis</button>
+    <div class="sa-status" id="sa-status"></div>
+  </div>
+</section>
+
+<!-- REPORT SHEET -->
+<div class="report-wrap">
+  <div class="sheet" id="sheet">
+    <div class="hd">
+      <a class="nav-logo" href="../index.html" aria-label="The Clear Stack home">
+        <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="rbidx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+            <linearGradient id="rmidx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+            <linearGradient id="rtidx" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+          </defs>
+          <polygon points="4,50 32,36 60,50 32,64" fill="url(#rbidx)"/>
+          <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+          <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+          <polygon points="4,36 32,22 60,36 32,50" fill="url(#rmidx)"/>
+          <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+          <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+          <polygon points="4,22 32,8 60,22 32,36" fill="url(#rtidx)"/>
+          <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+          <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+        </svg>
+        <span class="logo-wm">
+          <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+          <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+        </span>
+      </a>
+      <div class="htitle">
+        <div class="doc-title">Stack Consolidation Report</div>
+        <div class="meta">Harbor &amp; Hyde · Sample · June 2026</div>
+      </div>
+    </div>
+
+    <div class="lead">
+      <div class="bluf" id="blufLine">&mdash;</div>
+      <div class="inaction" id="inactionLine"></div>
+      <p>This report maps your software stack, flags where tools overlap, and shows what to keep,
+        replace, or cut. Every saving is calculated from the costs you enter — edit any figure below
+        and the numbers, plus the sequence, update live. Replacements are tools you already pay for,
+        not new purchases.</p>
+    </div>
+
+    <div class="hero-row">
+      <div class="cell"><div class="lab">Current / mo</div><div class="num" id="cur">$0</div><div class="subm" id="curYr">$0 / yr</div></div>
+      <div class="cell"><div class="lab">Consolidated / mo</div><div class="num" id="con">$0</div><div class="subm" id="conCt">0 core tools</div></div>
+      <div class="cell save"><div class="lab">You save / mo</div><div class="num" id="sav">$0</div><div class="subm"><b id="savYr">$0 / yr</b> · <span id="pct">0%</span> of spend</div></div>
+    </div>
+
+    <div class="conline">
+      Your stack: <b id="fromCt">0</b>&nbsp;tools <span class="pill">consolidates to</span> <b id="toCt">0</b>&nbsp;core tools
+    </div>
+
+    <div class="tbl" id="tbl">
+      <div class="trow head"><span>Tool</span><span>Monthly</span><span>Renewal</span><span>Action</span></div>
+    </div>
+    <div class="note">Costs and renewal dates are estimates — edit any field to the client's actual invoice and every number, plus the sequence, updates live. Your savings is the monthly cost of the tools marked Replace or Cut (shaded red). Editing a Keep tool changes your spend, not your savings.</div>
+
+    <div class="seq">
+      <div class="seq-h">Consolidation sequence</div>
+      <div class="seqsub">Ordered by soonest renewal — act before each contract auto-renews</div>
+      <div id="seqlist"></div>
+    </div>
+
+    <div class="ft">
+      <span class="l">The Clear Stack · 4C: Catalog → Consolidate → Connect → Coach · theclearstack.com</span>
+      <button class="btn-export no-print" onclick="window.print()">Export PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- CTA CLOSE -->
+<section id="cta-close">
+  <div class="cta-in">
+    <div>
+      <h2>Let us clear<br>your stack.</h2>
+      <p>Start with a working session. We map your AI spend, find the waste, and tell you exactly what consolidation looks like for your business.</p>
+    </div>
+    <div>
+      <a href="https://calendar.app.google/xwjtMtmxEiw68Qpo8" target="_blank" rel="noopener" class="btn-primary" style="font-size:16px;padding:16px 36px;">Book a Working Session</a>
+      <span class="cta-note-sm">30 minutes. No commitment.</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="fi">
+    <a href="../index.html" class="flogo">the <em>clear</em> stack</a>
+    <ul class="fnav">
+      <li><a href="../index.html">Services</a></li>
+      <li><a href="../method.html">Method</a></li>
+      <li><a href="../usecases.html">Use Cases</a></li>
+      <li><a href="../about.html">Founder</a></li>
+      <li><a href="index.html">Lab</a></li>
+      <li><a href="../contact.html">Contact</a></li>
+    </ul>
+    <span class="fcopy">© 2026 The Clear Stack · theclearstack.com</span>
+  </div>
+</footer>
+
+<!-- ADMIN AUTH MODAL (same flow as Wheelhouse) -->
+<div id="cc-auth-overlay" style="display:none;position:fixed;inset:0;background:rgba(7,21,47,0.85);align-items:center;justify-content:center;z-index:2400;padding:20px;">
+  <div style="background:var(--white);border-radius:14px;padding:32px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(7,21,47,0.3);">
+    <div style="font-size:28px;margin-bottom:12px;">&#128274;</div>
+    <div style="font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:8px;">Admin Access</div>
+    <div style="color:var(--gray);font-size:13px;margin-bottom:20px;">Enter the admin password to unlock the analyzer.</div>
+    <div style="text-align:left;margin-bottom:14px;">
+      <label style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:6px;">Password</label>
+      <input type="password" id="cc-auth-input" placeholder="********" style="width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;font-size:14px;outline:none;font-family:var(--font-body);box-sizing:border-box;" onkeydown="if(event.key==='Enter')ccAuthSubmit()" />
+    </div>
+    <div id="cc-auth-error" style="display:none;background:#fff5f5;border:1px solid rgba(220,53,69,0.2);border-radius:4px;padding:10px 14px;color:#c0392b;font-size:13px;margin-bottom:14px;text-align:left;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="ccAuthSubmit()" id="cc-auth-btn" style="flex:1;padding:11px;background:var(--navy);border:none;border-radius:3px;color:var(--cream);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">Unlock</button>
+      <button onclick="ccAuthCancel()" style="padding:11px 18px;background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--gray);font-family:var(--font-body);font-size:13px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════ AUTH — same flow as the Wheelhouse ════════════
+   Browser never holds the service key. Password -> /api/auth -> token
+   in sessionStorage('cc_token'). Admin reveals the analyzer input. */
+let ccIsAdmin=false, ccToken=null;
+function ssGet(k){ try{return sessionStorage.getItem(k);}catch(e){return null;} }
+function ssSet(k,v){ try{sessionStorage.setItem(k,v);}catch(e){} }
+function ssDel(k){ try{sessionStorage.removeItem(k);}catch(e){} }
+function ccLockClick(){
+  if(ccIsAdmin){ ccIsAdmin=false; ccToken=null; ssDel('cc_token'); ccUpdateAdminUI(); }
+  else{
+    document.getElementById('cc-auth-overlay').style.display='flex';
+    document.getElementById('cc-auth-input').value='';
+    document.getElementById('cc-auth-error').style.display='none';
+    setTimeout(()=>document.getElementById('cc-auth-input').focus(),100);
+  }
+}
+async function ccAuthSubmit(){
+  const pw=document.getElementById('cc-auth-input').value;
+  const btn=document.getElementById('cc-auth-btn'), err=document.getElementById('cc-auth-error');
+  if(!pw) return;
+  btn.textContent='Checking…'; btn.disabled=true; err.style.display='none';
+  try{
+    const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    let data={}; try{data=await res.json();}catch(_){}
+    if(!res.ok||!data.token) throw new Error(data.error||(res.status===404?'Login endpoint not found — deploy functions/api/auth.js':'Incorrect password'));
+    ccIsAdmin=true; ccToken=data.token; ssSet('cc_token',data.token);
+    document.getElementById('cc-auth-overlay').style.display='none';
+    ccUpdateAdminUI();
+  }catch(e){
+    err.textContent=e.message; err.style.display='block';
+    document.getElementById('cc-auth-input').value=''; document.getElementById('cc-auth-input').focus();
+  }
+  btn.textContent='Unlock'; btn.disabled=false;
+}
+function ccAuthCancel(){ document.getElementById('cc-auth-overlay').style.display='none'; }
+function ccUpdateAdminUI(){
+  const lockBtn=document.getElementById('cc-lock-btn');
+  const badge=document.getElementById('cc-demo-badge');
+  const note=document.getElementById('sa-stage-note');
+  const panel=document.getElementById('sa-admin');
+  if(ccIsAdmin){
+    lockBtn.textContent='\uD83D\uDD13'; lockBtn.classList.add('unlocked'); lockBtn.title='Admin — click to lock';
+    badge.textContent='Admin'; badge.className='wh-badge admin';
+    note.textContent='Admin mode. Enter a stack above and run the analyzer.';
+    panel.style.display='block';
+  }else{
+    lockBtn.textContent='\uD83D\uDD12'; lockBtn.classList.remove('unlocked'); lockBtn.title='Admin login';
+    badge.textContent='Demo Mode'; badge.className='wh-badge demo';
+    note.textContent='Below: a sample of the full report. Run your own stack above for an instant read.';
+    panel.style.display='none';
+  }
+}
+(function ccRestoreSession(){ const t=ssGet('cc_token'); if(t){ccIsAdmin=true;ccToken=t;} })();
+
+/* Admin: run a real analysis (wires to the engine at Step 4). */
+async function ccRunAnalysis(){
+  const company=document.getElementById('sa-company').value.trim();
+  const raw=document.getElementById('sa-tools').value.trim();
+  const tools=raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const status=document.getElementById('sa-status');
+  if(!tools.length){ status.textContent='Enter at least one tool.'; return; }
+  status.textContent='Running…';
+  try{
+    const res=await fetch('/api/analyze',{method:'POST',headers:Object.assign({'Content-Type':'application/json'}, ccToken?{'Authorization':'Bearer '+ccToken}:{}),body:JSON.stringify(Object.assign({company:company,tools:tools}, saProvenance('stack_analyzer_admin')))});
+    if(!res.ok) throw new Error(res.status===404?'Engine not connected yet — deploy functions/api/analyze.js (Step 4).':'Analyze failed ('+res.status+').');
+    const data=await res.json();
+    status.textContent='Analysis complete.';
+    /* Step 4: render data.report into the sheet here. */
+  }catch(e){ status.textContent=e.message; }
+}
+
+/* ════════════ REPORT SHEET (sample data, real tool names) ════════════ */
+const TOOLS=[
+  {n:'Gorgias',      web:'gorgias.com',         cat:'Support',       use:'Helpdesk and live chat for Shopify', cost:360,  ren:'2026-09', act:'keep'},
+  {n:'Help Scout',   web:'helpscout.com',       cat:'Support',       cost:200,  ren:'2026-03', act:'replace', repl:'Gorgias',       why:'overlaps Gorgias; tickets export and import cleanly'},
+  {n:'Klaviyo',      web:'klaviyo.com',         cat:'Email & SMS',   use:'Email and SMS marketing',            cost:500,  ren:'2026-11', act:'keep'},
+  {n:'Attentive',    web:'attentive.com',       cat:'SMS',           cost:400,  ren:'2026-05', act:'replace', repl:'Klaviyo',       why:'SMS already lives in Klaviyo; run one flow tool'},
+  {n:'Okendo',       web:'okendo.io',           cat:'Reviews',       use:'Product reviews and UGC',            cost:250,  ren:'2026-08', act:'keep'},
+  {n:'Yotpo',        web:'yotpo.com',           cat:'Reviews',       cost:300,  ren:'2026-04', act:'replace', repl:'Okendo',        why:'reviews duplicate Okendo; merge widgets and UGC'},
+  {n:'Triple Whale', web:'triplewhale.com',     cat:'Attribution',   use:'Ecommerce attribution and reporting',cost:300,  ren:'2026-10', act:'keep'},
+  {n:'Northbeam',    web:'northbeam.io',        cat:'Attribution',   cost:1000, ren:'2026-07', act:'replace', repl:'Triple Whale',  why:'attribution overlaps Triple Whale; one source of truth'},
+  {n:'Hotjar',       web:'hotjar.com',          cat:'Behavior',      cost:120,  ren:'2026-02', act:'cut',                            why:'low ongoing usage; not core to revenue'},
+  {n:'Justuno',      web:'justuno.com',         cat:'Onsite',        use:'Popups and email capture',           cost:100,  ren:'2026-12', act:'keep'},
+  {n:'OptiMonk',     web:'optimonk.com',        cat:'Onsite',        cost:80,   ren:'2026-06', act:'replace', repl:'Justuno',       why:'popups duplicate Justuno; merge capture forms'},
+  {n:'Recharge',     web:'rechargepayments.com',cat:'Subscriptions', use:'Subscriptions and recurring billing',cost:300,  ren:'2027-01', act:'keep'},
+  {n:'Smile.io',     web:'smile.io',            cat:'Loyalty',       use:'Loyalty and rewards',                cost:200,  ren:'2026-09', act:'watch'},
+  {n:'Klarna',       web:'klarna.com',          cat:'BNPL',          use:'Buy now, pay later',                 cost:0,    ren:'2026-10', act:'keep'},
+  {n:'Afterpay',     web:'afterpay.com',        cat:'BNPL',          cost:0,    ren:'2026-02', act:'replace', repl:'Klarna',        why:'second BNPL adds checkout clutter; standardize on one'}
+];
+
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const money=v=>'$'+Math.round(v).toLocaleString('en-US');
+const monthLabel=ym=>{ if(!ym) return 'no date'; const p=ym.split('-'); return MONTHS[(+p[1])-1]+' '+p[0]; };
+
+/* Logo source: logo.dev when a key is set, else favicon. Domain-derived at
+   runtime so a new tool that was never logged still shows a logo. */
+const LOGO_DEV_TOKEN='';
+const favicon=d=>'https://www.google.com/s2/favicons?domain='+d+'&sz=64';
+const logoSrc=d=> LOGO_DEV_TOKEN ? 'https://img.logo.dev/'+d+'?token='+LOGO_DEV_TOKEN+'&size=64&format=png&fallback=404' : favicon(d);
+function logoImg(t){
+  const fb = LOGO_DEV_TOKEN ? favicon(t.web) : '';
+  return '<img class="tlogo" src="'+logoSrc(t.web)+'" alt="" data-fb="'+fb+'" '+
+    'onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.dataset.fb=\'\';}else{this.style.display=\'none\';this.onerror=null;}">';
+}
+const kept=a=>a==='keep'||a==='watch';
+const gone=a=>a==='cut'||a==='replace';
+
+const tbl=document.getElementById('tbl');
+const seqlist=document.getElementById('seqlist');
+
+function badgeFor(t){
+  if(t.act==='keep')   return '<span class="badge keep">Keep</span>';
+  if(t.act==='watch')  return '<span class="badge watch">Keep · watch</span>';
+  if(t.act==='cut')    return '<span class="badge cut">Cut</span>';
+  return '<span class="badge repl">Replace → '+t.repl+'</span>';
+}
+function metaFor(t){ return gone(t.act) ? (t.cat+' · '+t.why) : t.cat; }
+
+TOOLS.forEach((t,i)=>{
+  const row=document.createElement('div');
+  row.className='trow'+(gone(t.act)?' isgone':'');
+  row.innerHTML=
+    '<div class="tcell"><div class="tname">'+
+      logoImg(t)+
+      '<a class="tlink" href="https://'+t.web+'" target="_blank" rel="noopener">'+t.n+'</a></div>'+
+      '<div class="tmeta">'+metaFor(t)+'</div></div>'+
+    '<div class="tcost"><span class="cur">$</span>'+
+      '<input type="number" min="0" step="10" value="'+t.cost+'" aria-label="'+t.n+' monthly cost" data-cost="'+i+'"></div>'+
+    '<div class="tren"><input type="month" value="'+t.ren+'" aria-label="'+t.n+' renewal date" data-ren="'+i+'"></div>'+
+    '<div>'+badgeFor(t)+'</div>';
+  tbl.appendChild(row);
+});
+
+function recompute(){
+  let current=0, consolidated=0, keepCt=0, removeCt=0;
+  TOOLS.forEach((t,i)=>{
+    const cEl=document.querySelector('input[data-cost="'+i+'"]');
+    const rEl=document.querySelector('input[data-ren="'+i+'"]');
+    t.cost=parseFloat(cEl.value)||0;
+    t.ren=rEl.value||'';
+    current+=t.cost;
+    if(kept(t.act)){consolidated+=t.cost; keepCt++;} else {removeCt++;}
+  });
+  const savings=current-consolidated;
+  const pct=current>0?Math.round(savings/current*100):0;
+  document.getElementById('cur').textContent=money(current);
+  document.getElementById('curYr').textContent=money(current*12)+' / yr';
+  document.getElementById('con').textContent=money(consolidated);
+  document.getElementById('conCt').textContent=keepCt+' core tools';
+  document.getElementById('sav').textContent=money(savings);
+  document.getElementById('savYr').textContent=money(savings*12)+' / yr saved';
+  document.getElementById('pct').textContent=pct+'%';
+  document.getElementById('fromCt').textContent=TOOLS.length;
+  document.getElementById('toCt').textContent=keepCt;
+  const bluf = removeCt>0
+    ? "You're spending "+money(savings*12)+" / yr on "+removeCt+" tool"+(removeCt===1?'':'s')+" that duplicate tools you already run."
+    : "No same-category redundancy found in the tools entered.";
+  document.getElementById('blufLine').textContent=bluf;
+  document.getElementById('inactionLine').textContent =
+    savings>0 ? "Every quarter you wait costs about "+money(savings*3)+"." : "";
+  buildSequence();
+}
+
+function buildSequence(){
+  const removals=TOOLS.filter(t=>gone(t.act)).slice().sort((a,b)=>{
+    if(!a.ren) return 1; if(!b.ren) return -1; return a.ren<b.ren?-1:a.ren>b.ren?1:0;
+  });
+  seqlist.innerHTML='';
+  removals.forEach((t,idx)=>{
+    const action = t.act==='cut'
+      ? 'Cancel '+t.n+' — nothing replaces it.'
+      : 'Migrate '+t.n+' into '+t.repl+', then cancel '+t.n+'.';
+    const div=document.createElement('div');
+    div.className='step';
+    div.innerHTML='<span class="stepn">'+(idx+1)+'</span>'+
+      '<span><span class="when">'+monthLabel(t.ren)+'</span> — '+action+'</span>';
+    seqlist.appendChild(div);
+  });
+}
+
+tbl.addEventListener('input',recompute);
+tbl.addEventListener('change',recompute);
+recompute();
+
+/* ════════════ PUBLIC LIGHT ANALYSIS (client-side teaser) ════════════
+   A small, common-knowledge category map — NOT the full tool_library.
+   It only flags same-category overlap. The directional keep/replace/cut
+   plan, talk tracks, and exact savings stay server-side / gated. */
+const SA_LIB={
+  'gorgias':'Support','zendesk':'Support','help scout':'Support','helpscout':'Support','intercom':'Support','re:amaze':'Support','reamaze':'Support','gladly':'Support','kustomer':'Support','freshdesk':'Support','tidio':'Support',
+  'klaviyo':'Messaging','mailchimp':'Messaging','omnisend':'Messaging','sendlane':'Messaging','drip':'Messaging',
+  'attentive':'Messaging','postscript':'Messaging','emotive':'Messaging','smsbump':'Messaging',
+  'okendo':'Reviews','yotpo':'Reviews','stamped':'Reviews','judge.me':'Reviews','judgeme':'Reviews','loox':'Reviews','junip':'Reviews','reviews.io':'Reviews',
+  'triple whale':'Attribution','triplewhale':'Attribution','northbeam':'Attribution','rockerbox':'Attribution','elevar':'Attribution',
+  'google analytics':'Analytics','ga4':'Analytics','heap':'Analytics','mixpanel':'Analytics','amplitude':'Analytics',
+  'hotjar':'Behavior','lucky orange':'Behavior','fullstory':'Behavior','clarity':'Behavior',
+  'recharge':'Subscriptions','skio':'Subscriptions','loop':'Subscriptions','smartrr':'Subscriptions','ordergroove':'Subscriptions',
+  'smile':'Loyalty','smile.io':'Loyalty','loyaltylion':'Loyalty',
+  'klarna':'BNPL','afterpay':'BNPL','affirm':'BNPL','sezzle':'BNPL',
+  'justuno':'Onsite','optimonk':'Onsite','privy':'Onsite','wisepops':'Onsite','optinmonster':'Onsite',
+  'searchspring':'Search','algolia':'Search','klevu':'Search','nosto':'Personalization','rebuy':'Personalization',
+  'hubspot':'CRM','salesforce':'CRM',
+  'shogun':'Page builder','replo':'Page builder','pagefly':'Page builder','gempages':'Page builder'
+};
+function saNorm(s){ return s.toLowerCase().trim().replace(/^https?:\/\//,'').replace(/^www\./,'').split('/')[0]; }
+function saCat(s){ const x=saNorm(s); return SA_LIB[x] || SA_LIB[x.replace(/\.(com|io|co|me|app|ai|net)$/,'')] || null; }
+
+/* Provenance — every lead/record records where it came from. */
+let saLastResult=null;
+function saProvenance(form){
+  let utm={};
+  try{ const u=new URL(window.location.href); ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k=>{const v=u.searchParams.get(k); if(v) utm[k]=v;}); }catch(e){}
+  return {
+    source:'stack_analyzer',
+    source_page: (typeof location!=='undefined'&&location.pathname)||'',
+    source_url: (typeof location!=='undefined'&&location.href)||'',
+    source_form: form,
+    referrer: (typeof document!=='undefined'&&document.referrer)||'',
+    utm: utm,
+    submitted_at: new Date().toISOString()
+  };
+}
+
+function pubAnalyze(){
+  const raw=document.getElementById('pub-tools').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!raw.length){ return; }
+  const byCat={}; let recognized=0;
+  raw.forEach(r=>{ const c=saCat(r); if(c){ recognized++; (byCat[c]=byCat[c]||[]).push(r); } });
+  const groups=Object.keys(byCat).filter(c=>byCat[c].length>=2).map(c=>({cat:c,tools:byCat[c]}));
+  saLastResult={groups:groups,recognized:recognized,total:raw.length};
+  const head=document.getElementById('pub-rhead'), sub=document.getElementById('pub-rsub'), g=document.getElementById('pub-groups');
+  document.getElementById('pub-success').classList.remove('show');
+  document.getElementById('pub-gate').style.display='block';
+  document.getElementById('pub-msg').textContent='';
+  if(groups.length){
+    head.textContent='Found '+groups.length+' likely redundanc'+(groups.length===1?'y':'ies')+' in your stack.';
+  }else{
+    head.textContent='No same-category overlap jumped out — the full audit digs deeper.';
+  }
+  sub.textContent='You entered '+raw.length+' tool'+(raw.length===1?'':'s')+'; we recognized '+recognized+'. The full report covers the rest.';
+  g.innerHTML=groups.map(gr=>'<div class="pub-group"><span class="pg-cat">'+gr.cat+'</span><b>'+gr.tools.join('</b>, <b>')+'</b> do the same job.</div>').join('');
+  const res=document.getElementById('pub-result'); res.classList.add('show'); res.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+async function pubSend(){
+  const name=document.getElementById('pub-name').value.trim();
+  const email=document.getElementById('pub-email').value.trim();
+  const company=document.getElementById('pub-company').value.trim();
+  const hpEl=document.getElementById('pub-hp'); const hp=hpEl?hpEl.value:'';
+  const msg=document.getElementById('pub-msg');
+  const tools=document.getElementById('pub-tools').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(hp){ document.getElementById('pub-gate').style.display='none'; document.getElementById('pub-success').classList.add('show'); return; }
+  if(!name||!email||!company){ msg.textContent='Please add your name, email, and company.'; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.textContent='That email does not look right.'; return; }
+  msg.textContent='Sending…';
+  const parts=name.split(/\s+/); const first_name=parts.shift()||name; const last_name=parts.join(' ');
+  const payload=Object.assign({
+    first_name:first_name, last_name:last_name, email:email, company_name:company, _hp:'',
+    tools:tools, redundancies:(saLastResult&&saLastResult.groups)||[]
+  }, saProvenance('stack_analyzer_public_gate'));
+  try{
+    const res=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    let data={}; try{data=await res.json();}catch(_){}
+    if(!data.success) throw new Error(data.error||'x');
+    document.getElementById('pub-gate').style.display='none';
+    document.getElementById('pub-success').classList.add('show');
+  }catch(e){
+    msg.textContent='Could not submit just now — please book a session and we will run it live.';
+  }
+}
+
+/* nav: drawer + scroll */
+document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
+
+ccUpdateAdminUI();
+</script>
+</body>
+</html>
