@@ -403,6 +403,56 @@
     .wh-win[data-win="kpis"] .wh-kpi{padding:12px 13px;}
     .wh-win[data-win="kpis"] .wh-kpi-val{font-size:23px;}
     .wh-win[data-win="marketing"] .wh-mkt-grid{grid-template-columns:1fr;gap:10px;}
+    /* SYSTEM MAP */
+    .wh-sm-sec{margin-bottom:16px;}
+    .wh-sm-h{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+    .wh-sm-h .wh-sm-num{width:16px;height:16px;border-radius:50%;background:var(--navy);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;}
+    .wh-sm-flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+    .wh-sm-node{display:flex;flex-direction:column;gap:2px;background:var(--white);border:1px solid var(--border2);border-radius:6px;padding:7px 9px;min-width:96px;}
+    .wh-sm-node .nm{font-size:11px;font-weight:600;color:var(--charcoal);line-height:1.2;}
+    .wh-sm-node .sub{font-family:var(--font-mono);font-size:8px;color:var(--gray);letter-spacing:.04em;}
+    .wh-sm-node .st{font-family:var(--font-mono);font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;display:inline-flex;align-items:center;gap:4px;}
+    .wh-sm-node .st::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gray);}
+    .wh-sm-node.on .st{color:var(--live);} .wh-sm-node.on .st::before{background:var(--live);}
+    .wh-sm-node.off .st{color:#b48a28;} .wh-sm-node.off .st::before{background:#d4a93a;}
+    .wh-sm-node.idle .st{color:#9aa3b2;} .wh-sm-node.idle .st::before{background:#c2c9d4;}
+    .wh-sm-node.live .st{color:var(--live);} .wh-sm-node.live .st::before{background:var(--live);}
+    .wh-sm-arrow{color:var(--border2);font-size:14px;flex-shrink:0;}
+    .wh-sm-4c{display:flex;gap:6px;flex-wrap:wrap;}
+    .wh-sm-4c .c{flex:1;min-width:80px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center;}
+    .wh-sm-4c .c b{display:block;font-size:11px;color:var(--navy);}
+    .wh-sm-4c .c span{font-family:var(--font-mono);font-size:8px;color:var(--gray);}
+    .wh-sm-gap{background:rgba(224,123,42,.08);border:1px solid rgba(224,123,42,.28);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--charcoal);margin-bottom:5px;display:flex;gap:7px;align-items:flex-start;}
+    .wh-sm-gap::before{content:'!';flex-shrink:0;width:15px;height:15px;border-radius:50%;background:var(--orange);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    /* BUILD TRACKER */
+    .wh-bt-phase{margin-bottom:14px;}
+    .wh-bt-ph{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);font-weight:500;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+    .wh-bt-ph .ct{color:var(--gray);font-size:8.5px;}
+    .wh-bt-item{display:flex;align-items:flex-start;gap:9px;padding:6px 4px;border-radius:5px;cursor:pointer;transition:background .12s;}
+    .wh-bt-item:hover{background:var(--light);}
+    .wh-bt-box{width:16px;height:16px;border:1.5px solid var(--border2);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;transition:all .12s;}
+    .wh-bt-item.done .wh-bt-box{background:var(--live);border-color:var(--live);}
+    .wh-bt-item.done .wh-bt-lbl{color:var(--gray);text-decoration:line-through;}
+    .wh-bt-lbl{font-size:12px;line-height:1.35;color:var(--charcoal);}
+    .wh-bt-prog{height:4px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px;}
+    .wh-bt-prog i{display:block;height:100%;background:var(--live);transition:width .3s;}
+    /* TOOL LIBRARY */
+    .wh-tl-search{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font-body);margin-bottom:10px;outline:none;}
+    .wh-tl-search:focus{border-color:var(--navy);}
+    .wh-tool{display:flex;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:flex-start;}
+    .wh-tool-ico{width:34px;height:34px;border-radius:7px;flex-shrink:0;object-fit:contain;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-size:14px;}
+    .wh-tool-main{flex:1;min-width:0;}
+    .wh-tool-nm{font-size:13px;font-weight:600;color:var(--charcoal);}
+    .wh-tool-meta{font-family:var(--font-mono);font-size:8.5px;color:var(--gray);letter-spacing:.03em;margin-top:1px;}
+    .wh-tool-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+    .wh-tool-tag{font-family:var(--font-mono);font-size:8px;background:var(--light);border:1px solid var(--border);border-radius:9px;padding:2px 7px;color:var(--gray);}
+    .wh-tool-tag.dtc{background:rgba(62,124,140,.1);color:var(--ops);border-color:rgba(62,124,140,.25);}
+    .wh-tool-tag.shop{background:rgba(74,158,107,.1);color:var(--live);border-color:rgba(74,158,107,.25);}
+    .wh-tool-price{font-size:11px;color:var(--charcoal);font-weight:500;white-space:nowrap;flex-shrink:0;}
+    .wh-tool-doms{margin-top:5px;font-size:10.5px;color:var(--gray);}
+    .wh-tool-doms b{color:var(--navy);font-weight:600;}
+    .wh-tool-dom{display:inline-block;background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin:2px 3px 0 0;font-family:var(--font-mono);font-size:9px;color:var(--slate);}
+    .wh-tl-locked{padding:24px 16px;text-align:center;color:var(--gray);font-size:12px;}
     /* MOBILE: collapse the canvas into a clean stack (drag off, show/hide on) */
     @media(max-width:979px){
       .wh-workspace{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:16px;}
@@ -640,6 +690,33 @@
         <div class="wh-win-body" id="wh-settings-body"></div>
       </section>
 
+      <!-- SYSTEM MAP — System 1 / System 2 / scenarios / channels / gaps -->
+      <section class="wh-win" data-win="sysmap" id="win-sysmap">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'sysmap')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">System Map</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('sysmap')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('sysmap')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-sysmap-body"></div>
+      </section>
+
+      <!-- BUILD TRACKER — live checkable stages/phases -->
+      <section class="wh-win" data-win="tracker" id="win-tracker">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'tracker')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Build Tracker</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('tracker')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('tracker')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-tracker-body"></div>
+      </section>
+
+      <!-- TOOL LIBRARY — admin-only: icons / pricing / details / domains using each -->
+      <section class="wh-win" data-win="toollib" id="win-toollib">
+        <div class="wh-win-bar" onpointerdown="whWinDown(event,'toollib')">
+          <span class="wh-win-grip">⠿</span><span class="wh-win-title">Tool Library</span>
+          <div class="wh-win-tools"><button class="wh-win-ctl" onclick="whWinCollapse('toollib')" title="Collapse">–</button><button class="wh-win-ctl close" onclick="whWinHide('toollib')" title="Close">×</button></div>
+        </div>
+        <div class="wh-win-body" id="wh-toollib-body"></div>
+      </section>
+
     </div>
   </main>
 </div>
@@ -764,6 +841,7 @@ function ccUpdateAdminUI(){
     if(pfTag) pfTag.textContent='Wired · Supabase';
   }
   whRenderSettings(); whRenderWorkforce(); whRenderMarketing();
+  if(ccIsAdmin){ whReadTools().then(whRenderToolLib); } else { WH_TOOLS_LOADED=false; whRenderToolLib(); }
 }
 (function ccRestoreSession(){ const t=sessionStorage.getItem('cc_token'); if(t){ccIsAdmin=true;ccToken=t;} })();
 
@@ -1042,6 +1120,9 @@ const WH_WINS=[
   {id:'marketing',label:'Growth',icon:'mega',def:true},
   {id:'crew',label:'Crew',icon:'people',def:false},
   {id:'pipeline',label:'Pipeline',icon:'flow',def:false},
+  {id:'sysmap',label:'System Map',icon:'map',def:true},
+  {id:'tracker',label:'Build Tracker',icon:'check',def:true},
+  {id:'toollib',label:'Tool Library',icon:'stack',def:false,admin:true},
   {id:'settings',label:'Settings',icon:'gear',def:false}
 ];
 const WH_WIN_STORE='wh_wins_v1';
@@ -1054,7 +1135,10 @@ function whIcon(name){
     flow:'<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6h10M5 8v3a4 4 0 0 0 4 4h1M19 8v3a4 4 0 0 1-4 4h-1"/>',
     mega:'<path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a3 3 0 0 1 0 6"/>',
     gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
-    people:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9" r="2.2"/><path d="M16.5 20a5 5 0 0 1 4.5-5"/>'
+    people:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9" r="2.2"/><path d="M16.5 20a5 5 0 0 1 4.5-5"/>',
+    map:'<path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/>',
+    check:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    stack:'<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 12l10 5 10-5M2 17l10 5 10-5"/>'
   }[name]||'';
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 }
@@ -1071,6 +1155,9 @@ function whDefaultLayout(){
   L.marketing={x:W-396,y:H-340,w:384,h:320};
   L.crew     ={x:W-352,y:354,w:320,h:250};
   L.pipeline ={x:12,y:H-290,w:300,h:260};
+  L.sysmap   ={x:Math.max(12,(W-720)/2),y:40,w:Math.min(720,Math.max(520,W*0.5)),h:Math.min(520,Math.max(320,H-80))};
+  L.tracker  ={x:W-400,y:40,w:380,h:Math.min(480,Math.max(300,H-100))};
+  L.toollib  ={x:Math.max(12,(W-640)/2),y:60,w:Math.min(640,Math.max(480,W*0.46)),h:Math.min(500,Math.max(320,H-90))};
   L.settings ={x:Math.max(12,(W-340)/2),y:Math.max(12,(H-320)/2),w:340,h:320};
   return L;
 }
@@ -1452,6 +1539,139 @@ function ccDragUp(e){
   if(target&&target!==drag.fromStatus)ccMove(drag.id,target);
 }
 
+/* ════ SYSTEM MAP — static topology (edit states here when you flip a scenario) ════ */
+const WH_SYS1=[
+  {nm:'Apollo source',sub:'People-first',st:'live',cls:'live'},
+  {nm:'5294059 Scanner',sub:'WebReveal',st:'live',cls:'live'},
+  {nm:'5310700 Enricher',sub:'Apollo org',st:'live',cls:'live'},
+  {nm:'5313062 Research',sub:'Stack Discovery',st:'live',cls:'live'},
+  {nm:'5331882 Outreach',sub:'Sequence Exec',st:'live',cls:'live'},
+  {nm:'5339905 Reply Intake',sub:'OOO-aware',st:'live',cls:'live'},
+  {nm:'5328623 T1 Bridge',sub:'Daily Loop',st:'off',cls:'off'}
+];
+const WH_OPS=[
+  {nm:'5343547 T1 Helm',sub:'Ops super-agent',st:'live',cls:'live'},
+  {nm:'5341843 Content',sub:'LinkedIn drafts',st:'idle',cls:'idle'},
+  {nm:'5342796 Support',sub:'Client success',st:'live',cls:'live'}
+];
+const WH_UTIL=[
+  {nm:'5384133 Wheelhouse',sub:'Metrics refresh',st:'on',cls:'on'},
+  {nm:'5446797 Weekly Report',sub:'Mon 8AM PT',st:'on',cls:'on'},
+  {nm:'5351339 Backup',sub:'Blueprint export',st:'on',cls:'on'}
+];
+const WH_4C=[['Catalog','audit the stack'],['Consolidate','cut redundancy'],['Connect','wire automation'],['Coach','hand off + train']];
+const WH_CHAN=[
+  {nm:'Cold email',sub:'brian@theclearstack',st:'live',cls:'live'},
+  {nm:'LinkedIn content',sub:'engine 5341843',st:'idle',cls:'idle'},
+  {nm:'$49 Playbook',sub:'Stripe funnel',st:'live · no traffic',cls:'idle'},
+  {nm:'SeaStateZero',sub:'site analyzer',st:'live · no traffic',cls:'idle'}
+];
+const WH_GAPS=[
+  'LinkedIn content engine (5341843) is built but idle — no posts shipping.',
+  'Playbook + SeaStateZero are live but nothing drives traffic to them.',
+  '5328623 T1 Bridge stays OFF until real replies prove the message converts.',
+  'No inbound channel active — all leads are hand-fed cold email today.'
+];
+function whSmNode(n){ return `<div class="wh-sm-node ${n.cls}"><span class="nm">${whEsc(n.nm)}</span><span class="sub">${whEsc(n.sub)}</span><span class="st">${whEsc(n.st)}</span></div>`; }
+function whSmFlow(arr){ return `<div class="wh-sm-flow">${arr.map(whSmNode).join('<span class="wh-sm-arrow">→</span>')}</div>`; }
+function whRenderSysmap(){
+  const host=document.getElementById('wh-sysmap-body'); if(!host) return;
+  host.innerHTML=
+    `<div class="wh-sm-sec"><div class="wh-sm-h"><span class="wh-sm-num">1</span>Prospecting pipeline · finds &amp; contacts leads</div>${whSmFlow(WH_SYS1)}</div>`+
+    `<div class="wh-sm-sec"><div class="wh-sm-h"><span class="wh-sm-num">2</span>Delivery system · the 4C engagement (what a client buys)</div><div class="wh-sm-4c">${WH_4C.map(c=>`<div class="c"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('')}</div></div>`+
+    `<div class="wh-sm-sec"><div class="wh-sm-h">Operations chain</div>${whSmFlow(WH_OPS)}</div>`+
+    `<div class="wh-sm-sec"><div class="wh-sm-h">Utility / scheduled</div>${whSmFlow(WH_UTIL)}</div>`+
+    `<div class="wh-sm-sec"><div class="wh-sm-h">Channels · live vs idle</div>${whSmFlow(WH_CHAN)}</div>`+
+    `<div class="wh-sm-sec"><div class="wh-sm-h">Gaps</div>${WH_GAPS.map(g=>`<div class="wh-sm-gap">${whEsc(g)}</div>`).join('')}</div>`;
+}
+
+/* ════ BUILD TRACKER — live checklist from Supabase build_tracker ════ */
+let WH_TRACKER=[];
+async function whReadTracker(){
+  try{
+    const r=await fetch(`${CC_URL}/rest/v1/build_tracker?select=*&order=phase.asc,sort_order.asc`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    WH_TRACKER=await r.json()||[];
+  }catch(e){ console.warn('Tracker read failed:',e); WH_TRACKER=[]; }
+}
+async function whToggleTracker(id){
+  const it=WH_TRACKER.find(t=>t.id===id); if(!it) return;
+  const next=!it.done; it.done=next; whRenderTracker(); // optimistic
+  try{
+    await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'PATCH',headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({done:next,updated_at:new Date().toISOString()})});
+  }catch(e){ console.warn('Tracker toggle failed:',e); it.done=!next; whRenderTracker(); }
+}
+function whRenderTracker(){
+  const host=document.getElementById('wh-tracker-body'); if(!host) return;
+  if(!WH_TRACKER.length){ host.innerHTML='<div class="wh-tl-locked">Loading… (run build-tracker-table.sql if empty)</div>'; return; }
+  const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
+  host.innerHTML=phases.map(ph=>{
+    const items=WH_TRACKER.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length, pct=Math.round(done/items.length*100);
+    return `<div class="wh-bt-phase"><div class="wh-bt-ph">${whEsc(ph)}<span class="ct">${done}/${items.length}</span></div>`+
+      `<div class="wh-bt-prog"><i style="width:${pct}%"></i></div>`+
+      items.map(it=>`<div class="wh-bt-item ${it.done?'done':''}" onclick="whToggleTracker('${it.id}')"><span class="wh-bt-box">${it.done?'✓':''}</span><span class="wh-bt-lbl">${whEsc(it.item)}</span></div>`).join('')+
+      `</div>`;
+  }).join('');
+}
+
+/* ════ TOOL LIBRARY (admin-only) — icons + pricing + details + domains using each ════ */
+let WH_TOOLS=[], WH_DETECT={}, WH_TOOLS_LOADED=false, whToolQuery='';
+function whLogoUrl(t){
+  if(t.logo_url) return t.logo_url;
+  // logo.dev by best-guess domain from slug (no key needed for basic)
+  const slug=(t.tool_slug||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  return slug?`https://img.logo.dev/${slug}.com?size=68&format=png`:'';
+}
+async function whReadTools(){
+  if(!ccIsAdmin) return;
+  try{
+    const r=await fetch(`${CC_URL}/rest/v1/tool_library?select=*&order=display_name.asc`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    WH_TOOLS=await r.json()||[];
+    // Build detection map by parsing stack_reports.tools (Option A — on-the-fly)
+    const sr=await fetch(`${CC_URL}/rest/v1/stack_reports?select=prospect_domain,tools&tools=not.is.null`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
+    const rows=await sr.json()||[]; WH_DETECT={};
+    rows.forEach(row=>{
+      let names=[];
+      try{ const blob=typeof row.tools==='string'?JSON.parse(row.tools):row.tools;
+        Object.values(blob||{}).forEach(arr=>{ if(Array.isArray(arr)) arr.forEach(t=>{ if(t&&t.name) names.push(String(t.name).toLowerCase()); }); });
+      }catch(e){}
+      names.forEach(n=>{ (WH_DETECT[n]=WH_DETECT[n]||[]).push(row.prospect_domain); });
+    });
+    WH_TOOLS_LOADED=true;
+  }catch(e){ console.warn('Tool library read failed:',e); }
+}
+function whToolDomains(t){
+  const keys=[(t.display_name||'').toLowerCase(),(t.tool_slug||'').toLowerCase()].concat((t.detection_aliases||[]).map(a=>String(a).toLowerCase()));
+  const set=new Set();
+  Object.keys(WH_DETECT).forEach(dn=>{ if(keys.some(k=>k&&dn.includes(k))) WH_DETECT[dn].forEach(d=>set.add(d)); });
+  return [...set];
+}
+function whToolPrice(t){
+  if(t.price_low==null&&t.price_high==null) return t.pricing_model||'—';
+  const lo=t.price_low!=null?`$${t.price_low}`:'', hi=t.price_high!=null?`$${t.price_high}`:'';
+  return (lo&&hi)?`${lo}–${hi}/mo`:(lo||hi)+'/mo';
+}
+function whRenderToolLib(){
+  const host=document.getElementById('wh-toollib-body'); if(!host) return;
+  if(!ccIsAdmin){ host.innerHTML='<div class="wh-tl-locked">🔒 Admin only — unlock the Wheelhouse (lock icon) to view the tool library and which scanned domains use each tool.</div>'; return; }
+  if(!WH_TOOLS_LOADED){ host.innerHTML='<div class="wh-tl-locked">Loading tool library…</div>'; return; }
+  const q=whToolQuery.trim().toLowerCase();
+  let arr=WH_TOOLS;
+  if(q) arr=arr.filter(t=>(t.display_name||'').toLowerCase().includes(q)||(t.category||'').toLowerCase().includes(q));
+  const search=`<input class="wh-tl-search" type="search" placeholder="Search tools…" value="${whEsc(whToolQuery)}" oninput="whToolQuery=this.value;whRenderToolLib()">`;
+  if(!arr.length){ host.innerHTML=search+'<div class="wh-tl-locked">No tools match.</div>'; return; }
+  host.innerHTML=search+arr.map(t=>{
+    const doms=whToolDomains(t), ini=(t.display_name||'?').slice(0,1).toUpperCase(), logo=whLogoUrl(t);
+    const ico=logo?`<img class="wh-tool-ico" src="${logo}" alt="" onerror="this.outerHTML='<div class=&quot;wh-tool-ico&quot;>${ini}</div>'">`:`<div class="wh-tool-ico">${ini}</div>`;
+    const tags=[];
+    if(t.subcategory) tags.push(`<span class="wh-tool-tag">${whEsc(t.subcategory)}</span>`);
+    if(t.shopify_native) tags.push('<span class="wh-tool-tag shop">Shopify-native</span>');
+    if(t.common_in_dtc) tags.push('<span class="wh-tool-tag dtc">Common in DTC</span>');
+    (t.function_tags||[]).slice(0,3).forEach(f=>tags.push(`<span class="wh-tool-tag">${whEsc(f)}</span>`));
+    const domHtml=doms.length?`<div class="wh-tool-doms"><b>${doms.length} domain${doms.length>1?'s':''} detected:</b><br>${doms.slice(0,12).map(d=>`<span class="wh-tool-dom">${whEsc(d)}</span>`).join('')}${doms.length>12?` +${doms.length-12} more`:''}</div>`:'<div class="wh-tool-doms" style="opacity:.6">Not detected in any scanned domain yet</div>';
+    return `<div class="wh-tool">${ico}<div class="wh-tool-main"><div class="wh-tool-nm">${whEsc(t.display_name)}</div><div class="wh-tool-meta">${whEsc(t.category||'uncategorized')}${t.overlap_type?' · '+whEsc(t.overlap_type):''}</div><div class="wh-tool-tags">${tags.join('')}</div>${domHtml}</div><div class="wh-tool-price">${whEsc(whToolPrice(t))}</div></div>`;
+  }).join('');
+}
+
 /* ════ MASTER RENDER + INIT ════ */
 function ccRender(){
   document.getElementById('cc-loading').style.display='none';
@@ -1461,8 +1681,11 @@ function whInit(){
   whLoadTheme(); whApplyTheme();
   whBuildNetwork(); whBindNetwork(); whInitMotion();
   whRenderWorkforce(); whRenderTeam(); whRenderMarketing(); whRenderPipeline(); whRenderChips(); whRenderSettings();
+  whRenderSysmap();
   whInitWins(); whBuildLauncher();
   ccLoad();
+  whReadTracker().then(whRenderTracker);
+  if(ccIsAdmin) whReadTools().then(whRenderToolLib); else whRenderToolLib();
   document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
   document.getElementById('cc-modal-overlay').addEventListener('click',function(e){ if(e.target===this)ccCloseModal(); });
   window.addEventListener('scroll',()=>{ whHideTip(); whClosePop(); whCloseAddMenu(); },{passive:true});
