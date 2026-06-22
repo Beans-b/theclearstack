@@ -443,6 +443,8 @@
     .wh-bt-mini{width:20px;height:20px;border:1px solid var(--border);background:var(--white);border-radius:4px;font-size:10px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;}
     .wh-bt-mini:hover{border-color:var(--navy);}
     .wh-bt-box{cursor:pointer;} .wh-bt-lbl{cursor:pointer;}
+    .wh-bt-additem{font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;color:var(--gray);padding:5px 4px 2px 25px;cursor:pointer;border-radius:5px;transition:all .12s;}
+    .wh-bt-additem:hover{color:var(--navy);background:var(--light);}
     /* TOOL LIBRARY */
     .wh-tl-search{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font-body);margin-bottom:10px;outline:none;}
     .wh-tl-search:focus{border-color:var(--navy);}
@@ -1609,19 +1611,24 @@ async function whToggleTracker(id){
     await fetch(`${CC_URL}/rest/v1/build_tracker?id=eq.${id}`,{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR),body:JSON.stringify({done:next,updated_at:new Date().toISOString()})});
   }catch(e){ console.warn('Tracker toggle failed:',e); it.done=!next; whRenderTracker(); }
 }
-async function whAddTrackerItem(){
+async function whAddToPhase(phase){
   if(!ccIsAdmin) return;
-  const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
-  const ph=prompt('Phase / group (existing or new):\n\n'+phases.join('\n'), phases[0]||'New Phase');
-  if(ph==null||!ph.trim()) return;
-  const item=prompt('New item text:'); if(item==null||!item.trim()) return;
-  const inPhase=WH_TRACKER.filter(t=>t.phase===ph.trim());
+  const item=prompt('New item under "'+phase+'":'); if(item==null||!item.trim()) return;
+  const inPhase=WH_TRACKER.filter(t=>t.phase===phase);
   const sort=inPhase.length?Math.max(...inPhase.map(t=>t.sort_order||0))+1:1;
   try{
-    const r=await fetch(`${CC_URL}/rest/v1/build_tracker`,{method:'POST',headers:Object.assign({'Prefer':'return=representation'},WH_BT_HDR),body:JSON.stringify({phase:ph.trim(),item:item.trim(),done:false,sort_order:sort})});
-    const rows=await r.json(); if(rows&&rows[0]) WH_TRACKER.push(rows[0]);
+    await fetch(`${CC_URL}/rest/v1/build_tracker`,{method:'POST',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR),body:JSON.stringify({phase:phase,item:item.trim(),done:false,sort_order:sort})});
     whReadTracker().then(whRenderTracker);
   }catch(e){ console.warn('Add failed:',e); alert('Add failed — see console.'); }
+}
+async function whAddNewPhase(){
+  if(!ccIsAdmin) return;
+  const ph=prompt('Name the new phase / group:'); if(ph==null||!ph.trim()) return;
+  const item=prompt('First item under "'+ph.trim()+'":'); if(item==null||!item.trim()) return;
+  try{
+    await fetch(`${CC_URL}/rest/v1/build_tracker`,{method:'POST',headers:Object.assign({'Prefer':'return=minimal'},WH_BT_HDR),body:JSON.stringify({phase:ph.trim(),item:item.trim(),done:false,sort_order:1})});
+    whReadTracker().then(whRenderTracker);
+  }catch(e){ console.warn('Add phase failed:',e); alert('Add failed — see console.'); }
 }
 async function whEditTrackerItem(id,ev){
   ev&&ev.stopPropagation(); if(!ccIsAdmin) return;
@@ -1641,17 +1648,19 @@ async function whDeleteTrackerItem(id,ev){
 }
 function whRenderTracker(){
   const host=document.getElementById('wh-tracker-body'); if(!host) return;
-  const addBtn=ccIsAdmin?`<button class="wh-bt-add" onclick="whAddTrackerItem()">+ Add item</button>`:'';
-  if(!WH_TRACKER.length){ host.innerHTML=addBtn+'<div class="wh-tl-locked">No items yet'+(ccIsAdmin?' — tap “+ Add item”.':' (run build-tracker-table.sql).')+'</div>'; return; }
+  const newPhaseBtn=ccIsAdmin?`<button class="wh-bt-add" onclick="whAddNewPhase()">+ New phase</button>`:'';
+  if(!WH_TRACKER.length){ host.innerHTML=newPhaseBtn+'<div class="wh-tl-locked">No items yet'+(ccIsAdmin?' — tap “+ New phase”.':' (run build-tracker-table.sql).')+'</div>'; return; }
   const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
-  host.innerHTML=addBtn+phases.map(ph=>{
+  host.innerHTML=newPhaseBtn+phases.map(ph=>{
     const items=WH_TRACKER.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length, pct=Math.round(done/items.length*100);
+    const phEsc=ph.replace(/'/g,"\\'");
+    const addRow=ccIsAdmin?`<div class="wh-bt-additem" onclick="whAddToPhase('${phEsc}')">+ add</div>`:'';
     return `<div class="wh-bt-phase"><div class="wh-bt-ph">${whEsc(ph)}<span class="ct">${done}/${items.length}</span></div>`+
       `<div class="wh-bt-prog"><i style="width:${pct}%"></i></div>`+
       items.map(it=>{
         const ctrls=ccIsAdmin?`<span class="wh-bt-ctrls"><button class="wh-bt-mini" onclick="whEditTrackerItem('${it.id}',event)" title="Edit">✏️</button><button class="wh-bt-mini" onclick="whDeleteTrackerItem('${it.id}',event)" title="Delete">🗑️</button></span>`:'';
         return `<div class="wh-bt-item ${it.done?'done':''}"><span class="wh-bt-box" onclick="whToggleTracker('${it.id}')">${it.done?'✓':''}</span><span class="wh-bt-lbl" onclick="whToggleTracker('${it.id}')">${whEsc(it.item)}</span>${ctrls}</div>`;
-      }).join('')+
+      }).join('')+addRow+
       `</div>`;
   }).join('');
 }
