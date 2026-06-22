@@ -445,6 +445,17 @@
     .wh-bt-box{cursor:pointer;} .wh-bt-lbl{cursor:pointer;}
     .wh-bt-additem{font-family:var(--font-mono);font-size:10px;letter-spacing:.05em;color:var(--gray);padding:5px 4px 2px 25px;cursor:pointer;border-radius:5px;transition:all .12s;}
     .wh-bt-additem:hover{color:var(--navy);background:var(--light);}
+    .wh-bt-toprow{display:flex;gap:8px;margin-bottom:12px;}
+    .wh-bt-toprow .wh-bt-add{margin-bottom:0;flex:1;}
+    .wh-bt-export{border:1px solid var(--border2);background:var(--white);border-radius:6px;padding:8px 12px;font-size:11px;font-family:var(--font-mono);letter-spacing:.05em;color:var(--navy);white-space:nowrap;transition:all .15s;}
+    .wh-bt-export:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+    .wh-bt-exmenu{position:absolute;top:44px;right:0;z-index:50;background:var(--white);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 28px rgba(11,31,74,.18);padding:6px;min-width:230px;max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:2px;}
+    .wh-bt-exmenu button{text-align:left;background:transparent;border:none;border-radius:5px;padding:8px 10px;font-size:12px;color:var(--charcoal);cursor:pointer;font-family:var(--font-body);}
+    .wh-bt-exmenu button:hover{background:var(--light);}
+    .wh-bt-exmenu .wh-bt-exdoc{display:inline-block;width:30px;text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--gray);border:1px solid var(--border);margin-left:4px;padding:6px 0;}
+    .wh-bt-exsep{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);padding:7px 10px 3px;}
+    .wh-bt-exrow{display:flex;gap:2px;align-items:stretch;}
+    .wh-bt-exrow>button:first-child{flex:1;}
     /* TOOL LIBRARY */
     .wh-tl-search{width:100%;border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--font-body);margin-bottom:10px;outline:none;}
     .wh-tl-search:focus{border-color:var(--navy);}
@@ -1648,10 +1659,12 @@ async function whDeleteTrackerItem(id,ev){
 }
 function whRenderTracker(){
   const host=document.getElementById('wh-tracker-body'); if(!host) return;
-  const newPhaseBtn=ccIsAdmin?`<button class="wh-bt-add" onclick="whAddNewPhase()">+ New phase</button>`:'';
-  if(!WH_TRACKER.length){ host.innerHTML=newPhaseBtn+'<div class="wh-tl-locked">No items yet'+(ccIsAdmin?' — tap “+ New phase”.':' (run build-tracker-table.sql).')+'</div>'; return; }
+  const topBtns=ccIsAdmin
+    ? `<div class="wh-bt-toprow"><button class="wh-bt-add" onclick="whAddNewPhase()">+ New phase</button><button class="wh-bt-export" onclick="whToggleExport(event)">⬇ Export</button></div>`
+    : `<div class="wh-bt-toprow"><button class="wh-bt-export" onclick="whToggleExport(event)">⬇ Export</button></div>`;
+  if(!WH_TRACKER.length){ host.innerHTML=topBtns+'<div class="wh-tl-locked">No items yet'+(ccIsAdmin?' — tap “+ New phase”.':' (run build-tracker-table.sql).')+'</div>'; return; }
   const phases=[...new Set(WH_TRACKER.map(t=>t.phase))];
-  host.innerHTML=newPhaseBtn+phases.map(ph=>{
+  host.innerHTML=topBtns+phases.map(ph=>{
     const items=WH_TRACKER.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length, pct=Math.round(done/items.length*100);
     const phEsc=ph.replace(/'/g,"\\'");
     const addRow=ccIsAdmin?`<div class="wh-bt-additem" onclick="whAddToPhase('${phEsc}')">+ add</div>`:'';
@@ -1665,7 +1678,61 @@ function whRenderTracker(){
   }).join('');
 }
 
-/* ════ TOOL LIBRARY (admin-only) — icons + pricing + details + domains using each ════ */
+/* ── Build Tracker EXPORT (Markdown + Word, scope: all or one phase) ── */
+function whBtPhaseList(){ return [...new Set(WH_TRACKER.map(t=>t.phase))]; }
+function whToggleExport(ev){
+  ev&&ev.stopPropagation();
+  let m=document.getElementById('wh-bt-exmenu');
+  if(m){ m.remove(); return; }
+  const phases=whBtPhaseList();
+  const opts=[`<button onclick="whExportRun('md','ALL')">Markdown · entire list</button>`,
+              `<button onclick="whExportRun('doc','ALL')">Word · entire list</button>`,
+              `<div class="wh-bt-exsep">By phase</div>`]
+    .concat(phases.map(p=>{const e=p.replace(/'/g,"\\'");return `<div class="wh-bt-exrow"><button onclick="whExportRun('md','${e}')">⬇ ${whEsc(p)}</button><button class="wh-bt-exdoc" title="Word" onclick="whExportRun('doc','${e}')">W</button></div>`;}));
+  m=document.createElement('div'); m.id='wh-bt-exmenu'; m.className='wh-bt-exmenu'; m.innerHTML=opts.join('');
+  const host=document.getElementById('wh-tracker-body'); host.style.position='relative'; host.appendChild(m);
+  setTimeout(()=>document.addEventListener('click',whCloseExportOnce),0);
+}
+function whCloseExportOnce(e){ const m=document.getElementById('wh-bt-exmenu'); if(m&&!m.contains(e.target)){ m.remove(); document.removeEventListener('click',whCloseExportOnce); } }
+function whExportRows(scope){ return scope==='ALL'?WH_TRACKER:WH_TRACKER.filter(t=>t.phase===scope); }
+function whExportMd(scope){
+  const rows=whExportRows(scope), phases=[...new Set(rows.map(t=>t.phase))];
+  const today=new Date().toISOString().slice(0,10);
+  let md=`# The Clear Stack — Build Tracker\n_Exported ${today}${scope!=='ALL'?' · '+scope:''}_\n\n`;
+  phases.forEach(ph=>{
+    const items=rows.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length;
+    md+=`## ${ph} (${done}/${items.length})\n\n`;
+    items.forEach(it=>{ md+=`- [${it.done?'x':' '}] ${it.item}\n`; });
+    md+=`\n`;
+  });
+  return md;
+}
+function whExportDocHtml(scope){
+  const rows=whExportRows(scope), phases=[...new Set(rows.map(t=>t.phase))];
+  const today=new Date().toISOString().slice(0,10);
+  let body=`<h1 style="font-family:Georgia,serif;color:#0B1F4A">The Clear Stack — Build Tracker</h1><p style="color:#5A6478;font-size:11px">Exported ${today}${scope!=='ALL'?' · '+whEsc(scope):''}</p>`;
+  phases.forEach(ph=>{
+    const items=rows.filter(t=>t.phase===ph), done=items.filter(t=>t.done).length;
+    body+=`<h2 style="font-family:Georgia,serif;color:#0B1F4A;border-bottom:1px solid #ccc;padding-bottom:3px">${whEsc(ph)} <span style="color:#5A6478;font-size:11px">(${done}/${items.length})</span></h2><ul style="list-style:none;padding-left:0">`;
+    items.forEach(it=>{ body+=`<li style="margin:4px 0">${it.done?'☑':'☐'} ${it.done?'<s>':''}${whEsc(it.item)}${it.done?'</s>':''}</li>`; });
+    body+=`</ul>`;
+  });
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Build Tracker</title></head><body style="font-family:Calibri,Arial,sans-serif">${body}</body></html>`;
+}
+function whDownload(content,filename,mime){
+  const blob=new Blob([content],{type:mime}), url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },100);
+}
+function whExportRun(fmt,scope){
+  const m=document.getElementById('wh-bt-exmenu'); if(m) m.remove();
+  const tag=scope==='ALL'?'all':scope.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const date=new Date().toISOString().slice(0,10);
+  if(fmt==='md') whDownload(whExportMd(scope),`build-tracker-${tag}-${date}.md`,'text/markdown');
+  else whDownload(whExportDocHtml(scope),`build-tracker-${tag}-${date}.doc`,'application/msword');
+}
+
+
 let WH_TOOLS=[], WH_DETECT={}, WH_TOOLS_LOADED=false, whToolQuery='';
 function whLogoUrl(t){
   if(t.logo_url) return t.logo_url;
