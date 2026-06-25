@@ -94,19 +94,23 @@
   .md-strip-tools{display:flex;gap:10px;align-items:center}
   .md-tool{appearance:none;background:var(--white);border:1px solid var(--line2);color:var(--navy);font-size:12px;font-weight:500;padding:7px 12px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}
   .md-tool:hover{border-color:var(--navy)}
-  .md-shell{display:flex;max-width:1480px;margin:0 auto;padding:14px 40px 0;gap:0;min-height:70vh}
-  .md-sidebar{width:208px;flex-shrink:0;background:var(--white);border:1px solid var(--line);border-right:none;border-radius:10px 0 0 10px;padding:14px 10px;display:flex;flex-direction:column;gap:4px}
+  .md-hint{max-width:1480px;margin:8px auto 0;padding:0 40px;color:var(--gray);font-size:12.5px;line-height:1.5}
+  .md-hint b{color:var(--navy);font-weight:600}
+  .md-shell{display:flex;max-width:1480px;margin:0 auto;padding:12px 40px 0;gap:0;min-height:70vh}
+  .md-sidebar{width:230px;flex-shrink:0;background:var(--white);border:1px solid var(--line);border-right:none;border-radius:10px 0 0 10px;padding:14px 10px;display:flex;flex-direction:column;gap:4px}
   .md-side-head{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);padding:2px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:6px}
   .md-nav-sec{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);padding:10px 8px 4px}
   .md-nav-empty{font-size:12px;color:var(--gray);padding:4px 8px}
-  .md-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--charcoal);font-size:13px;font-weight:500}
+  .md-nav-item{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border-radius:7px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--charcoal);font-size:13px;font-weight:500}
   .md-nav-item:hover{background:var(--light);border-color:var(--line)}
-  .md-nav-item .ni-ic{width:16px;text-align:center;flex-shrink:0}
-  .md-nav-item .ni-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .md-nav-item .ni-x{opacity:.5;font-size:14px;width:18px;text-align:center}
+  .md-nav-item .ni-ic{width:16px;text-align:center;flex-shrink:0;margin-top:1px}
+  .md-nav-item .ni-lbl{flex:1;min-width:0}
+  .md-nav-item .ni-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-nav-item .ni-desc{display:block;font-size:11px;font-weight:400;color:var(--gray);line-height:1.35;margin-top:1px;white-space:normal}
+  .md-nav-item .ni-x{opacity:.5;font-size:14px;width:18px;text-align:center;flex-shrink:0}
   .md-nav-item .ni-x:hover{opacity:1;color:#b42828}
-  .md-nav-item.on .ni-dot{width:6px;height:6px;border-radius:50%;background:var(--live,#4A9E6B);flex-shrink:0}
-  .md-nav-item.locked{opacity:.5;cursor:default}
+  .md-nav-item.on .ni-dot{width:6px;height:6px;border-radius:50%;background:#4A9E6B;flex-shrink:0;margin-top:5px}
+  .md-nav-item.locked{opacity:.6;cursor:default}
   .md-nav-item.locked:hover{background:transparent;border-color:transparent}
   .md-workspace{position:relative;flex:1;height:calc(100vh - 180px);min-height:560px;overflow:hidden;background:var(--white);border:1px solid var(--line);border-radius:0 10px 10px 0}
 
@@ -137,7 +141,10 @@
   .md-win.collapsed .md-rz{display:none}
 
   /* MODULE BODY CONTENT */
-  .mod-intro{color:var(--gray);font-size:13px;margin:0 0 12px}
+  .explainer{background:var(--cream);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:8px;padding:10px 12px;margin:0 0 13px;color:var(--gray);font-size:12.5px;line-height:1.5}
+  .explainer b{color:var(--navy);font-weight:600}
+  .explainer .ex-eg{display:block;margin-top:5px;font-style:italic}
+  .mod-step{color:var(--gray);font-size:12px;margin:0 0 10px}
   .result-box{background:var(--light);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
   .statement{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.3;color:var(--navy);margin:0 0 12px}
   .btn-gen{appearance:none;border:none;background:var(--orange);color:var(--navy);font-family:var(--body);font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:8px}
@@ -188,12 +195,12 @@
 
   @media(max-width:980px){
     .md-rz{display:none}
-    .md-shell{flex-direction:column;padding:14px 18px 0}
-    .md-sidebar{width:auto;border-right:1px solid var(--line);border-radius:10px;flex-direction:row;flex-wrap:wrap}
+    .md-shell{flex-direction:column;padding:12px 18px 0}
+    .md-sidebar{width:auto;border-right:1px solid var(--line);border-radius:10px}
     .md-workspace{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:14px;border-radius:10px;margin-top:14px;padding:14px}
     .md-win{position:static!important;width:auto!important;height:auto!important;max-height:none!important;z-index:auto!important}
     .md-win-bar{cursor:default}.md-grip{display:none}
-    .md-topstrip{padding:14px 18px 0}
+    .md-topstrip,.md-hint{padding:14px 18px 0}
     .nav-inner,.breadcrumb-inner{padding:0 18px}
     .burger{display:flex}.nav-links,.nav-cta{display:none}
     footer{padding:18px}
@@ -259,17 +266,20 @@ var state = { intake:null, plan:{}, screen:"intake" };
 var modStatus = { positioning:{s:"idle",err:""}, calendar:{s:"idle",err:""}, seo:{s:"idle",err:""} };
 var seoPageDraft = "";
 
-/* windows that exist on the canvas */
+/* windows that exist on the canvas. desc = the one-line plain explanation in the sidebar. */
 var WINS = [
-  { id:"positioning", label:"Positioning", icon:"✨", def:true },
-  { id:"calendar",    label:"Content calendar", icon:"🗓", def:true },
-  { id:"seo",         label:"SEO & AEO sheet", icon:"🔍", def:true },
-  { id:"inquiries",   label:"New inquiries", icon:"📊", def:true },
-  { id:"verify",      label:"Verify", icon:"🔒", def:true }
+  { id:"positioning", label:"Positioning", icon:"✨", def:true, desc:"Who you help and why they choose you." },
+  { id:"calendar",    label:"Content calendar", icon:"🗓", def:true, desc:"A week of ready to post social updates." },
+  { id:"seo",         label:"SEO & AEO sheet", icon:"🔍", def:true, desc:"Words that help you show up on Google and AI." },
+  { id:"inquiries",   label:"New inquiries", icon:"📊", def:true, desc:"Track the new inquiries you got this month." },
+  { id:"verify",      label:"Verify", icon:"🔒", def:true, desc:"A quick check that unlocks generating." }
 ];
 var COMING_SOON = [
-  { label:"Google Business Profile" }, { label:"Email capture" },
-  { label:"Reviews and social proof" }, { label:"Lead generation" }, { label:"Paid ads plan" }
+  { label:"Google Business Profile", desc:"Your free listing on Google Maps and Search." },
+  { label:"Email capture", desc:"Collect visitor emails so you can follow up." },
+  { label:"Reviews and social proof", desc:"Gather and show real customer reviews." },
+  { label:"Lead generation", desc:"Turn website visitors into people who contact you." },
+  { label:"Paid ads plan", desc:"A simple plan for any ad money you spend." }
 ];
 var winState = {}; var topZ = 10;
 
@@ -335,7 +345,7 @@ function intakeHTML(){
   var f=state.intake||{name:"",website:"",sell:"",industry:"",age:"",location:"",gender:"All / not relevant",budget:""};
   return '<div class="wrap">'
   +'<header class="page-head"><p class="eyebrow">Marketing Made Simple</p><h1 class="wordmark">Marketing Dashboard</h1>'
-  +'<p class="tagline">Answer a few questions about your business. We turn them into real marketing you can use, laid out on a dashboard you can arrange yourself.</p>'
+  +'<p class="tagline">Answer a few questions about your business. We turn them into real marketing you can use, laid out on a dashboard you can arrange yourself. No marketing knowledge needed.</p>'
   +'<p class="byline">A free tool from <b>The Clear Stack</b></p></header><div class="rule"></div>'
   +'<div class="card"><h2 class="panel-title">Tell us about your business</h2>'
   +'<p class="panel-sub">Only the first two are required. The rest help us make the marketing fit your business.</p>'
@@ -377,7 +387,8 @@ function canvasHTML(){
   var i=state.intake||{};
   return '<div class="md-topstrip"><div><h1 class="md-biz">'+esc(i.name)+'</h1><p class="md-sell">'+esc(i.sell)+'</p></div>'
     +'<div class="md-strip-tools"><button class="md-tool" id="reset-btn">Reset layout</button><button class="md-tool" id="edit-btn">Edit answers</button></div></div>'
-    +'<div class="md-shell"><aside class="md-sidebar"><div class="md-side-head">Windows</div><div id="md-nav"></div></aside>'
+    +'<p class="md-hint">Each window builds one piece of your marketing. Start with <b>Positioning</b>, then work down the list on the left. You can drag a window by its title bar, resize it from any edge, or close it and reopen it from the list.</p>'
+    +'<div class="md-shell"><aside class="md-sidebar"><div class="md-side-head">Your marketing tools</div><div id="md-nav"></div></aside>'
     +'<div class="md-workspace" id="md-workspace">'+WINS.map(winShell).join("")+'</div></div>';
 }
 function canDrag(){ try{ return window.matchMedia("(min-width:981px)").matches; }catch(e){ return true; } }
@@ -386,11 +397,11 @@ function defaultLayout(){
   var sz=wsSize(), W=sz.W||1200, H=sz.H||640;
   var rightX=Math.max(400, W-272);
   return {
-    positioning:{x:16,y:16,w:344,h:232},
-    seo:{x:16,y:260,w:344,h:Math.max(280,H-292)},
+    positioning:{x:16,y:16,w:344,h:248},
+    seo:{x:16,y:276,w:344,h:Math.max(280,H-308)},
     calendar:{x:376,y:16,w:Math.min(560,Math.max(360,rightX-392)),h:Math.max(360,H-40)},
-    verify:{x:rightX,y:16,w:256,h:208},
-    inquiries:{x:rightX,y:240,w:256,h:158}
+    verify:{x:rightX,y:16,w:256,h:212},
+    inquiries:{x:rightX,y:244,w:256,h:158}
   };
 }
 function initWins(){
@@ -460,12 +471,12 @@ function buildLauncher(){
   WINS.forEach(function(w){ var st=winState[w.id]; if(!st)return; (st.hidden?closed:open).push(w); });
   function row(w,isOpen){
     return '<button class="md-nav-item'+(isOpen?" on":"")+'" data-act="focus" data-id="'+w.id+'">'
-      +'<span class="ni-ic">'+w.icon+'</span><span class="ni-lbl">'+esc(w.label)+'</span>'
+      +'<span class="ni-ic">'+w.icon+'</span><span class="ni-lbl"><span class="ni-name">'+esc(w.label)+'</span><span class="ni-desc">'+esc(w.desc||"")+'</span></span>'
       +(isOpen?'<span class="ni-x" data-act="hide" data-id="'+w.id+'" title="Close">×</span><span class="ni-dot"></span>':'')+'</button>';
   }
   var openRows=open.map(function(w){ return row(w,true); }).join("");
   var closedRows=closed.map(function(w){ return row(w,false); }).join("");
-  var soon=COMING_SOON.map(function(c){ return '<button class="md-nav-item locked" disabled><span class="ni-ic">🔒</span><span class="ni-lbl">'+esc(c.label)+'</span></button>'; }).join("");
+  var soon=COMING_SOON.map(function(c){ return '<button class="md-nav-item locked" disabled><span class="ni-ic">🔒</span><span class="ni-lbl"><span class="ni-name">'+esc(c.label)+'</span><span class="ni-desc">'+esc(c.desc||"")+'</span></span></button>'; }).join("");
   var nav=el("md-nav");
   nav.innerHTML='<div class="md-nav-sec">Open</div>'+(openRows||'<div class="md-nav-empty">No open windows</div>')
     +(closed.length?'<div class="md-nav-sec">Closed</div>'+closedRows:"")
@@ -481,32 +492,30 @@ function wireNav(){
 }
 function buildCanvas(){
   initWins();
-  // static window bodies
   renderInquiriesBody();
   renderVerifyBody();
-  // generative module bodies
   ["positioning","calendar","seo"].forEach(applyModuleBody);
   buildLauncher(); wireNav();
-  // window controls
   el("md-workspace").querySelectorAll("[data-ctl]").forEach(function(b){
     b.addEventListener("click",function(e){ e.stopPropagation(); var id=b.getAttribute("data-id"); if(b.getAttribute("data-ctl")==="collapse") winCollapse(id); else winHide(id); });
   });
   el("reset-btn").addEventListener("click",resetLayout);
   el("edit-btn").addEventListener("click",function(){ state.screen="intake"; render(); });
-  // Turnstile retry mount
   mountTurnstile(); var tries=0; var iv=setInterval(function(){ if(tsId!==null||tries++>40){clearInterval(iv);return;} mountTurnstile(); },200);
 }
 
 /* ===== static bodies ===== */
 function renderInquiriesBody(){
   var inq=(state.plan.inquiries==null?"":state.plan.inquiries);
-  el("wb-inquiries").innerHTML='<div class="metric"><p class="lbl">NEW INQUIRIES THIS MONTH</p>'
+  el("wb-inquiries").innerHTML='<div class="explainer">A simple place to track how many new people reached out this month (calls, emails, or messages). Type the number yourself so you can watch it grow as your marketing works.</div>'
+    +'<div class="metric"><p class="lbl">NEW INQUIRIES THIS MONTH</p>'
     +'<input type="number" min="0" id="inq-input" value="'+esc(inq)+'" placeholder="0" />'
     +'<p class="note">You type this in yourself. Nothing here is filled in for you.</p></div>';
   var inp=el("inq-input"); inp.addEventListener("input",function(){ state.plan.inquiries=(inp.value===""?null:inp.value); saveState(); });
 }
 function renderVerifyBody(){
-  el("wb-verify").innerHTML='<p class="verify-cap">Quick human check</p><div id="ts-widget"></div>'
+  el("wb-verify").innerHTML='<div class="explainer">This is a quick check that you are a real person, not a robot. It keeps the free tool from being misused. Leave this window open; the first time you generate something, it may ask for your email one time.</div>'
+    +'<p class="verify-cap">Quick human check</p><div id="ts-widget"></div>'
     +'<div class="gate-email" id="gate-email"><p class="verify-cap" style="margin-top:4px">Your email — one time, to unlock results</p>'
     +'<input class="in" id="gate-email-input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />'
     +'<div class="gate-note" id="gate-note"></div></div>';
@@ -530,7 +539,8 @@ function wireModuleBody(id){
   if(id==="seo"){ var s=el("seo-page"); if(s)s.addEventListener("input",function(){ seoPageDraft=s.value; }); var g=el("gen-seo"); if(g)g.addEventListener("click",genSeo); if(retry)retry.addEventListener("click",genSeo); }
 }
 function positioningBody(){
-  var st=modStatus.positioning, html='<p class="mod-intro">A single line: who you serve and what you promise.</p>';
+  var st=modStatus.positioning;
+  var html='<div class="explainer"><b>Positioning</b> is your one sentence answer to who you help and the promise you make to them. It is the foundation the rest of your marketing builds on, so do this one first. Click <b>Generate</b> to draft it from your answers, then edit it to sound like you.<span class="ex-eg">Example: "I help busy families in Denver get a healthy dinner on the table in 20 minutes."</span></div>';
   if(st.s==="loading") html+=loadingHTML("Writing your positioning line...");
   if(st.s==="error") html+=errorHTML(st.err);
   if(state.plan.positioning&&st.s!=="loading") html+='<div class="result-box"><p class="statement">'+esc(state.plan.positioning)+'</p>'+copyBtn(state.plan.positioning)+'</div>';
@@ -545,7 +555,7 @@ async function genPositioning(){
 }
 function calendarBody(){
   var st=modStatus.calendar, weeks=state.plan.weeks||[], tiles=["linear-gradient(135deg,#0B1F4A,#2550A8)","linear-gradient(135deg,#E07B2A,#C56A18)","linear-gradient(135deg,#2550A8,#5A6478)"];
-  var html='<p class="mod-intro">A week of social posts at a time: the words to post, a picture brief, the platform, and a good time. Make as many weeks as you like.</p>';
+  var html='<div class="explainer">This builds one week of social media posts at a time, three at once. Each post gives you the words to post, which platform to use, the best time to post, and an <b>image brief</b> (a written description of a picture you hand to an image tool, since this does not make the picture itself). Click <b>Generate this week</b>, copy what you like, and make more weeks whenever you want.</div>';
   weeks.forEach(function(week,wi){
     var posts=(week||[]).map(function(p,pi){
       return '<div class="post"><div class="post-tile" style="background:'+tiles[pi%3]+'"><span>Image placeholder</span></div>'
@@ -568,15 +578,15 @@ async function genCalendar(){
 }
 function seoBody(){
   var st=modStatus.seo, pages=state.plan.seoPages||[];
-  var html='<p class="mod-intro">Per website page: title, summary line, headline, and a short FAQ. SEO helps a page show up in search; AEO helps it show up in answers from AI assistants. Add one page at a time.</p>';
+  var html='<div class="explainer"><b>SEO</b> means helping your website show up when people search on Google. <b>AEO</b> means helping it show up when people ask an AI assistant. Enter one page (like Home or About), click <b>Generate</b>, and you get a title, a meta description (the gray summary line under a Google result), a main headline, and a few questions and answers. Each comes with a note on where to paste it. Add as many pages as you like.</div>';
   pages.forEach(function(pg){
     var d=pg.data||{};
     var faqs=(d.faqs||[]).map(function(fq){ return '<div class="faq-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><p class="fq">'+esc(fq.q)+'</p>'+copyBtn(fq.q+"\n"+fq.a)+'</div><p class="fa">'+esc(fq.a)+'</p></div>'; }).join("");
     html+='<div class="seo-block"><p class="seo-pagename">'+esc(pg.pageName)+'</p>'
-      +seoRow("PAGE TITLE",d.title,"Paste in your page title (the browser tab name).")
-      +seoRow("META DESCRIPTION",d.meta_description,"Paste in your meta description (the summary line in search results).")
+      +seoRow("PAGE TITLE",d.title,"Paste in your page title (the name on the browser tab).")
+      +seoRow("META DESCRIPTION",d.meta_description,"Paste in your meta description (the gray summary line under a Google result).")
       +seoRow("MAIN HEADLINE (H1)",d.h1,"Paste as the big headline at the top of the page.")
-      +'<div class="seo-row"><span class="rl">FAQ BLOCK</span><p class="rn" style="margin:4px 0 8px">Paste near the bottom of the page.</p>'+faqs+'</div></div>';
+      +'<div class="seo-row"><span class="rl">FAQ BLOCK</span><p class="rn" style="margin:4px 0 8px">Paste these questions and answers near the bottom of the page.</p>'+faqs+'</div></div>';
   });
   if(st.s==="loading") html+=loadingHTML("Writing the sheet for this page...");
   if(st.s==="error") html+=errorHTML(st.err);
