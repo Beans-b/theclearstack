@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Marketing Dashboard — Marketing Made Simple · The Clear Stack</title>
+<meta name="description" content="Answer a few questions about your business and get real marketing you can use: a positioning line, a week of social posts, and search text for your website. A drag and drop dashboard built for owners with no marketing background." />
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+<script>try{window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','G-WYQ7R625ZT');}catch(e){window.gtag=window.gtag||function(){};}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<link rel="canonical" href="https://theclearstack.com/lab/marketing-dashboard.html">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","@id":"https://theclearstack.com/lab/marketing-dashboard.html#app","name":"Marketing Dashboard","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://theclearstack.com/lab/marketing-dashboard.html","description":"A drag and drop marketing dashboard: positioning, a week of social posts, and website search text, generated one piece at a time for small business owners with no marketing background.","publisher":{"@id":"https://theclearstack.com/#organization"},"isPartOf":{"@id":"https://theclearstack.com/#website"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://theclearstack.com/"},{"@type":"ListItem","position":2,"name":"The Lab","item":"https://theclearstack.com/lab/index.html"},{"@type":"ListItem","position":3,"name":"Marketing Dashboard","item":"https://theclearstack.com/lab/marketing-dashboard.html"}]}
+]}
+</script>
+<style>
+  :root{
+    --navy:#0B1F4A; --navy-deep:#07152F; --orange:#E07B2A;
+    --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+    --charcoal:#1A1A1A; --gray:#5A6478; --line:rgba(11,31,74,.12); --line2:rgba(11,31,74,.18);
+    --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --body:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono:"DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:var(--body);color:var(--charcoal);background:var(--light);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font-family:var(--body);cursor:pointer}
+  :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+  /* NAV */
+  nav{background:var(--navy);height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+  .nav-inner{max-width:1480px;margin:0 auto;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between}
+  .nav-logo{display:flex;align-items:center;gap:11px}
+  .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px}
+  .logo-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em}
+  .logo-name em{font-style:normal;font-weight:700;color:var(--orange)}
+  .logo-tag{font-family:'DM Mono',monospace;font-size:6.5px;letter-spacing:.14em;color:#FFF;text-transform:uppercase}
+  .nav-links{display:flex;align-items:center;gap:32px;list-style:none;margin:0;padding:0}
+  .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+  .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95)}
+  .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px}
+  .nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important}
+  .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px}
+  .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px}
+  .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px}
+  .drawer.open{display:block}
+  .drawer ul{list-style:none;margin:0;padding:0}
+  .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);border-bottom:1px solid rgba(255,255,255,.07)}
+  .d-cta{color:var(--orange)!important;font-weight:700!important}
+
+  /* BREADCRUMB */
+  .breadcrumb{background:var(--white);border-bottom:1px solid var(--line)}
+  .breadcrumb-inner{max-width:1480px;margin:0 auto;padding:0 40px;display:flex;align-items:center;gap:8px;height:40px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--gray)}
+  .breadcrumb a{color:var(--gray)}
+  .breadcrumb-sep{color:var(--line2)}
+  .breadcrumb-current{color:var(--charcoal)}
+
+  /* INTAKE */
+  .wrap{max-width:640px;margin:0 auto;padding:28px 20px 64px}
+  .page-head{padding:18px 0 6px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray);margin:0 0 10px}
+  .wordmark{font-family:var(--display);font-weight:700;font-size:clamp(34px,7vw,52px);line-height:1;margin:0;color:var(--navy)}
+  .tagline{margin:10px 0 0;color:var(--gray);font-size:16px}
+  .byline{font-family:var(--mono);font-size:11px;color:var(--gray);margin-top:14px}
+  .byline b{color:var(--navy);font-weight:500}
+  .rule{height:1px;background:var(--navy);opacity:.85;margin:20px 0 24px}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .panel-title{font-family:var(--display);font-weight:600;font-size:28px;color:var(--navy);margin:0 0 6px}
+  .panel-sub{color:var(--gray);font-size:14.5px;margin:0 0 18px}
+  .field{display:block;margin-bottom:14px}
+  .field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);margin:0 0 6px}
+  .field .hint{font-size:12.5px;color:var(--gray);margin:5px 0 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  input.in,select.in{width:100%;font-family:var(--body);font-size:15px;color:var(--charcoal);background:var(--white);border:1px solid rgba(11,31,74,.22);border-radius:9px;padding:11px 13px}
+  input.in::placeholder{color:#6b7382}
+  input.in:focus,select.in:focus{outline:2px solid var(--navy);outline-offset:1px;border-color:var(--navy)}
+  .err-msg{font-size:12.5px;color:#A04A14;margin:5px 2px 0}
+  .err-msg:empty{display:none}
+  .btn-primary{appearance:none;border:none;background:var(--orange);color:var(--navy);font-family:var(--body);font-weight:600;font-size:15px;padding:12px 22px;border-radius:10px;display:inline-flex;align-items:center;gap:8px}
+  .btn-primary:hover{background:#cf6f22}
+  .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+
+  /* CANVAS SHELL */
+  .md-topstrip{max-width:1480px;margin:0 auto;padding:14px 40px 0;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .md-biz{font-family:var(--display);font-weight:600;font-size:26px;color:var(--navy);margin:0;line-height:1.05}
+  .md-sell{color:var(--gray);font-size:13px;margin:2px 0 0}
+  .md-strip-tools{display:flex;gap:10px;align-items:center}
+  .md-tool{appearance:none;background:var(--white);border:1px solid var(--line2);color:var(--navy);font-size:12px;font-weight:500;padding:7px 12px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}
+  .md-tool:hover{border-color:var(--navy)}
+  .md-shell{display:flex;max-width:1480px;margin:0 auto;padding:14px 40px 0;gap:0;min-height:70vh}
+  .md-sidebar{width:208px;flex-shrink:0;background:var(--white);border:1px solid var(--line);border-right:none;border-radius:10px 0 0 10px;padding:14px 10px;display:flex;flex-direction:column;gap:4px}
+  .md-side-head{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);padding:2px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .md-nav-sec{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);padding:10px 8px 4px}
+  .md-nav-empty{font-size:12px;color:var(--gray);padding:4px 8px}
+  .md-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;border:1px solid transparent;background:transparent;width:100%;text-align:left;color:var(--charcoal);font-size:13px;font-weight:500}
+  .md-nav-item:hover{background:var(--light);border-color:var(--line)}
+  .md-nav-item .ni-ic{width:16px;text-align:center;flex-shrink:0}
+  .md-nav-item .ni-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-nav-item .ni-x{opacity:.5;font-size:14px;width:18px;text-align:center}
+  .md-nav-item .ni-x:hover{opacity:1;color:#b42828}
+  .md-nav-item.on .ni-dot{width:6px;height:6px;border-radius:50%;background:var(--live,#4A9E6B);flex-shrink:0}
+  .md-nav-item.locked{opacity:.5;cursor:default}
+  .md-nav-item.locked:hover{background:transparent;border-color:transparent}
+  .md-workspace{position:relative;flex:1;height:calc(100vh - 180px);min-height:560px;overflow:hidden;background:var(--white);border:1px solid var(--line);border-radius:0 10px 10px 0}
+
+  /* WINDOW */
+  .md-win{position:absolute;background:var(--white);border:1px solid var(--line2);border-radius:8px;box-shadow:0 2px 18px rgba(11,31,74,.10);display:flex;flex-direction:column;max-height:calc(100% - 12px);overflow:hidden}
+  .md-win.hidden{display:none}
+  .md-win-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--cream);border-bottom:1px solid var(--line);cursor:grab;user-select:none;touch-action:none;flex-shrink:0}
+  .md-win-bar:active{cursor:grabbing}
+  .md-grip{color:var(--line2);font-size:12px;letter-spacing:-1px;flex-shrink:0}
+  .md-win-title{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-win-tools{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+  .md-ctl{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--white);border-radius:5px;color:var(--gray);font-size:13px;line-height:1;padding:0}
+  .md-ctl:hover{border-color:var(--navy);color:var(--navy)}
+  .md-ctl.close:hover{border-color:#b42828;color:#b42828}
+  .md-win-body{padding:14px 15px 16px;overflow:auto;flex:1;min-height:0}
+  .md-win.collapsed .md-win-body{display:none}
+  .md-rz{position:absolute;z-index:7;touch-action:none}
+  .md-rz-n{top:0;left:10px;right:10px;height:6px;cursor:ns-resize}
+  .md-rz-s{bottom:0;left:10px;right:10px;height:6px;cursor:ns-resize}
+  .md-rz-e{right:0;top:10px;bottom:10px;width:6px;cursor:ew-resize}
+  .md-rz-w{left:0;top:10px;bottom:10px;width:6px;cursor:ew-resize}
+  .md-rz-ne{top:0;right:0;width:13px;height:13px;cursor:nesw-resize}
+  .md-rz-nw{top:0;left:0;width:13px;height:13px;cursor:nwse-resize}
+  .md-rz-se{bottom:0;right:0;width:15px;height:15px;cursor:nwse-resize}
+  .md-rz-sw{bottom:0;left:0;width:13px;height:13px;cursor:nesw-resize}
+  .md-rz-se::after{content:"";position:absolute;right:3px;bottom:3px;width:6px;height:6px;border-right:2px solid var(--line2);border-bottom:2px solid var(--line2)}
+  .md-win:hover .md-rz-se::after{border-color:var(--navy)}
+  .md-win.collapsed .md-rz{display:none}
+
+  /* MODULE BODY CONTENT */
+  .mod-intro{color:var(--gray);font-size:13px;margin:0 0 12px}
+  .result-box{background:var(--light);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
+  .statement{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.3;color:var(--navy);margin:0 0 12px}
+  .btn-gen{appearance:none;border:none;background:var(--orange);color:var(--navy);font-family:var(--body);font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:8px}
+  .btn-gen:hover{background:#cf6f22}
+  .btn-copy{appearance:none;border:1px solid var(--line2);background:var(--white);color:var(--gray);font-family:var(--mono);font-size:11px;border-radius:7px;padding:5px 9px;display:inline-flex;gap:5px}
+  .btn-copy:hover{border-color:var(--navy);color:var(--navy)}
+  .btn-copy.done{color:var(--orange);border-color:var(--orange)}
+  .week-h{font-family:var(--display);font-weight:600;font-size:17px;color:var(--navy);margin:0 0 10px}
+  .week-block{margin-bottom:20px}
+  .post{background:var(--white);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
+  .post-tile{height:90px;display:flex;align-items:flex-end;padding:10px}
+  .post-tile span{background:rgba(0,0,0,.28);color:#fff;font-family:var(--mono);font-size:10px;border-radius:5px;padding:2px 6px}
+  .post-body{padding:12px}
+  .post-meta{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:10px;margin-bottom:7px}
+  .post-meta .plat{color:var(--navy)}
+  .post-meta .time{color:var(--gray)}
+  .post-copy{color:var(--charcoal);font-size:13px;line-height:1.5;margin:0 0 10px;white-space:pre-wrap}
+  .brief{background:var(--cream);border-radius:8px;padding:10px;margin-bottom:10px}
+  .brief .blbl{font-family:var(--mono);font-size:9px;letter-spacing:.03em;color:var(--gray);margin:0 0 4px}
+  .brief p{color:var(--charcoal);font-size:12px;margin:0}
+  .seo-block{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+  .seo-pagename{font-family:var(--display);font-weight:600;font-size:17px;color:var(--navy);margin:0 0 2px}
+  .seo-row{padding:11px 0;border-top:1px solid rgba(11,31,74,.10)}
+  .seo-row .rh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+  .seo-row .rl{font-family:var(--mono);font-size:10px;color:var(--navy)}
+  .seo-row .rv{color:var(--charcoal);font-size:13px;margin:0 0 4px;white-space:pre-wrap}
+  .seo-row .rn{color:var(--gray);font-size:11px;margin:0}
+  .faq-item{background:var(--cream);border-radius:8px;padding:10px;margin-bottom:7px}
+  .faq-item .fq{font-size:12px;font-weight:600;color:var(--charcoal);margin:0 0 3px}
+  .faq-item .fa{font-size:12px;color:var(--charcoal);margin:0}
+  .add-row .field{margin-bottom:10px}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(224,123,42,.3);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-row{display:flex;align-items:center;gap:10px;color:var(--gray);font-size:13px;padding:14px 0}
+  .errbox{background:#FDECEA;border:1px solid #F3C0B8;border-left:3px solid #C0392B;border-radius:9px;padding:11px 13px;margin:10px 0}
+  .errbox p{color:#9A2218;font-size:13px;margin:0 0 8px}
+  .btn-retry{appearance:none;border:none;background:var(--orange);color:#fff;font-weight:600;font-size:12px;padding:7px 12px;border-radius:7px}
+  .metric .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--gray);margin:0 0 6px}
+  .metric input{width:120px;background:transparent;border:none;border-bottom:2px solid var(--orange);color:var(--navy);font-family:var(--mono);font-size:30px;outline:none;padding:2px 0}
+  .metric .note{color:var(--gray);font-size:11px;margin:8px 0 0}
+  .verify-cap{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin:0 0 8px}
+  .gate-email{display:none;margin-top:12px}
+  .gate-email.show{display:block}
+  .gate-note{font-size:12px;color:#A04A14;margin:6px 2px 0}
+  .gate-note:empty{display:none}
+
+  footer{max-width:1480px;margin:18px auto 0;padding:18px 40px;color:var(--gray);font-size:13px;font-family:var(--mono);border-top:1px solid var(--line)}
+
+  @media(max-width:980px){
+    .md-rz{display:none}
+    .md-shell{flex-direction:column;padding:14px 18px 0}
+    .md-sidebar{width:auto;border-right:1px solid var(--line);border-radius:10px;flex-direction:row;flex-wrap:wrap}
+    .md-workspace{height:auto;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:14px;border-radius:10px;margin-top:14px;padding:14px}
+    .md-win{position:static!important;width:auto!important;height:auto!important;max-height:none!important;z-index:auto!important}
+    .md-win-bar{cursor:default}.md-grip{display:none}
+    .md-topstrip{padding:14px 18px 0}
+    .nav-inner,.breadcrumb-inner{padding:0 18px}
+    .burger{display:flex}.nav-links,.nav-cta{display:none}
+    footer{padding:18px}
+    .grid2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+  <a href="../index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/><polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/><polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/><polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/><polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/><polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/><polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm"><span class="logo-name"><span>the</span> <em>clear</em> stack</span><span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span></div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li><li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li><li><a href="../about.html">Founder</a></li>
+    <li><a href="../lab/index.html" class="active">Lab</a></li>
+  </ul>
+  <a href="../contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+<div class="drawer" id="drawer">
+  <ul>
+    <li><a href="../index.html">What We Do</a></li><li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li><li><a href="../about.html">Founder</a></li>
+    <li><a href="../lab/index.html">Lab</a></li><li><a href="../contact.html" class="d-cta">Work With Us →</a></li>
+  </ul>
+</div>
+
+<div class="breadcrumb"><div class="breadcrumb-inner">
+  <a href="../lab/index.html">Lab</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">Marketing Dashboard</span>
+</div></div>
+
+<div id="root">
+  <div class="wrap"><div class="card"><p class="panel-sub" style="margin:0">Loading the dashboard...</p></div>
+  <noscript><p class="panel-sub">This tool needs JavaScript turned on. Please enable it and refresh.</p></noscript></div>
+</div>
+
+<footer>© 2026 The Clear Stack · theclearstack.com</footer>
+
+<script>
+"use strict";
+/* Marketing Dashboard — windowed canvas (Wheelhouse-style). Front end only.
+   Generation is a same-origin POST to /api/marketing (key + guards server-side). */
+
+var TS_SITEKEY = "0x4AAAAAADn5Q4-twfJSHLLl";
+var STORE_KEY = "cs_marketing_v1";
+var WIN_STORE = "cs_marketing_layout_v1";
+
+var state = { intake:null, plan:{}, screen:"intake" };
+var modStatus = { positioning:{s:"idle",err:""}, calendar:{s:"idle",err:""}, seo:{s:"idle",err:""} };
+var seoPageDraft = "";
+
+/* windows that exist on the canvas */
+var WINS = [
+  { id:"positioning", label:"Positioning", icon:"✨", def:true },
+  { id:"calendar",    label:"Content calendar", icon:"🗓", def:true },
+  { id:"seo",         label:"SEO & AEO sheet", icon:"🔍", def:true },
+  { id:"inquiries",   label:"New inquiries", icon:"📊", def:true },
+  { id:"verify",      label:"Verify", icon:"🔒", def:true }
+];
+var COMING_SOON = [
+  { label:"Google Business Profile" }, { label:"Email capture" },
+  { label:"Reviews and social proof" }, { label:"Lead generation" }, { label:"Paid ads plan" }
+];
+var winState = {}; var topZ = 10;
+
+/* persistence */
+function loadState(){ try{ var raw=localStorage.getItem(STORE_KEY); if(raw){ var p=JSON.parse(raw); if(p&&typeof p==="object"){ state.intake=p.intake||null; state.plan=p.plan||{}; state.screen=state.intake?"canvas":"intake"; } } }catch(e){} }
+function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({intake:state.intake,plan:state.plan})); }catch(e){} }
+function loadWins(){ try{ return JSON.parse(localStorage.getItem(WIN_STORE)||"{}")||{}; }catch(e){ return {}; } }
+function saveWins(){ try{ var o={}; WINS.forEach(function(w){ var s=winState[w.id]; if(s) o[w.id]={x:s.x,y:s.y,w:s.w,h:s.h,hidden:s.hidden,collapsed:s.collapsed,z:s.z}; }); localStorage.setItem(WIN_STORE, JSON.stringify(o)); }catch(e){} }
+
+/* helpers */
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+var copyMap = {}; var copySeq = 0;
+function copyBtn(text){ var id="cp"+(copySeq++); copyMap[id]=text; return '<button class="btn-copy" data-copy="'+id+'">Copy</button>'; }
+function wireCopy(root){ (root||document).querySelectorAll("[data-copy]").forEach(function(b){ b.addEventListener("click",function(){ var t=copyMap[b.getAttribute("data-copy")]||""; try{ var ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }catch(e){} b.classList.add("done"); b.textContent="Copied"; setTimeout(function(){ b.classList.remove("done"); b.textContent="Copy"; },1400); }); }); }
+
+/* Turnstile */
+var tsId=null;
+function mountTurnstile(){ var host=el("ts-widget"); if(!host||tsId!==null)return; if(window.turnstile&&window.turnstile.render){ try{ tsId=window.turnstile.render(host,{sitekey:TS_SITEKEY,theme:"light"}); }catch(e){} } }
+function tsToken(){ try{ return (window.turnstile&&tsId!==null)?(window.turnstile.getResponse(tsId)||""):""; }catch(e){ return ""; } }
+function tsReset(){ try{ if(window.turnstile&&tsId!==null) window.turnstile.reset(tsId); }catch(e){} }
+
+/* email gate (lives in the verify window) */
+function showEmailGate(msg){ winShow("verify"); var row=el("gate-email"); if(row)row.classList.add("show"); var n=el("gate-note"); if(n)n.textContent=msg||"Enter your email to unlock your first result."; var inp=el("gate-email-input"); if(inp)inp.focus(); }
+function hideEmailGate(){ var row=el("gate-email"); if(row)row.classList.remove("show"); var n=el("gate-note"); if(n)n.textContent=""; }
+
+/* the one network call */
+async function callMarketing(action, extra){
+  var emailInput=el("gate-email-input"); var email=emailInput?emailInput.value.trim():"";
+  var payload=Object.assign({action:action,intake:state.intake,token:tsToken(),email:email},extra||{});
+  var res,data={};
+  try{ res=await fetch("/api/marketing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); try{data=await res.json();}catch(e){data={};} }
+  catch(e){ tsReset(); throw new Error("Could not connect. Check your connection and try again."); }
+  if(data&&data.need_email){ tsReset(); showEmailGate(data.error); var g=new Error(data.error||"Enter your email."); g.gated=true; throw g; }
+  if(!res.ok||!data||data.error){ tsReset(); throw new Error((data&&data.error)||"Something went wrong. Please try again."); }
+  hideEmailGate(); tsReset(); return data.result;
+}
+
+/* ===== top-level render ===== */
+function render(){
+  var root=el("root"); if(!root)return;
+  copyMap={};
+  try{
+    if(state.screen==="intake"){ root.innerHTML=intakeHTML(); wireIntake(); }
+    else { root.innerHTML=canvasHTML(); buildCanvas(); }
+  }catch(e){
+    try{console.error("render error:",e);}catch(_){}
+    try{localStorage.removeItem(STORE_KEY);localStorage.removeItem(WIN_STORE);}catch(_){}
+    state.screen="intake"; state.plan={};
+    try{ root.innerHTML=intakeHTML(); wireIntake(); }
+    catch(e2){ root.innerHTML='<div class="wrap"><div class="card"><p>Something went wrong starting the tool. Please refresh.</p></div></div>'; }
+  }
+}
+
+/* ===== INTAKE ===== */
+var INDUSTRIES=["Restaurant or cafe","Retail shop","Health and wellness","Beauty and personal care","Home services (plumbing, cleaning, etc.)","Professional services (legal, accounting, consulting)","Fitness studio or gym","Real estate","Construction or trades","Auto services","Education or tutoring","Creative or design studio","E-commerce or online store","Nonprofit","Other"];
+var AGES=["18 to 24","25 to 34","35 to 44","45 to 54","55 to 64","65 and over","All ages"];
+var GENDERS=["All / not relevant","Mostly women","Mostly men","Even mix"];
+var BUDGETS=["Under $250 a month","$250 to $500 a month","$500 to $1,000 a month","$1,000 to $2,500 a month","$2,500 or more a month","Not sure yet"];
+function optsList(list,sel){ return list.map(function(o){ return '<option value="'+esc(o)+'"'+(o===sel?" selected":"")+">"+esc(o)+"</option>"; }).join(""); }
+function intakeHTML(){
+  var f=state.intake||{name:"",website:"",sell:"",industry:"",age:"",location:"",gender:"All / not relevant",budget:""};
+  return '<div class="wrap">'
+  +'<header class="page-head"><p class="eyebrow">Marketing Made Simple</p><h1 class="wordmark">Marketing Dashboard</h1>'
+  +'<p class="tagline">Answer a few questions about your business. We turn them into real marketing you can use, laid out on a dashboard you can arrange yourself.</p>'
+  +'<p class="byline">A free tool from <b>The Clear Stack</b></p></header><div class="rule"></div>'
+  +'<div class="card"><h2 class="panel-title">Tell us about your business</h2>'
+  +'<p class="panel-sub">Only the first two are required. The rest help us make the marketing fit your business.</p>'
+  +'<div class="field"><label>Business name *</label><input class="in" id="f-name" value="'+esc(f.name)+'" placeholder="e.g. Marisol\'s Flowers" /><div class="err-msg" id="e-name"></div></div>'
+  +'<div class="field"><label>Website address</label><input class="in" id="f-website" value="'+esc(f.website)+'" placeholder="https://" /><div class="hint">Optional.</div></div>'
+  +'<div class="field"><label>What you sell, in one sentence *</label><input class="in" id="f-sell" value="'+esc(f.sell)+'" placeholder="e.g. Fresh flower bouquets for weddings and events" /><div class="err-msg" id="e-sell"></div></div>'
+  +'<div class="grid2">'
+  +'<div class="field"><label>Industry</label><select class="in" id="f-industry"><option value="">Choose one</option>'+optsList(INDUSTRIES,f.industry)+'</select></div>'
+  +'<div class="field"><label>Target customer age</label><select class="in" id="f-age"><option value="">Choose one</option>'+optsList(AGES,f.age)+'</select></div>'
+  +'<div class="field"><label>Location</label><input class="in" id="f-location" value="'+esc(f.location)+'" placeholder="City, state" /></div>'
+  +'<div class="field"><label>Customer gender</label><select class="in" id="f-gender">'+optsList(GENDERS,f.gender||"All / not relevant")+'</select></div>'
+  +'</div>'
+  +'<div class="field"><label>Monthly budget</label><select class="in" id="f-budget"><option value="">Choose one</option>'+optsList(BUDGETS,f.budget)+'</select></div>'
+  +'<button class="btn-primary" id="build-btn">Build my dashboard</button></div>'
+  +'<p class="byline" style="text-align:center;margin-top:18px">This tool generates and displays. You copy, export, and run any spend yourself.</p></div>';
+}
+function wireIntake(){
+  el("build-btn").addEventListener("click",function(){
+    var name=el("f-name").value.trim(), sell=el("f-sell").value.trim();
+    el("e-name").textContent=""; el("e-sell").textContent=""; var ok=true;
+    if(!name){ el("e-name").textContent="Please add your business name."; ok=false; }
+    if(!sell){ el("e-sell").textContent="Tell us in one sentence what you sell."; ok=false; }
+    if(!ok)return;
+    state.intake={name:name,website:el("f-website").value.trim(),sell:sell,industry:el("f-industry").value,age:el("f-age").value,location:el("f-location").value.trim(),gender:el("f-gender").value,budget:el("f-budget").value};
+    state.screen="canvas"; saveState(); render();
+  });
+}
+
+/* ===== CANVAS ===== */
+function winBody(id){ return '<div class="md-win-body"><div id="wb-'+id+'"></div></div>'; }
+function winShell(w){
+  return '<section class="md-win hidden" id="win-'+w.id+'">'
+    +'<div class="md-win-bar" id="bar-'+w.id+'"><span class="md-grip">⠿</span><span class="md-win-title">'+esc(w.label)+'</span>'
+    +'<div class="md-win-tools"><button class="md-ctl" data-ctl="collapse" data-id="'+w.id+'" title="Collapse">–</button>'
+    +'<button class="md-ctl close" data-ctl="close" data-id="'+w.id+'" title="Close">×</button></div></div>'
+    + winBody(w.id) + '</section>';
+}
+function canvasHTML(){
+  var i=state.intake||{};
+  return '<div class="md-topstrip"><div><h1 class="md-biz">'+esc(i.name)+'</h1><p class="md-sell">'+esc(i.sell)+'</p></div>'
+    +'<div class="md-strip-tools"><button class="md-tool" id="reset-btn">Reset layout</button><button class="md-tool" id="edit-btn">Edit answers</button></div></div>'
+    +'<div class="md-shell"><aside class="md-sidebar"><div class="md-side-head">Windows</div><div id="md-nav"></div></aside>'
+    +'<div class="md-workspace" id="md-workspace">'+WINS.map(winShell).join("")+'</div></div>';
+}
+function canDrag(){ try{ return window.matchMedia("(min-width:981px)").matches; }catch(e){ return true; } }
+function wsSize(){ var w=el("md-workspace"); return w?{W:w.clientWidth,H:w.clientHeight}:{W:1200,H:640}; }
+function defaultLayout(){
+  var sz=wsSize(), W=sz.W||1200, H=sz.H||640;
+  var rightX=Math.max(400, W-272);
+  return {
+    positioning:{x:16,y:16,w:344,h:232},
+    seo:{x:16,y:260,w:344,h:Math.max(280,H-292)},
+    calendar:{x:376,y:16,w:Math.min(560,Math.max(360,rightX-392)),h:Math.max(360,H-40)},
+    verify:{x:rightX,y:16,w:256,h:208},
+    inquiries:{x:rightX,y:240,w:256,h:158}
+  };
+}
+function initWins(){
+  var def=defaultLayout(), saved=loadWins();
+  WINS.forEach(function(w){
+    var d=def[w.id]||{x:20,y:20,w:320,h:300}, s=saved[w.id]||{};
+    winState[w.id]={ x:s.x!=null?s.x:d.x, y:s.y!=null?s.y:d.y, w:s.w!=null?s.w:d.w, h:s.h!=null?s.h:d.h,
+      hidden:s.hidden!=null?s.hidden:!w.def, collapsed:s.collapsed!=null?s.collapsed:false, z:s.z||(++topZ) };
+    var elw=el("win-"+w.id);
+    if(elw){
+      var bar=el("bar-"+w.id);
+      if(bar) bar.addEventListener("pointerdown",function(e){ winDown(e,w.id); });
+      if(!elw.querySelector(".md-rz")){
+        ["n","s","e","w","ne","nw","se","sw"].forEach(function(dir){ var rz=document.createElement("div"); rz.className="md-rz md-rz-"+dir; rz.addEventListener("pointerdown",function(e){ resizeDown(e,w.id,dir); }); elw.appendChild(rz); });
+      }
+      elw.addEventListener("pointerdown",function(){ winFront(w.id); });
+    }
+    applyWin(w.id);
+  });
+}
+function applyWin(id){
+  var elw=el("win-"+id), st=winState[id]; if(!elw||!st)return;
+  elw.classList.toggle("hidden",!!st.hidden);
+  elw.classList.toggle("collapsed",!!st.collapsed);
+  if(canDrag()){ elw.style.left=st.x+"px"; elw.style.top=st.y+"px"; elw.style.width=st.w+"px"; elw.style.zIndex=st.z; elw.style.height=st.collapsed?"":st.h+"px"; }
+  else { elw.style.left=elw.style.top=elw.style.width=elw.style.height=elw.style.zIndex=""; }
+}
+function applyAll(){ WINS.forEach(function(w){ applyWin(w.id); }); }
+function winFront(id){ var st=winState[id]; if(!st)return; st.z=++topZ; var elw=el("win-"+id); if(elw&&canDrag()) elw.style.zIndex=st.z; }
+function winDown(e,id){
+  winFront(id); buildLauncher();
+  if(!canDrag())return;
+  if(e.target.closest(".md-ctl,button,a,input,select"))return;
+  e.preventDefault();
+  var st=winState[id], sx=e.clientX, sy=e.clientY, ox=st.x, oy=st.y, sz=wsSize(), elw=el("win-"+id), ew=elw.offsetWidth;
+  function mv(ev){ st.x=Math.max(-ew+80,Math.min(sz.W-80,ox+(ev.clientX-sx))); st.y=Math.max(0,Math.min(sz.H-34,oy+(ev.clientY-sy))); elw.style.left=st.x+"px"; elw.style.top=st.y+"px"; }
+  function up(){ window.removeEventListener("pointermove",mv); window.removeEventListener("pointerup",up); saveWins(); }
+  window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up);
+}
+function resizeDown(e,id,dir){
+  if(!canDrag())return; e.preventDefault(); e.stopPropagation(); winFront(id);
+  var st=winState[id], elw=el("win-"+id), sx=e.clientX, sy=e.clientY, ox=st.x, oy=st.y, ow=elw.offsetWidth, oh=elw.offsetHeight, sz=wsSize(), minW=220, minH=120;
+  function mv(ev){
+    var dx=ev.clientX-sx, dy=ev.clientY-sy, x=ox, y=oy, w=ow, h=oh;
+    if(dir.indexOf("e")>=0) w=ow+dx;
+    if(dir.indexOf("w")>=0){ w=ow-dx; x=ox+dx; }
+    if(dir.indexOf("s")>=0) h=oh+dy;
+    if(dir.indexOf("n")>=0){ h=oh-dy; y=oy+dy; }
+    if(w<minW){ if(dir.indexOf("w")>=0) x-=(minW-w); w=minW; }
+    if(x<0){ w+=x; x=0; } if(x+w>sz.W) w=sz.W-x;
+    if(h<minH){ if(dir.indexOf("n")>=0) y-=(minH-h); h=minH; }
+    if(y<0){ h+=y; y=0; } if(y+h>sz.H) h=sz.H-y;
+    st.x=x; st.y=y; st.w=w; st.h=h;
+    elw.style.left=x+"px"; elw.style.top=y+"px"; elw.style.width=w+"px"; elw.style.height=h+"px";
+  }
+  function up(){ window.removeEventListener("pointermove",mv); window.removeEventListener("pointerup",up); saveWins(); }
+  window.addEventListener("pointermove",mv); window.addEventListener("pointerup",up);
+}
+function winHide(id){ winState[id].hidden=true; applyWin(id); saveWins(); buildLauncher(); }
+function winShow(id){ var st=winState[id]; if(!st)return; st.hidden=false; var sz=wsSize(); if(st.x<0||st.y<0||st.x>sz.W-60||st.y>sz.H-30){ var d=defaultLayout()[id]; if(d){ st.x=d.x; st.y=d.y; } } winFront(id); applyWin(id); saveWins(); buildLauncher(); }
+function winToggle(id){ winState[id].hidden?winShow(id):winHide(id); }
+function winCollapse(id){ winState[id].collapsed=!winState[id].collapsed; applyWin(id); saveWins(); }
+function winFocus(id){ if(!winState[id])return; if(winState[id].hidden) winShow(id); else { winFront(id); buildLauncher(); } }
+function resetLayout(){ try{localStorage.removeItem(WIN_STORE);}catch(e){} winState={}; topZ=10; initWins(); buildLauncher(); }
+function buildLauncher(){
+  var open=[], closed=[];
+  WINS.forEach(function(w){ var st=winState[w.id]; if(!st)return; (st.hidden?closed:open).push(w); });
+  function row(w,isOpen){
+    return '<button class="md-nav-item'+(isOpen?" on":"")+'" data-act="focus" data-id="'+w.id+'">'
+      +'<span class="ni-ic">'+w.icon+'</span><span class="ni-lbl">'+esc(w.label)+'</span>'
+      +(isOpen?'<span class="ni-x" data-act="hide" data-id="'+w.id+'" title="Close">×</span><span class="ni-dot"></span>':'')+'</button>';
+  }
+  var openRows=open.map(function(w){ return row(w,true); }).join("");
+  var closedRows=closed.map(function(w){ return row(w,false); }).join("");
+  var soon=COMING_SOON.map(function(c){ return '<button class="md-nav-item locked" disabled><span class="ni-ic">🔒</span><span class="ni-lbl">'+esc(c.label)+'</span></button>'; }).join("");
+  var nav=el("md-nav");
+  nav.innerHTML='<div class="md-nav-sec">Open</div>'+(openRows||'<div class="md-nav-empty">No open windows</div>')
+    +(closed.length?'<div class="md-nav-sec">Closed</div>'+closedRows:"")
+    +'<div class="md-nav-sec">Coming soon</div>'+soon;
+}
+function wireNav(){
+  el("md-nav").addEventListener("click",function(e){
+    var t=e.target.closest("[data-act]"); if(!t)return;
+    var act=t.getAttribute("data-act"), id=t.getAttribute("data-id");
+    if(act==="hide"){ e.stopPropagation(); winHide(id); return; }
+    if(act==="focus"){ winFocus(id); }
+  });
+}
+function buildCanvas(){
+  initWins();
+  // static window bodies
+  renderInquiriesBody();
+  renderVerifyBody();
+  // generative module bodies
+  ["positioning","calendar","seo"].forEach(applyModuleBody);
+  buildLauncher(); wireNav();
+  // window controls
+  el("md-workspace").querySelectorAll("[data-ctl]").forEach(function(b){
+    b.addEventListener("click",function(e){ e.stopPropagation(); var id=b.getAttribute("data-id"); if(b.getAttribute("data-ctl")==="collapse") winCollapse(id); else winHide(id); });
+  });
+  el("reset-btn").addEventListener("click",resetLayout);
+  el("edit-btn").addEventListener("click",function(){ state.screen="intake"; render(); });
+  // Turnstile retry mount
+  mountTurnstile(); var tries=0; var iv=setInterval(function(){ if(tsId!==null||tries++>40){clearInterval(iv);return;} mountTurnstile(); },200);
+}
+
+/* ===== static bodies ===== */
+function renderInquiriesBody(){
+  var inq=(state.plan.inquiries==null?"":state.plan.inquiries);
+  el("wb-inquiries").innerHTML='<div class="metric"><p class="lbl">NEW INQUIRIES THIS MONTH</p>'
+    +'<input type="number" min="0" id="inq-input" value="'+esc(inq)+'" placeholder="0" />'
+    +'<p class="note">You type this in yourself. Nothing here is filled in for you.</p></div>';
+  var inp=el("inq-input"); inp.addEventListener("input",function(){ state.plan.inquiries=(inp.value===""?null:inp.value); saveState(); });
+}
+function renderVerifyBody(){
+  el("wb-verify").innerHTML='<p class="verify-cap">Quick human check</p><div id="ts-widget"></div>'
+    +'<div class="gate-email" id="gate-email"><p class="verify-cap" style="margin-top:4px">Your email — one time, to unlock results</p>'
+    +'<input class="in" id="gate-email-input" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />'
+    +'<div class="gate-note" id="gate-note"></div></div>';
+}
+
+/* ===== generative module bodies ===== */
+function loadingHTML(note){ return '<div class="loading-row"><span class="spinner"></span><span>'+esc(note)+'</span></div>'; }
+function errorHTML(msg){ return '<div class="errbox"><p>'+esc(msg)+'</p><button class="btn-retry" data-retry="1">Try again</button></div>'; }
+function applyModuleBody(id){
+  var host=el("wb-"+id); if(!host)return;
+  if(id==="positioning") host.innerHTML=positioningBody();
+  else if(id==="calendar") host.innerHTML=calendarBody();
+  else if(id==="seo") host.innerHTML=seoBody();
+  wireModuleBody(id); wireCopy(host);
+}
+function wireModuleBody(id){
+  var host=el("wb-"+id); if(!host)return;
+  var retry=host.querySelector("[data-retry]");
+  if(id==="positioning"){ var b=el("gen-pos"); if(b)b.addEventListener("click",genPositioning); if(retry)retry.addEventListener("click",genPositioning); }
+  if(id==="calendar"){ var c=el("gen-cal"); if(c)c.addEventListener("click",genCalendar); if(retry)retry.addEventListener("click",genCalendar); }
+  if(id==="seo"){ var s=el("seo-page"); if(s)s.addEventListener("input",function(){ seoPageDraft=s.value; }); var g=el("gen-seo"); if(g)g.addEventListener("click",genSeo); if(retry)retry.addEventListener("click",genSeo); }
+}
+function positioningBody(){
+  var st=modStatus.positioning, html='<p class="mod-intro">A single line: who you serve and what you promise.</p>';
+  if(st.s==="loading") html+=loadingHTML("Writing your positioning line...");
+  if(st.s==="error") html+=errorHTML(st.err);
+  if(state.plan.positioning&&st.s!=="loading") html+='<div class="result-box"><p class="statement">'+esc(state.plan.positioning)+'</p>'+copyBtn(state.plan.positioning)+'</div>';
+  if(st.s!=="loading") html+='<button class="btn-gen" id="gen-pos">'+(state.plan.positioning?"Generate a new line":"Generate")+'</button>';
+  return html;
+}
+async function genPositioning(){
+  modStatus.positioning={s:"loading",err:""}; applyModuleBody("positioning");
+  try{ var r=await callMarketing("positioning",{}); if(!r||typeof r.statement!=="string") throw new Error("We could not read the result."); state.plan.positioning=r.statement; saveState(); modStatus.positioning={s:"idle",err:""}; }
+  catch(e){ if(e&&e.gated){ modStatus.positioning={s:"idle",err:""}; } else { modStatus.positioning={s:"error",err:(e&&e.message)||"Something went wrong."}; } }
+  applyModuleBody("positioning");
+}
+function calendarBody(){
+  var st=modStatus.calendar, weeks=state.plan.weeks||[], tiles=["linear-gradient(135deg,#0B1F4A,#2550A8)","linear-gradient(135deg,#E07B2A,#C56A18)","linear-gradient(135deg,#2550A8,#5A6478)"];
+  var html='<p class="mod-intro">A week of social posts at a time: the words to post, a picture brief, the platform, and a good time. Make as many weeks as you like.</p>';
+  weeks.forEach(function(week,wi){
+    var posts=(week||[]).map(function(p,pi){
+      return '<div class="post"><div class="post-tile" style="background:'+tiles[pi%3]+'"><span>Image placeholder</span></div>'
+        +'<div class="post-body"><div class="post-meta"><span class="plat">'+esc(p.day)+" · "+esc(p.platform)+'</span><span class="time">'+esc(p.best_time)+'</span></div>'
+        +'<p class="post-copy">'+esc(p.copy)+'</p><div class="brief"><p class="blbl">IMAGE BRIEF — hand to an image tool</p><p>'+esc(p.image_brief)+'</p></div>'
+        +'<div style="display:flex;gap:8px">'+copyBtn(p.copy)+copyBtn(p.image_brief)+'</div></div></div>';
+    }).join("");
+    html+='<div class="week-block"><p class="week-h">Week '+(wi+1)+'</p>'+posts+'</div>';
+  });
+  if(st.s==="loading") html+=loadingHTML("Writing this week's posts...");
+  if(st.s==="error") html+=errorHTML(st.err);
+  if(st.s!=="loading") html+='<button class="btn-gen" id="gen-cal">'+(weeks.length?"Generate another week":"Generate this week")+'</button>';
+  return html;
+}
+async function genCalendar(){
+  modStatus.calendar={s:"loading",err:""}; applyModuleBody("calendar");
+  try{ var weeks=state.plan.weeks||[]; var r=await callMarketing("calendar",{weekNo:weeks.length+1}); var arr=Array.isArray(r)?r:(r&&r.posts); if(!arr||!arr.length) throw new Error("We could not read this week's posts."); state.plan.weeks=weeks.concat([arr]); saveState(); modStatus.calendar={s:"idle",err:""}; }
+  catch(e){ if(e&&e.gated){ modStatus.calendar={s:"idle",err:""}; } else { modStatus.calendar={s:"error",err:(e&&e.message)||"Something went wrong."}; } }
+  applyModuleBody("calendar");
+}
+function seoBody(){
+  var st=modStatus.seo, pages=state.plan.seoPages||[];
+  var html='<p class="mod-intro">Per website page: title, summary line, headline, and a short FAQ. SEO helps a page show up in search; AEO helps it show up in answers from AI assistants. Add one page at a time.</p>';
+  pages.forEach(function(pg){
+    var d=pg.data||{};
+    var faqs=(d.faqs||[]).map(function(fq){ return '<div class="faq-item"><div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start"><p class="fq">'+esc(fq.q)+'</p>'+copyBtn(fq.q+"\n"+fq.a)+'</div><p class="fa">'+esc(fq.a)+'</p></div>'; }).join("");
+    html+='<div class="seo-block"><p class="seo-pagename">'+esc(pg.pageName)+'</p>'
+      +seoRow("PAGE TITLE",d.title,"Paste in your page title (the browser tab name).")
+      +seoRow("META DESCRIPTION",d.meta_description,"Paste in your meta description (the summary line in search results).")
+      +seoRow("MAIN HEADLINE (H1)",d.h1,"Paste as the big headline at the top of the page.")
+      +'<div class="seo-row"><span class="rl">FAQ BLOCK</span><p class="rn" style="margin:4px 0 8px">Paste near the bottom of the page.</p>'+faqs+'</div></div>';
+  });
+  if(st.s==="loading") html+=loadingHTML("Writing the sheet for this page...");
+  if(st.s==="error") html+=errorHTML(st.err);
+  if(st.s!=="loading") html+='<div class="add-row"><div class="field"><label>Page name or address</label><input class="in" id="seo-page" value="'+esc(seoPageDraft)+'" placeholder="e.g. Home page" /></div><button class="btn-gen" id="gen-seo">Generate for this page</button></div>';
+  return html;
+}
+function seoRow(label,value,note){ return '<div class="seo-row"><div class="rh"><span class="rl">'+esc(label)+'</span>'+copyBtn(value||"")+'</div><p class="rv">'+esc(value)+'</p><p class="rn">'+esc(note)+'</p></div>'; }
+async function genSeo(){
+  var name=seoPageDraft.trim();
+  if(!name){ modStatus.seo={s:"error",err:"Add a page name or address first."}; applyModuleBody("seo"); return; }
+  modStatus.seo={s:"loading",err:""}; applyModuleBody("seo");
+  try{ var r=await callMarketing("seo",{pageName:name}); if(!r||typeof r.title!=="string") throw new Error("We could not read the result for this page."); state.plan.seoPages=(state.plan.seoPages||[]).concat([{pageName:name,data:r}]); seoPageDraft=""; saveState(); modStatus.seo={s:"idle",err:""}; }
+  catch(e){ if(e&&e.gated){ modStatus.seo={s:"idle",err:""}; } else { modStatus.seo={s:"error",err:(e&&e.message)||"Something went wrong."}; } }
+  applyModuleBody("seo");
+}
+
+/* ===== boot ===== */
+function boot(){
+  try{ var burger=el("burger"); if(burger)burger.addEventListener("click",function(){ try{ var d=el("drawer"); if(d)d.classList.toggle("open"); }catch(_){} }); }catch(_){}
+  try{ loadState(); }catch(_){}
+  render();
+  try{ window.addEventListener("resize",function(){ if(state.screen==="canvas") applyAll(); }); }catch(_){}
+}
+if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",boot); } else { boot(); }
+</script>
+
+</body>
+</html>
