@@ -155,14 +155,12 @@
   .week-h{font-family:var(--display);font-weight:600;font-size:17px;color:var(--navy);margin:0 0 10px}
   .week-block{margin-bottom:20px}
   .post{background:var(--white);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}
-  .post-tile{height:90px;display:flex;align-items:flex-end;padding:10px}
-  .post-tile span{background:rgba(0,0,0,.28);color:#fff;font-family:var(--mono);font-size:10px;border-radius:5px;padding:2px 6px}
-  .post-body{padding:12px}
+  .post-body{padding:13px 14px}
   .post-meta{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:10px;margin-bottom:7px}
   .post-meta .plat{color:var(--navy)}
   .post-meta .time{color:var(--gray)}
   .post-copy{color:var(--charcoal);font-size:13px;line-height:1.5;margin:0 0 10px;white-space:pre-wrap}
-  .brief{background:var(--cream);border-radius:8px;padding:10px;margin-bottom:10px}
+  .brief{background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px}
   .brief .blbl{font-family:var(--mono);font-size:9px;letter-spacing:.03em;color:var(--gray);margin:0 0 4px}
   .brief p{color:var(--charcoal);font-size:12px;margin:0}
   .seo-block{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
@@ -554,13 +552,12 @@ async function genPositioning(){
   applyModuleBody("positioning");
 }
 function calendarBody(){
-  var st=modStatus.calendar, weeks=state.plan.weeks||[], tiles=["linear-gradient(135deg,#0B1F4A,#2550A8)","linear-gradient(135deg,#E07B2A,#C56A18)","linear-gradient(135deg,#2550A8,#5A6478)"];
+  var st=modStatus.calendar, weeks=state.plan.weeks||[];
   var html='<div class="explainer">This builds one week of social media posts at a time, three at once. Each post gives you the words to post, which platform to use, the best time to post, and an <b>image brief</b> (a written description of a picture you hand to an image tool, since this does not make the picture itself). Click <b>Generate this week</b>, copy what you like, and make more weeks whenever you want.</div>';
   weeks.forEach(function(week,wi){
-    var posts=(week||[]).map(function(p,pi){
-      return '<div class="post"><div class="post-tile" style="background:'+tiles[pi%3]+'"><span>Image placeholder</span></div>'
-        +'<div class="post-body"><div class="post-meta"><span class="plat">'+esc(p.day)+" · "+esc(p.platform)+'</span><span class="time">'+esc(p.best_time)+'</span></div>'
-        +'<p class="post-copy">'+esc(p.copy)+'</p><div class="brief"><p class="blbl">IMAGE BRIEF — hand to an image tool</p><p>'+esc(p.image_brief)+'</p></div>'
+    var posts=(week||[]).map(function(p){
+      return '<div class="post"><div class="post-body"><div class="post-meta"><span class="plat">'+esc(p.day)+" · "+esc(p.platform)+'</span><span class="time">'+esc(p.best_time)+'</span></div>'
+        +'<p class="post-copy">'+esc(p.copy)+'</p><div class="brief"><p class="blbl">IMAGE BRIEF — a description to give an image generator</p><p>'+esc(p.image_brief)+'</p></div>'
         +'<div style="display:flex;gap:8px">'+copyBtn(p.copy)+copyBtn(p.image_brief)+'</div></div></div>';
     }).join("");
     html+='<div class="week-block"><p class="week-h">Week '+(wi+1)+'</p>'+posts+'</div>';
