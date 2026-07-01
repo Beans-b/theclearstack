@@ -541,7 +541,7 @@ function canvasHTML(){
   var i=state.intake||{};
   return '<div class="md-topstrip"><div><h1 class="md-biz">'+esc(i.name)+'</h1><p class="md-sell">'+esc(i.sell)+'</p></div>'
     +'<div class="md-strip-tools"><button class="md-tool" id="reset-btn">Reset layout</button><button class="md-tool" id="edit-btn">Edit answers</button><button class="md-tool md-tool-primary" id="export-btn">✉ Email me my plan</button></div></div>'
-    +'<div class="export-pop" id="export-pop"><div class="export-card"><p><b>Get your plan as a PDF.</b> Enter your email and your whole plan opens as a print-ready page — save it as a PDF from the print dialog.</p><input class="in" id="export-email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" /><button class="btn-gen" id="export-send">Export my plan</button><div class="gate-note" id="export-note"></div></div></div>'
+    +'<div class="export-pop" id="export-pop"><div class="export-card"><p><b>Get your plan by email.</b> We’ll send your full plan to your inbox — you can also save it as a PDF.</p><input class="in" id="export-email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" /><button class="btn-gen" id="export-send">Email my plan</button><button class="btn-copy" id="export-print" style="font-size:12px;padding:8px 12px">Save as PDF</button><div class="gate-note" id="export-note" style="width:100%"></div></div></div>'
     +'<p class="md-hint">Each window builds one piece of your marketing. Start with <b>Positioning</b>, then work down the list on the left. You can drag a window by its title bar, resize it from any edge, or close it and reopen it from the list.</p>'
     +'<div class="md-shell"><aside class="md-sidebar"><div class="md-side-head">Your marketing tools</div><div class="md-progress" id="md-progress"></div><div id="md-nav"></div>'
     +'<div class="md-verify"><p class="verify-cap">Quick human check</p><div id="ts-widget"></div>'
@@ -694,20 +694,33 @@ function renderProgress(){
 }
 function wireExport(){
   var b=el("export-btn");
-  if(b)b.addEventListener("click",function(){ var p=el("export-pop"); if(p)p.classList.toggle("show"); var i=el("export-email"); if(i&&p&&p.classList.contains("show"))i.focus(); });
+  if(b)b.addEventListener("click",function(){ var p=el("export-pop"); if(p)p.classList.toggle("show"); var i=el("export-email"); if(i&&p&&p.classList.contains("show")){ try{ if(!i.value)i.value=localStorage.getItem("cs_export_email")||""; }catch(e){} i.focus(); } });
   var s=el("export-send"); if(s)s.addEventListener("click",doExport);
+  var pr=el("export-print"); if(pr)pr.addEventListener("click",function(){ track("export_plan",{method:"pdf"}); buildPrintPlan(); setTimeout(function(){ try{window.print();}catch(e){} },100); });
 }
-function doExport(){
-  var inp=el("export-email"), note=el("export-note"); var em=inp?inp.value.trim():"";
-  if(!EMAIL_RE.test(em)){ if(note)note.textContent="Please enter a valid email."; return; }
-  if(note)note.textContent="";
+async function doExport(){
+  var inp=el("export-email"), note=el("export-note"), btn=el("export-send");
+  var em=inp?inp.value.trim():"";
+  if(!EMAIL_RE.test(em)){ if(note){ note.style.color=""; note.textContent="Please enter a valid email."; } return; }
+  if(note){ note.style.color=""; note.textContent=""; }
   try{ localStorage.setItem("cs_export_email",em); }catch(e){}
   var g=el("gate-email-input"); if(g&&!g.value)g.value=em;
-  track("email_captured",{source:"export"}); track("export_plan",{});
-  try{ fetch("/api/marketing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"export",email:em,intake:state.intake})}); }catch(e){}
-  buildPrintPlan();
-  var p=el("export-pop"); if(p)p.classList.remove("show");
-  setTimeout(function(){ try{window.print();}catch(e){} },150);
+  track("email_captured",{source:"export"}); track("export_plan",{method:"email"});
+  if(btn){ btn.disabled=true; btn.textContent="Sending..."; }
+  var sent=false;
+  try{
+    var res=await fetch("/api/marketing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"export",email:em,intake:state.intake,plan:state.plan,token:tsToken()})});
+    var data={}; try{ data=await res.json(); }catch(e){}
+    sent=!!(res.ok&&data&&(data.sent||data.ok));
+  }catch(e){}
+  if(btn){ btn.disabled=false; btn.textContent="Email my plan"; }
+  if(sent){
+    if(note){ note.style.color="#3D7A54"; note.textContent="\u2713 Sent to "+em+" \u2014 check your inbox (and spam, the first time)."; }
+  } else {
+    if(note){ note.style.color=""; note.textContent="We saved your email, but sending is not set up yet \u2014 your plan opened as a print-ready page instead. Save it as a PDF."; }
+    buildPrintPlan();
+    setTimeout(function(){ try{window.print();}catch(e){} },200);
+  }
 }
 function buildPrintPlan(){
   var host=el("print-plan"); if(!host)return; var i=state.intake||{};
