@@ -1,24 +1,32 @@
 # robots.txt — theclearstack.com
-# Last updated 2026-06-19
-# Policy: OPTION 1 — allow ALL compliant search + AI crawlers (citation AND
-# training) for maximum visibility and long-term brand recall in AI models.
-# IP is protected by NOT publishing the proprietary methodology, not by
-# blocking crawlers.
-#
-# Only the paid Playbook is disallowed. Known abusive crawlers are blocked.
-#
-# RULE: exactly ONE group per user-agent. Cloudflare "Managed robots.txt"
-# must stay OFF so it cannot prepend a conflicting block that disallows the
-# AI crawlers (GPTBot, ClaudeBot, etc.) this file intends to allow.
+# Merge with your existing robots.txt if you already have one.
+# Explicitly welcomes AI crawlers so the site can be read and cited in AI answers.
 
-# --- Default: every compliant crawler ---
 User-agent: *
 Allow: /
-Disallow: /playbook/
-Disallow: /playbook-download.html
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
 
 Sitemap: https://theclearstack.com/sitemap.xml
-
-# --- Known abusive crawler: ignores robots.txt; also block at Cloudflare WAF ---
-User-agent: Bytespider
-Disallow: /

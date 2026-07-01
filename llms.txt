@@ -1,0 +1,19 @@
+# The Clear Stack
+
+> AI consolidation consulting for mid-market companies (50–500 employees). We audit AI and SaaS stacks, eliminate redundant tools, and build Make.com automation that connects the rest. Typical engagement identifies $94K–$220K in annual savings. Based in the US.
+
+## Services
+
+- [What We Do](https://theclearstack.com/index.html): The Clear Stack Playbook ($49 PDF methodology), done-for-you implementation ($10K–$25K, 90-day delivery), retainers, Make.com template marketplace, and coaching cohort.
+- [The 4C Framework](https://theclearstack.com/method.html): Our methodology — Catalog, Consolidate, Connect, Coach. Includes a stack-savings calculator.
+- [Use Cases](https://theclearstack.com/usecases.html): Engagements for professional services, financial services, healthcare operations, manufacturing & logistics, and technology companies.
+- [Contact](https://theclearstack.com/contact.html): Book a free 30-minute stack audit — no commitment.
+
+## Lab (free tools)
+
+- [Marketing Dashboard](https://theclearstack.com/lab/marketing-dashboard.html): Free drag-and-drop marketing tool. Answer a few questions about your business and generate a positioning line, a week of social media posts with image briefs, and SEO & AEO copy (page titles, meta descriptions, headlines, FAQs). No signup to start; data stays in the user's browser.
+- [Lab index](https://theclearstack.com/lab/index.html): All free tools and experiments.
+
+## About
+
+- [Founder](https://theclearstack.com/about.html): Who runs The Clear Stack and why.
