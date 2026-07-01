@@ -172,7 +172,7 @@
 <div id="nametag"></div>
 <div id="crosshair"><div class="dot"></div></div>
 <div id="ixHint"><span class="nm"></span><span class="key">PRESS E TO LEARN MORE</span></div>
-<div id="lockHint"><b>CLICK TO EXPLORE</b><br>WASD walk · SHIFT sprint · SPACE jump · E inspect · ESC release</div>
+<div id="lockHint"><b>CLICK TO EXPLORE</b><br>WASD walk · SHIFT sprint · SPACE jump · E inspect · SCROLL 3rd person · ESC release</div>
 <div id="toast"><small>ENTERING DISTRICT</small><span></span></div>
 <div id="caption"><small></small><span></span>
   <div id="tourCtrls">
@@ -188,7 +188,7 @@
   <button id="jumpBtn">JUMP</button>
   <div id="touchNote">Left stick: walk · drag right side: look · tap: inspect</div>
 </div>
-<div id="help"><b>WASD</b> walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>E</b> inspect · <b>B</b> bird's eye · <b>Esc</b> release mouse</div>
+<div id="help"><b>WASD</b> walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>E</b> inspect · <b>scroll</b> 1st/3rd person · <b>B</b> bird's eye · <b>Esc</b> release mouse</div>
 
 <script type="importmap">
 { "imports": {
@@ -568,8 +568,8 @@ const sun = new THREE.DirectionalLight(0xffd9a0, 2.6); scene.add(sun); scene.add
 sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.near=20; sun.shadow.camera.far=520;
-sun.shadow.camera.left=-95; sun.shadow.camera.right=95; sun.shadow.camera.top=95; sun.shadow.camera.bottom=-95;
-sun.shadow.bias=-0.0008; sun.shadow.normalBias=0.06;
+sun.shadow.camera.left=-70; sun.shadow.camera.right=70; sun.shadow.camera.top=70; sun.shadow.camera.bottom=-70;
+sun.shadow.bias=-0.0008; sun.shadow.normalBias=0.05; sun.shadow.radius=4;
 const fillL = new THREE.AmbientLight(0x22345f, 0.35); scene.add(fillL);
 
 /* ================= Post-processing (bloom) + adaptive quality ================= */
@@ -698,7 +698,7 @@ skyU.sunPosition.value.copy(SUN_DIR);
   pmrem.dispose();
   scene.add(sky);                          // sky returns to the main scene
 }
-scene.environmentIntensity=0.5;
+scene.environmentIntensity=0.62;
 renderer.toneMappingExposure=0.85;
 sun.intensity=3.2; hemi.intensity=0.5; fillL.intensity=0.15;
 sun.color.set(0xfff1dc);
@@ -722,6 +722,8 @@ loadTex("hardwood2_diffuse.jpg",{rx:8,ry:2},t=>{ MAT.wood.map=t; MAT.wood.color.
 loadTex("hardwood2_bump.jpg",{srgb:false,rx:8,ry:2},t=>{ MAT.wood.bumpMap=t; MAT.wood.needsUpdate=true; });
 loadTex("terrain/grasslight-big.jpg",{rx:48,ry:14},t=>{ if(WORLD.terrainMat){ WORLD.terrainMat.map=t; WORLD.terrainMat.needsUpdate=true; } });
 loadTex("waternormals.jpg",{srgb:false},t=>{ waterUniforms.uNMap.value=t; });
+loadTex("crate.gif",{},t=>{ for(const m of WORLD.crateMats||[]){ m.map=t; m.color.set(0xffffff); m.needsUpdate=true; } });
+loadTex("terrain/backgrounddetailed6.jpg",{rx:3,ry:3},t=>{ if(WORLD.pathMat){ WORLD.pathMat.map=t; WORLD.pathMat.color.set(0x9a938a); WORLD.pathMat.needsUpdate=true; } });
 
 /* ================= Label sprites & click registry ================= */
 function roundRect(x,a,b,w,h,r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); }
@@ -836,6 +838,8 @@ function litOpening(kind,w,h){
 const R_PLAYER=0.42, EYE=1.7;
 const player={ pos:new THREE.Vector3(-162,1.15,7), yaw:-Math.PI/2, pitch:-0.02, vy:0, onGround:true, walkT:0 };
 let VIEW="fps";            // "fps" | "bird"
+let camDist=0;             // 0 = first person; >0 = third-person follow distance (mouse wheel)
+let avatar=null;           // your visible body in third person (created once the rig exists)
 let LOCKED=false;
 const keys={};
 const cam = { yaw:-0.62, pitch:0.42, dist:110, target:new THREE.Vector3(-60,6,10) }; // bird's-eye rig
@@ -913,7 +917,11 @@ addEventListener("pointermove",e=>{
   if(VIEW==="bird" && !isTouch) hoverAt(e.clientX,e.clientY);
 });
 addEventListener("pointerup",e=>{ if(dragging && dragMoved<6 && VIEW==="bird") pickAt(e.clientX,e.clientY); dragging=false; });
-glCanvas.addEventListener("wheel",e=>{ if(VIEW==="bird" && !WORLD.tour.active){ cam.dist=clamp(cam.dist*(1+e.deltaY*0.0011), 14, 460);} }, {passive:true});
+glCanvas.addEventListener("wheel",e=>{
+  if(WORLD.tour.active) return;
+  if(VIEW==="bird"){ cam.dist=clamp(cam.dist*(1+e.deltaY*0.0011), 14, 460); }
+  else { camDist=clamp(camDist+e.deltaY*0.01, 0, 9); if(camDist<0.8) camDist=0; } // scroll out = 3rd person
+}, {passive:true});
 
 /* ---- touch controls: virtual joystick + drag look + tap inspect ---- */
 const touchUI=document.getElementById("touchUI");
@@ -990,12 +998,32 @@ function fpsUpdate(dt){
     feet=h; player.vy=0; // stick to slopes and stair edges
   } else player.onGround=false;
   player.pos.y=feet;
-  // camera
+  // camera: first person, or third-person follow when zoomed out (mouse wheel)
   player.walkT+=dt*step*1.9;
-  const bob=(player.onGround&&step>0.1)?Math.sin(player.walkT)*0.045:0;
-  camera.position.set(player.pos.x, player.pos.y+EYE+bob, player.pos.z);
   camera.rotation.order="YXZ";
-  camera.rotation.set(player.pitch, player.yaw, 0);
+  const headY=player.pos.y+EYE;
+  if(camDist<0.8){
+    const bob=(player.onGround&&step>0.1)?Math.sin(player.walkT)*0.045:0;
+    camera.position.set(player.pos.x, headY+bob, player.pos.z);
+    camera.rotation.set(player.pitch, player.yaw, 0);
+    if(avatar) avatar.visible=false;
+  } else {
+    const cpc=Math.cos(player.pitch);
+    const vx=-Math.sin(player.yaw)*cpc, vy=Math.sin(player.pitch), vz=-Math.cos(player.yaw)*cpc;
+    let cx=player.pos.x-vx*camDist, cy=headY+0.2-vy*camDist, cz=player.pos.z-vz*camDist;
+    const minY=surfaceHeight(cx,cz)+0.35;
+    if(cy<minY) cy=minY;
+    camera.position.set(cx,cy,cz);
+    camera.lookAt(player.pos.x,headY,player.pos.z);
+    if(avatar){
+      avatar.visible=true;
+      avatar.position.copy(player.pos); avatar.rotation.y=player.yaw+Math.PI;
+      const L=avatar.userData.limbs, s=Math.sin(player.walkT);
+      if(!player.onGround){ L.lL.rotation.x=-0.5; L.lR.rotation.x=0.45; L.aL.rotation.x=0.35; L.aR.rotation.x=-0.35; }
+      else if(step>0.1){ L.aL.rotation.x=s*0.7; L.aR.rotation.x=-s*0.7; L.lL.rotation.x=-s*0.8; L.lR.rotation.x=s*0.8; }
+      else { for(const lk of [L.aL,L.aR,L.lL,L.lR]) lk.rotation.x*=0.85; }
+    }
+  }
 }
 
 /* ---- bird's-eye camera (the old overview) ---- */
@@ -1140,6 +1168,7 @@ function lampPost(x,z,y0){
 /* ---- gravel paths along the main walking routes ---- */
 (function paths(){
   const pathM=stdMat({color:0x6f6a60,map:T.concrete,rough:1});
+  WORLD.pathMat=pathM;
   function strip(pts,w){
     for(let i=0;i<pts.length-1;i++){
       const [x1,z1]=pts[i],[x2,z2]=pts[i+1];
@@ -1165,6 +1194,26 @@ function lampPost(x,z,y0){
 
 /* ---- Building factories ---- */
 function shadowify(g){ g.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; } if(o.isSprite){ o.castShadow=false; } }); return g; }
+
+/* soft contact-shadow pads under buildings (cheap ambient-occlusion approximation) */
+const AO_MAT=new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,map:(()=>{
+  const c=document.createElement("canvas"); c.width=c.height=128; const x=c.getContext("2d");
+  const gr=x.createRadialGradient(64,64,10,64,64,64);
+  gr.addColorStop(0,"rgba(8,10,14,0.34)"); gr.addColorStop(0.7,"rgba(8,10,14,0.18)"); gr.addColorStop(1,"rgba(8,10,14,0)");
+  x.fillStyle=gr; x.fillRect(0,0,128,128);
+  return new THREE.CanvasTexture(c); })()});
+function aoPad(x,z,w,d,fixedY){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),AO_MAT);
+  if(fixedY!==undefined){ m.rotation.x=-Math.PI/2; m.position.set(x,fixedY,z); }
+  else {
+    const ex=(groundH(x+1,z)-groundH(x-1,z))/2, ez=(groundH(x,z+1)-groundH(x,z-1))/2;
+    const n=new THREE.Vector3(-ex,1,-ez).normalize();
+    m.position.set(x,groundH(x,z)+0.09,z);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),n);
+  }
+  m.renderOrder=1; scene.add(m); return m;
+}
+const AO_FOOT={storefront:[17,11],customs:[19,16],warehouse:[33,23],office:[15,14],postoffice:[19,15],depot:[22,17],outpost:[10,10],clocktower:[11,11],bank:[15,13],tower:[18,18],workshop:[13,11],turnstile:[6,4]};
 
 const SHOPCFG={
   b_landing:{ wall:MAT.cream, roof:MAT.roofNavy, awn:T.awningNavy, sign:"VISITOR CENTER", icon:"⚓", interior:"counter", flag:true },
@@ -1510,6 +1559,10 @@ INFRA_DATA.buildings.forEach((b,i)=>{
   g.add(makeLabel(b, LABELH[b.kind]||12, b.kind==="customs"||b.kind==="warehouse"||b.kind==="tower"?11:7));
   addClick(g,b);
   b._group=g; WORLD.buildings[b.id]=g;
+  const fp=AO_FOOT[b.kind];
+  if(fp){ if(b.kind==="workshop") aoPad(b.pos[0],b.pos[1],fp[0],fp[1],2.72);
+    else if(b.kind==="turnstile") aoPad(b.pos[0]+1,b.pos[1],fp[0],fp[1],1.04);
+    else aoPad(b.pos[0],b.pos[1],fp[0],fp[1]); }
 });
 
 /* ---- The Gatehouse arcade: five labeled archway gates everything walks through ---- */
@@ -1601,6 +1654,7 @@ INFRA_DATA.buildings.forEach((b,i)=>{
   const bandM=MAT.dark;
   const crateG=new THREE.BoxGeometry(0.72,0.72,0.72);
   const crateM=stdMat({color:0xffffff,map:T.dockDark,bump:T.dockDark,rough:0.95});
+  WORLD.crateMats=[crateM];
   const ropeG=new THREE.TorusGeometry(0.30,0.11,8,18);
   const ropeM=stdMat({color:0x9a835c,rough:1});
   const bollG=new THREE.CylinderGeometry(0.13,0.17,0.55,8);
@@ -1860,6 +1914,9 @@ function fireStation(id){ const st=WORLD.stations[id]; if(st) st.fireT=NOW; }
 /* ---- Gatekeeper ---- */
 WORLD.gatekeeper=addWorker({hat:0,color:0x3d4c66,pos:new THREE.Vector3(-41.5,groundH(-41.5,2),2),verb:"stamp",rotY:-Math.PI/2,
   ent:{adminLabel:"Gatekeeper",demoLabel:"Gatekeeper",kind:"worker",district:"d2",desc:"Stamps every message that clears a gate. Never misses one."}});
+/* ---- Your avatar: visible only when the camera zooms out to third person ---- */
+avatar=makeHuman({hat:2,color:0x39507a});
+avatar.visible=false; scene.add(avatar);
 /* ---- Boardwalk visitors (ambient) ---- */
 const VISITOR_COLORS=[0x7a8b9c,0x9c8b7a,0x8b9c7a,0xa08898,0x88a0a0,0x9890a8];
 for(let i=0;i<5;i++){
