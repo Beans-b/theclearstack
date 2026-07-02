@@ -109,6 +109,7 @@
   #chatLog{max-height:170px;overflow-y:auto;font-family:var(--mono);font-size:11px;color:#dfe6f5;background:rgba(6,15,38,.72);border:1px solid #22366b;border-radius:6px;padding:8px 10px;line-height:1.65;}
   #chatLog .cline b{color:#ffb35c;font-weight:400;}
   #chatLog .cline.sys{color:#7186ad;font-style:italic;}
+  #chatLog .cline.npc b{color:#9ec2ff;}
   #chatRow{display:flex;gap:6px;}
   #chatRow input{flex:1;padding:7px 10px;font-family:var(--mono);font-size:12px;background:rgba(6,15,38,.85);border:1px solid #2a4585;border-radius:5px;color:var(--cream);}
   #chatRow input:focus{outline:none;border-color:var(--orange);}
@@ -943,16 +944,31 @@ addEventListener("mousemove",e=>{
 });
 
 /* ---- bird's-eye drag / wheel (also used during non-locked hover picking) ---- */
-let dragging=false, dragMoved=0, px=0, py=0;
-glCanvas.addEventListener("pointerdown",e=>{ if(VIEW!=="bird") return; dragging=true; dragMoved=0; px=e.clientX; py=e.clientY; });
+let dragging=false, dragMoved=0, px=0, py=0, dragBtn=0, birdFly=null;
+glCanvas.addEventListener("contextmenu",e=>e.preventDefault());
+glCanvas.addEventListener("pointerdown",e=>{ if(VIEW!=="bird") return; dragging=true; dragBtn=e.button; dragMoved=0; px=e.clientX; py=e.clientY; birdFly=null; });
 addEventListener("pointermove",e=>{
   if(dragging && VIEW==="bird" && !WORLD.tour.active){
     const dx=e.clientX-px, dy=e.clientY-py; px=e.clientX; py=e.clientY; dragMoved+=Math.abs(dx)+Math.abs(dy);
-    cam.yaw-=dx*0.0052; cam.pitch=clamp(cam.pitch+dy*0.0042, 0.06, 1.45);
+    if(dragBtn===2 || e.shiftKey){                       // right-drag (or shift-drag): orbit
+      cam.yaw-=dx*0.0052; cam.pitch=clamp(cam.pitch+dy*0.0042, 0.06, 1.45);
+    } else {                                             // left-drag: pan across the map
+      const s=cam.dist*0.0016;
+      const fx=-Math.sin(cam.yaw), fz=-Math.cos(cam.yaw);
+      const rx=Math.cos(cam.yaw), rz=-Math.sin(cam.yaw);
+      cam.target.x=clamp(cam.target.x-(rx*dx-fx*dy)*s,-220,320);
+      cam.target.z=clamp(cam.target.z-(rz*dx-fz*dy)*s,-90,130);
+    }
   }
   if(VIEW==="bird" && !isTouch) hoverAt(e.clientX,e.clientY);
 });
-addEventListener("pointerup",e=>{ if(dragging && dragMoved<6 && VIEW==="bird") pickAt(e.clientX,e.clientY); dragging=false; });
+addEventListener("pointerup",e=>{ if(dragging && dragMoved<6 && VIEW==="bird" && e.button!==2) pickAt(e.clientX,e.clientY); dragging=false; });
+glCanvas.addEventListener("dblclick",e=>{                // double-click anything in bird's eye: fly to it
+  if(WORLD.tour.active || VIEW!=="bird") return;
+  const hit=castAt(e.clientX,e.clientY);
+  if(!hit) return;
+  birdFly={fromT:cam.target.clone(), toT:new THREE.Vector3(hit.point.x,4,hit.point.z), fromD:cam.dist, toD:36, t0:NOW};
+});
 const _bplane=new THREE.Plane(new THREE.Vector3(0,1,0),-2), _bpt=new THREE.Vector3();
 function groundPointAt(cx,cy){
   mouseV.set((cx/innerWidth)*2-1, -(cy/innerHeight)*2+1);
@@ -1074,6 +1090,12 @@ function fpsUpdate(dt){
 
 /* ---- bird's-eye camera (the old overview) ---- */
 function birdUpdate(dt){
+  if(birdFly){
+    const k=clamp((NOW-birdFly.t0)/1.1,0,1), e2=k*k*(3-2*k);
+    cam.target.lerpVectors(birdFly.fromT,birdFly.toT,e2);
+    cam.dist=lerp(birdFly.fromD,birdFly.toD,e2);
+    if(k>=1) birdFly=null;
+  }
   const sp=(keys.ShiftLeft?2.2:1)*dt*36*(cam.dist/90+0.35);
   const fx=Math.sin(cam.yaw), fz=Math.cos(cam.yaw);
   if(keys.KeyW){ cam.target.x-=fx*sp; cam.target.z-=fz*sp; }
@@ -2427,7 +2449,10 @@ document.getElementById("hudToggle").onclick=function(){
 /* =====================================================================
    CHUNK 7 — Visitors & chat: identity gate, NPC chatter, live visitor chat
    ===================================================================== */
-const CHAT_CFG={ logEndpoint:"/api/harbor-visitor" }; // ← point this at your Make.com webhook or API route for email logging
+const CHAT_CFG={
+  logEndpoint:"https://hook.us2.make.com/gly0gthgnd7chwwov3krrg6d0fgk5yan",   // Make scenario 5551260 - Harbor Visitor Thank-You
+  apiKey:""                            // optional x-make-apikey value. Leave empty for a public page (any key in page source is visible to visitors)
+};
 const IDENT={ done:false, name:"", email:"" };
 const idModal=document.getElementById("idModal");
 const chatLog=document.getElementById("chatLog"), chatInput=document.getElementById("chatInput");
@@ -2485,8 +2510,33 @@ function npcChatter(){
     if(_wp1.distanceTo(_wp2)>14) continue;
     const pair=NPC_CHAT[(Math.random()*NPC_CHAT.length)|0];
     sayOver(a.g,pair[0],2.5,3.4); after(1.7,()=>sayOver(b2.g,pair[1],2.5,3.4));
+    if(VIEW==="fps" && _wp1.distanceTo(player.pos)<30){   // close enough to overhear → it shows in your chat too
+      chatLine(npcName(a),pair[0],"npc"); after(1.7,()=>chatLine(npcName(b2),pair[1],"npc"));
+    }
     return;
   }
+}
+function npcName(w){ const e=w.g.userData.ent; if(!e) return "Dock worker";
+  return WORLD.mode==="admin"?e.adminLabel:(e.demoLabel||e.adminLabel); }
+const NPC_REPLIES=[
+  "Welcome to the harbor, {n}!",
+  "All systems running smooth today, {n}.",
+  "The Gatekeeper stamps everything — no exceptions.",
+  "Try the tour button up top — nine stops, the whole business end to end.",
+  "Every envelope you see is a real lead moving through the pipes.",
+  "The Wheelhouse has the best view in town. Tallest building for a reason.",
+  "Zero errors on the Executor this month. We're proud of that one.",
+  "If you smell smoke, that's just the Scanner being itself.",
+  "Ask the boss about the free stack audit, {n}. Worth it."];
+function npcReply(){
+  let best=null,bd=1e9;
+  for(const w of WORLD.workers){ if(w.verb==="sleep"||!visibleThrough(w.g)) continue;
+    w.g.getWorldPosition(_wp1); const d=_wp1.distanceToSquared(player.pos);
+    if(d<bd){ bd=d; best=w; } }
+  if(!best) return;
+  const line=NPC_REPLIES[(Math.random()*NPC_REPLIES.length)|0].replace(/\{n\}/g,IDENT.name);
+  sayOver(best.g,line,2.5,4);
+  chatLine(npcName(best),line,"npc");
 }
 after(5,npcChatter);
 /* workers greet the player by name */
@@ -2496,7 +2546,8 @@ WORLD.updaters.push(()=>{
   for(const w of WORLD.workers){
     if(w.verb==="sleep"||!visibleThrough(w.g)) continue;
     w.g.getWorldPosition(_wp1);
-    if(_wp1.distanceToSquared(player.pos)<20){ greetT=NOW; sayOver(w.g,"Welcome aboard, "+IDENT.name+"!",2.5,3.6); return; }
+    if(_wp1.distanceToSquared(player.pos)<20){ greetT=NOW; sayOver(w.g,"Welcome aboard, "+IDENT.name+"!",2.5,3.6);
+      chatLine(npcName(w),"Welcome aboard, "+IDENT.name+"!","npc"); return; }
   }
 });
 /* identity gate: name + email before you walk the town */
@@ -2513,7 +2564,9 @@ document.getElementById("idEnter").onclick=()=>{
   idModal.style.display="none";
   document.getElementById("chatBox").style.display="flex";
   const chip=document.getElementById("playerChip"); chip.style.display="inline-block"; chip.textContent="⚓ "+IDENT.name;
-  try{ fetch(CHAT_CFG.logEndpoint,{method:"POST",headers:{"Content-Type":"application/json"},
+  try{ const hdrs={"Content-Type":"application/json"};
+    if(CHAT_CFG.apiKey) hdrs["x-make-apikey"]=CHAT_CFG.apiKey;
+    fetch(CHAT_CFG.logEndpoint,{method:"POST",headers:hdrs,
     body:JSON.stringify({source:"harbor",name:IDENT.name,email:IDENT.email,ts:Date.now()})}).catch(()=>{}); }catch(e){}
   try{ gtag("event","harbor_enter"); }catch(e){}
   if(avatar){ const tag=nameTagSprite(IDENT.name); tag.position.y=2.35; avatar.add(tag); }
@@ -2562,6 +2615,7 @@ function sendChat(){
   chatLine(IDENT.name,t);
   if(avatar&&avatar.visible) sayOver(avatar,t.slice(0,60),2.7,4);
   if(NET) try{ NET.sendMsg({n:IDENT.name,t:t.slice(0,140)}); }catch(e){}
+  if(!Object.keys(PEERS).length) after(1.1+Math.random(),npcReply);   // nobody else online → a worker answers
   chatInput.blur();
 }
 chatInput.addEventListener("keydown",e=>{ e.stopPropagation(); if(e.key==="Enter") sendChat(); if(e.key==="Escape") chatInput.blur(); });
