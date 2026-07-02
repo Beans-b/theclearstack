@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Stack Detector — The Clear Stack Lab</title>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+  <meta name="description" content="The Stack Detector — enter a company domain and see the public-facing SaaS and AI tools it runs, then hand the list to the Stack Analyzer for a consolidation report." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://theclearstack.com/lab/stack-detector.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The Clear Stack" />
+  <meta property="og:title" content="The Stack Detector — The Clear Stack Lab" />
+  <meta property="og:description" content="Point it at a domain and see the front-end SaaS and AI stack it runs. The front door to a Stack Consolidation Report." />
+  <meta property="og:url" content="https://theclearstack.com/lab/stack-detector.html" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="The Stack Detector — The Clear Stack Lab" />
+  <meta name="twitter:description" content="Point it at a domain and see the front-end SaaS and AI stack it runs." />
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","@id":"https://theclearstack.com/lab/stack-detector.html#app","name":"The Stack Detector","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://theclearstack.com/lab/stack-detector.html","description":"Enter a company domain and detect the public-facing SaaS and AI tools it runs, then hand the list to the Stack Analyzer.","publisher":{"@id":"https://theclearstack.com/#organization"},"isPartOf":{"@id":"https://theclearstack.com/#website"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://theclearstack.com/"},{"@type":"ListItem","position":2,"name":"The Lab","item":"https://theclearstack.com/lab/index.html"},{"@type":"ListItem","position":3,"name":"The Stack Detector","item":"https://theclearstack.com/lab/stack-detector.html"}]}
+]}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1F4A; --navy2:#07152F; --orange:#E07B2A;
+      --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+      --charcoal:#1A1A1A; --gray:#5A6478; --slate:#334155;
+      --live:#4A9E6B;
+      --border:rgba(11,31,74,0.10); --border2:rgba(11,31,74,0.18);
+      --shadow:0 2px 24px rgba(11,31,74,0.08); --shadow2:0 8px 48px rgba(11,31,74,0.13);
+      --radius:4px;
+      --font-head:'Cormorant Garamond',serif; --font-body:'Outfit',sans-serif; --font-mono:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;scrollbar-gutter:stable;overflow-y:scroll;}
+    body{background:var(--light);color:var(--charcoal);font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:var(--font-body);cursor:pointer;}
+    :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+    /* NAV */
+    nav{background:var(--navy);height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100;}
+    .nav-inner{max-width:1480px;margin:0 auto;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:11px;}
+    .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+    .logo-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em;}
+    .logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+    .logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+    .logo-tag{font-family:var(--font-mono);font-size:6.5px;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+    .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+    .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+    .nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;transition:background .2s;}
+    .nav-cta:hover{background:#C96A1A!important;}
+    .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px;}
+    .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+    .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px;}
+    .drawer.open{display:block;}
+    .drawer ul{list-style:none;}
+    .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);border-bottom:1px solid rgba(255,255,255,.07);}
+    /* BREADCRUMB */
+    .crumb{max-width:1080px;margin:0 auto;padding:20px 40px 0;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--gray);text-transform:uppercase;}
+    .crumb a:hover{color:var(--orange);}
+    /* SHELL */
+    .wrap{max-width:1080px;margin:0 auto;padding:28px 40px 80px;}
+    .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:8px;}
+    h1{font-family:var(--font-head);font-size:44px;font-weight:600;color:var(--navy);letter-spacing:-.01em;line-height:1.05;}
+    .sub{color:var(--gray);font-size:16px;max-width:620px;margin-top:10px;}
+    .badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:3px;white-space:nowrap;}
+    .badge.demo{background:rgba(224,123,42,.12);color:#b5641f;border:1px solid rgba(224,123,42,.35);}
+    .badge.admin{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35);}
+    .toprow{display:flex;align-items:center;gap:10px;}
+    .lock-btn{background:var(--white);border:1px solid var(--border2);border-radius:4px;width:38px;height:34px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:.2s;}
+    .lock-btn.unlocked{border-color:var(--live);background:rgba(74,158,107,.07);}
+    /* CARD */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-top:24px;}
+    .field-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .field-row input{flex:1;min-width:240px;background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:13px 16px;font-size:15px;font-family:var(--font-body);outline:none;}
+    .btn-primary{background:var(--orange);color:#fff;border:none;border-radius:3px;padding:13px 26px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background .2s;}
+    .btn-primary:hover{background:#C96A1A;}
+    .btn-primary:disabled{opacity:.5;cursor:default;}
+    .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border2);border-radius:3px;padding:12px 20px;font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+    .hint{font-family:var(--font-mono);font-size:11px;color:var(--gray);margin-top:10px;letter-spacing:.03em;}
+    .lock-note{background:var(--cream);border:1px dashed var(--border2);border-radius:4px;padding:14px 16px;color:var(--slate);font-size:13.5px;margin-top:16px;}
+    .lock-note b{color:var(--navy);}
+    /* PROGRESS */
+    .progress{display:none;align-items:center;gap:12px;margin-top:18px;color:var(--slate);font-size:14px;}
+    .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    /* RESULT */
+    .result{display:none;margin-top:26px;}
+    .rhead{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:18px;}
+    .rhead h2{font-family:var(--font-head);font-size:26px;font-weight:600;color:var(--navy);}
+    .rhead .dom{font-family:var(--font-mono);font-size:13px;color:var(--orange);}
+    .rcount{font-family:var(--font-mono);font-size:11px;color:var(--gray);letter-spacing:.05em;text-transform:uppercase;}
+    .catgroup{margin-bottom:20px;}
+    .catgroup h3{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:9px;border-left:2px solid var(--orange);padding-left:9px;}
+    .tool{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 14px;background:var(--cream);border:1px solid var(--border);border-radius:4px;margin-bottom:7px;}
+    .tool .tn{font-weight:600;color:var(--navy);font-size:15px;}
+    .tool .ev{font-family:var(--font-mono);font-size:11px;color:var(--gray);margin-top:2px;word-break:break-all;}
+    .conf{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap;align-self:flex-start;}
+    .conf.high{background:rgba(74,158,107,.14);color:#2f7a4f;}
+    .conf.medium{background:rgba(37,80,168,.12);color:#2550A8;}
+    .conf.low{background:rgba(90,100,120,.12);color:var(--gray);}
+    .unmatched{margin-top:10px;}
+    .unmatched .sig{display:inline-block;font-family:var(--font-mono);font-size:11px;color:var(--slate);background:var(--light);border:1px dashed var(--border2);border-radius:3px;padding:5px 9px;margin:0 6px 6px 0;word-break:break-all;}
+    .ractions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+    .err{display:none;background:#fff5f5;border:1px solid rgba(220,53,69,.25);border-radius:4px;padding:12px 15px;color:#c0392b;font-size:14px;margin-top:16px;}
+    /* CAN / CANNOT SEE */
+    .see{margin-top:28px;background:var(--white);border:1px solid var(--border);border-radius:4px;padding:20px 24px;}
+    .see h4{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin-bottom:10px;}
+    .see p{font-size:13.5px;color:var(--slate);margin-bottom:8px;}
+    .see .no{color:var(--gray);}
+    /* FOOTER */
+    footer{background:var(--navy2);color:rgba(247,244,239,.6);padding:34px 40px;text-align:center;font-size:12px;font-family:var(--font-mono);letter-spacing:.05em;}
+    footer a:hover{color:var(--orange);}
+    /* MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(7,21,47,.85);align-items:center;justify-content:center;z-index:2400;padding:20px;}
+    .modal{background:var(--white);border-radius:14px;padding:32px;max-width:340px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(7,21,47,.3);}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--cream);font-family:var(--font-mono);font-size:12px;letter-spacing:.05em;padding:11px 20px;border-radius:4px;box-shadow:var(--shadow2);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3000;}
+    .toast.show{opacity:1;}
+    @media(max-width:760px){
+      .nav-links{display:none;} .burger{display:flex;}
+      .wrap{padding:22px 20px 60px;} .crumb{padding:16px 20px 0;} h1{font-size:34px;}
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+  <a href="../index.html" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="../index.html">What We Do</a></li>
+    <li><a href="../method.html">How It Works</a></li>
+    <li><a href="../usecases.html">Use Cases</a></li>
+    <li><a href="../about.html">Founder</a></li>
+    <li><a href="../lab/index.html" class="active">Lab</a></li>
+  </ul>
+  <a href="../contact.html" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+<div class="drawer" id="drawer"><ul>
+  <li><a href="../index.html">What We Do</a></li>
+  <li><a href="../method.html">How It Works</a></li>
+  <li><a href="../usecases.html">Use Cases</a></li>
+  <li><a href="../about.html">Founder</a></li>
+  <li><a href="../lab/index.html">Lab</a></li>
+  <li><a href="../contact.html" style="color:var(--orange);font-weight:700;">Work With Us</a></li>
+</ul></div>
+
+<div class="crumb"><a href="../index.html">Home</a> / <a href="../lab/index.html">The Lab</a> / The Stack Detector</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <h1>The Stack Detector</h1>
+      <p class="sub">Point it at a company domain. It crawls the public site, identifies the SaaS and AI tools running on it, and hands the list straight to the Stack Analyzer for a consolidation report.</p>
+    </div>
+    <div class="toprow">
+      <span class="badge demo" id="mode-badge">Demo Mode</span>
+      <button class="lock-btn" id="lock-btn" title="Admin login" onclick="lockClick()">🔒</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="field-row">
+      <input type="text" id="domain-input" placeholder="example.com" autocomplete="off"
+             onkeydown="if(event.key==='Enter')runDetect()" />
+      <button class="btn-primary" id="detect-btn" onclick="runDetect()">Detect Stack</button>
+    </div>
+    <div class="hint" id="mode-hint">Demo mode shows a saved sample. Unlock (🔒) to run a real detection.</div>
+    <div class="progress" id="progress"><span class="spinner"></span><span id="progress-text">Crawling the domain…</span></div>
+    <div class="err" id="err"></div>
+    <div class="lock-note" id="lock-note">
+      <b>You are viewing the demo.</b> The button above shows a saved sample Detected Stack so you can see the output. Real detection runs in admin mode.
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+    <div class="rhead">
+      <div>
+        <h2>Detected Stack</h2>
+        <span class="dom" id="r-domain"></span>
+      </div>
+      <span class="rcount" id="r-count"></span>
+    </div>
+    <div id="r-groups"></div>
+    <div class="unmatched" id="r-unmatched-wrap" style="display:none;">
+      <h3 style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);margin-bottom:9px;border-left:2px solid var(--border2);padding-left:9px;">Unmatched signals</h3>
+      <div style="font-size:12.5px;color:var(--gray);margin-bottom:9px;">Tools or hosts we saw but could not confidently identify. Evidence, never a guess.</div>
+      <div id="r-unmatched"></div>
+    </div>
+    <div class="ractions">
+      <button class="btn-primary" onclick="sendToAnalyzer()">Send to Stack Analyzer &rarr;</button>
+      <button class="btn-ghost" onclick="copyList()">Copy detected list</button>
+      <button class="btn-ghost" onclick="exportJson()">Export JSON</button>
+    </div>
+  </div>
+
+  <!-- WHAT THIS CAN / CANNOT SEE -->
+  <div class="see">
+    <h4>What this can and can't see</h4>
+    <p>It reads the <b>public-facing stack</b>: CMS, hosting, analytics, chat widgets, marketing and AI tools that leave a footprint in the site's code.</p>
+    <p class="no">It cannot see internal back-office tools — finance, HR, an internal CRM — that never touch the public site. The Detector complements the manual input in the Stack Analyzer; it does not replace it.</p>
+    <p class="no">AI-app detection is the least mature area industry-wide. The fingerprint set is curated and growing, so it will miss things. Confidence is shown honestly and unmatched signals are surfaced rather than guessed.</p>
+  </div>
+</div>
+
+<footer>© 2026 The Clear Stack · <a href="https://theclearstack.com">theclearstack.com</a> · <a href="../lab/index.html">Back to the Lab</a></footer>
+
+<!-- ADMIN AUTH MODAL -->
+<div class="overlay" id="auth-overlay">
+  <div class="modal">
+    <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+    <div style="font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:8px;">Admin Access</div>
+    <div style="color:var(--gray);font-size:13px;margin-bottom:20px;">Enter the admin password to run real detections.</div>
+    <div style="text-align:left;margin-bottom:14px;">
+      <label style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:6px;">Password</label>
+      <input type="password" id="auth-input" placeholder="••••••••" style="width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:10px 14px;font-size:14px;outline:none;font-family:var(--font-body);box-sizing:border-box;" onkeydown="if(event.key==='Enter')authSubmit()" />
+    </div>
+    <div id="auth-error" style="display:none;background:#fff5f5;border:1px solid rgba(220,53,69,.2);border-radius:4px;padding:10px 14px;color:#c0392b;font-size:13px;margin-bottom:14px;text-align:left;"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="authSubmit()" id="auth-btn" style="flex:1;padding:11px;background:var(--navy);border:none;border-radius:3px;color:var(--cream);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Unlock</button>
+      <button onclick="authCancel()" style="padding:11px 18px;background:transparent;border:1px solid var(--border2);border-radius:3px;color:var(--gray);font-size:13px;">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── burger ── */
+document.getElementById('burger').onclick=()=>document.getElementById('drawer').classList.toggle('open');
+
+/* ── AUTH (mirrors wheelhouse / command-center: /api/auth + sessionStorage) ── */
+let isAdmin=false, token=null;
+(function restore(){ const t=sessionStorage.getItem('cc_token'); if(t){isAdmin=true;token=t;} })();
+
+function lockClick(){
+  if(isAdmin){ isAdmin=false; token=null; sessionStorage.removeItem('cc_token'); updateModeUI(); }
+  else{
+    document.getElementById('auth-overlay').style.display='flex';
+    document.getElementById('auth-input').value='';
+    document.getElementById('auth-error').style.display='none';
+    setTimeout(()=>document.getElementById('auth-input').focus(),100);
+  }
+}
+async function authSubmit(){
+  const pw=document.getElementById('auth-input').value;
+  const btn=document.getElementById('auth-btn'), err=document.getElementById('auth-error');
+  if(!pw) return;
+  btn.textContent='Checking…'; btn.disabled=true; err.style.display='none';
+  try{
+    const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    let data={}; try{data=await res.json();}catch(_){}
+    if(!res.ok||!data.token) throw new Error(data.error||(res.status===404?'Login endpoint not found — deploy functions/api/auth.js':'Incorrect password'));
+    isAdmin=true; token=data.token; sessionStorage.setItem('cc_token',data.token);
+    document.getElementById('auth-overlay').style.display='none';
+    updateModeUI();
+  }catch(e){
+    err.textContent=e.message; err.style.display='block';
+    document.getElementById('auth-input').value=''; document.getElementById('auth-input').focus();
+  }
+  btn.textContent='Unlock'; btn.disabled=false;
+}
+function authCancel(){ document.getElementById('auth-overlay').style.display='none'; }
+function updateModeUI(){
+  const badge=document.getElementById('mode-badge'), lock=document.getElementById('lock-btn');
+  const hint=document.getElementById('mode-hint'), note=document.getElementById('lock-note');
+  if(isAdmin){
+    badge.textContent='Admin'; badge.className='badge admin';
+    lock.textContent='🔓'; lock.classList.add('unlocked'); lock.title='Admin — click to lock';
+    hint.textContent='Enter a client domain (bare, e.g. example.com) and run a live detection.';
+    note.style.display='none';
+  }else{
+    badge.textContent='Demo Mode'; badge.className='badge demo';
+    lock.textContent='🔒'; lock.classList.remove('unlocked'); lock.title='Admin login';
+    hint.textContent='Demo mode shows a saved sample. Unlock (🔒) to run a real detection.';
+    note.style.display='block';
+  }
+}
+updateModeUI();
+
+/* ── SAMPLE Detected Stack (public showcase only — clearly a sample, not a live crawl) ── */
+const SAMPLE = {
+  domain:'sample-dtc-brand.com', engine_version:'v1', matched_count:6, unmatched_count:2,
+  matched_tools:[
+    {tool_name:'Shopify', category:'Ecommerce', confidence:'high', evidence:'script_src: cdn.shopify.com'},
+    {tool_name:'Google Analytics', category:'Analytics', confidence:'high', evidence:'script_src: googletagmanager.com/gtag/js'},
+    {tool_name:'HubSpot', category:'CRM', confidence:'high', evidence:'script_src: .hs-scripts.com/'},
+    {tool_name:'Hotjar', category:'UX Analytics', confidence:'high', evidence:'script_src: //static.hotjar.com/'},
+    {tool_name:'Stripe', category:'Payments', confidence:'medium', evidence:'cookie: __stripe_mid'},
+    {tool_name:'Cloudflare', category:'Security/CDN', confidence:'high', evidence:'header: server: cloudflare'}
+  ],
+  unmatched_signals:[
+    {signal:'script_src: cdn.some-review-widget.io'},
+    {signal:'script_src: js.a-loyalty-app.com'}
+  ]
+};
+
+/* ── state of the currently shown stack (sample or live) ── */
+let CURRENT = null;
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderStack(data){
+  CURRENT = data;
+  document.getElementById('r-domain').textContent = data.domain || '';
+  document.getElementById('r-count').textContent =
+    (data.matched_count||0)+' matched · '+(data.unmatched_count||0)+' unmatched';
+  // group matched tools by category
+  const groups={};
+  (data.matched_tools||[]).forEach(t=>{ (groups[t.category]=groups[t.category]||[]).push(t); });
+  let html='';
+  Object.keys(groups).sort().forEach(cat=>{
+    html+='<div class="catgroup"><h3>'+esc(cat)+'</h3>';
+    groups[cat].forEach(t=>{
+      html+='<div class="tool"><div><div class="tn">'+esc(t.tool_name)+'</div>'+
+            '<div class="ev">'+esc(t.evidence||'')+'</div></div>'+
+            '<span class="conf '+esc(t.confidence||'low')+'">'+esc(t.confidence||'low')+'</span></div>';
+    });
+    html+='</div>';
+  });
+  if(!Object.keys(groups).length) html='<div style="color:var(--gray);font-size:14px;">No tools matched from the public footprint. Try the Stack Analyzer with manual input.</div>';
+  document.getElementById('r-groups').innerHTML=html;
+  // unmatched
+  const uw=document.getElementById('r-unmatched-wrap'), u=document.getElementById('r-unmatched');
+  if((data.unmatched_signals||[]).length){
+    u.innerHTML=data.unmatched_signals.map(s=>'<span class="sig">'+esc(s.signal)+'</span>').join('');
+    uw.style.display='block';
+  } else uw.style.display='none';
+  document.getElementById('result').style.display='block';
+}
+
+async function runDetect(){
+  const err=document.getElementById('err'); err.style.display='none';
+  if(!isAdmin){
+    // demo: show the saved sample
+    renderStack(SAMPLE);
+    toast('Showing saved sample — unlock to run live');
+    document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const domain=document.getElementById('domain-input').value.trim();
+  if(!domain){ err.textContent='Enter a domain first.'; err.style.display='block'; return; }
+  const btn=document.getElementById('detect-btn'), prog=document.getElementById('progress');
+  btn.disabled=true; prog.style.display='flex'; document.getElementById('result').style.display='none';
+  document.getElementById('progress-text').textContent='Crawling '+domain+'…';
+  try{
+    const res=await fetch('/api/detect',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(token||'')},
+      body:JSON.stringify({domain})});
+    let data={}; try{data=await res.json();}catch(_){}
+    if(res.status===401){ isAdmin=false; token=null; sessionStorage.removeItem('cc_token'); updateModeUI(); throw new Error('Session expired — unlock again.'); }
+    if(!res.ok) throw new Error(data.error||('Detection failed ('+res.status+')'));
+    renderStack(data);
+    document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ err.textContent=e.message; err.style.display='block'; }
+  btn.disabled=false; prog.style.display='none';
+}
+
+/* ── HANDOFF to Stack Analyzer via sessionStorage (same-origin) ──
+   Contract: key 'detected_stack' holds { domain, tools:[names], full }.
+   lab/stack-analyzer.html reads it on load and prefills its input. */
+function sendToAnalyzer(){
+  if(!CURRENT){ toast('Run a detection first'); return; }
+  const payload={
+    domain: CURRENT.domain||'',
+    tools: (CURRENT.matched_tools||[]).map(t=>t.tool_name),
+    full: CURRENT,
+    ts: Date.now()
+  };
+  sessionStorage.setItem('detected_stack', JSON.stringify(payload));
+  window.location.href='stack-analyzer.html';
+}
+function copyList(){
+  if(!CURRENT) return;
+  const txt=(CURRENT.matched_tools||[]).map(t=>t.tool_name+' ('+t.category+', '+t.confidence+')').join('\n');
+  navigator.clipboard.writeText(txt).then(()=>toast('Detected list copied'));
+}
+function exportJson(){
+  if(!CURRENT) return;
+  const blob=new Blob([JSON.stringify(CURRENT,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='detected-stack-'+(CURRENT.domain||'sample')+'.json'; a.click();
+  toast('JSON exported');
+}
+let toastT;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200); }
+</script>
+</body>
+</html>

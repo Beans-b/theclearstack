@@ -765,6 +765,19 @@ async function pubSend(){
 document.getElementById('burger').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
 
 ccUpdateAdminUI();
+
+/* ── HANDOFF from the Stack Detector (sessionStorage key 'detected_stack') ──
+   Detector writes { domain, tools:[names], full, ts }. If present, prefill the
+   admin analyzer input and clear the key so a refresh does not re-fill. */
+(function saDetectorHandoff(){
+  var raw; try{ raw=sessionStorage.getItem('detected_stack'); }catch(e){ return; }
+  if(!raw) return;
+  var d; try{ d=JSON.parse(raw); }catch(e){ return; }
+  var co=document.getElementById('sa-company'), tl=document.getElementById('sa-tools');
+  if(co && d.domain && !co.value) co.value=d.domain;
+  if(tl && Array.isArray(d.tools) && d.tools.length && !tl.value.trim()) tl.value=d.tools.join('\n');
+  try{ sessionStorage.removeItem('detected_stack'); }catch(e){}
+})();
 </script>
 </body>
 </html>
