@@ -228,7 +228,7 @@
   <div id="chatLog"></div>
   <div id="chatRow"><input id="chatInput" maxlength="140" placeholder="Say something…"><button id="chatSend">➤</button></div>
 </div>
-<div id="help"><b>WASD</b> walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>E</b> inspect · <b>scroll</b> 1st/3rd person · <b>B</b> bird's eye · <b>T</b> chat · <b>Esc</b> release mouse</div>
+<div id="help"><b>WASD</b> / <b>hold mouse</b> walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>E</b> / <b>click</b> inspect · <b>scroll</b> 1st/3rd person · <b>B</b> bird's eye · <b>T</b> chat · <b>Esc</b> release mouse</div>
 
 <script type="importmap">
 { "imports": {
@@ -932,12 +932,22 @@ addEventListener("keyup",e=>keys[e.code]=false);
 const lockHint=document.getElementById("lockHint");
 const glCanvas=renderer.domElement;
 function requestLock(){ if(IDENT.done && !isTouch && VIEW==="fps" && !WORLD.tour.active && !LOCKED) glCanvas.requestPointerLock(); }
+let mouseWalk=false, mDownT=0, mWalkTimer=0;
+glCanvas.addEventListener("mousedown",e=>{
+  if(WORLD.tour.active||VIEW!=="fps"||isTouch||!LOCKED||e.button!==0) return;
+  mDownT=performance.now();
+  clearTimeout(mWalkTimer);
+  mWalkTimer=setTimeout(()=>{ mouseWalk=true; },200);    // hold the mouse button to walk forward
+});
+addEventListener("mouseup",e=>{
+  if(e.button!==0) return;
+  clearTimeout(mWalkTimer);
+  const quick=performance.now()-mDownT<200;
+  if(quick && LOCKED && VIEW==="fps" && !isTouch && !WORLD.tour.active) interactKey(); // quick click = inspect
+  mouseWalk=false;
+});
 glCanvas.addEventListener("click",()=>{
-  if(WORLD.tour.active) return;
-  if(VIEW==="fps" && !isTouch){
-    if(!LOCKED) requestLock();
-    else interactKey(); // click while locked = inspect what the crosshair is on
-  }
+  if(!WORLD.tour.active && VIEW==="fps" && !isTouch && !LOCKED) requestLock();
 });
 lockHint.addEventListener("click",requestLock);
 document.addEventListener("pointerlockchange",()=>{
@@ -1034,6 +1044,7 @@ function fpsUpdate(dt){
   if(keys.KeyA||keys.ArrowLeft) mx-=1;
   if(keys.KeyD||keys.ArrowRight) mx+=1;
   if(joy.active){ mx+=joy.mx; mz+=joy.mz; }
+  if(mouseWalk) mz+=1;                     // mouse-hold navigation
   const mag=Math.min(Math.hypot(mx,mz),1);
   const sprint=(keys.ShiftLeft||keys.ShiftRight);
   const speed=(sprint?7.6:4.2);
@@ -2506,6 +2517,7 @@ function openChat(title){
   chatTitleEl.textContent=title||"HARBOR CHAT";
   chatIgnoreBtn.style.display=ENC.active?"inline-block":"none";
   chatBoxEl.style.display="flex";
+  if(LOCKED) document.exitPointerLock();   // free the mouse so the window can be used and closed
   setTimeout(()=>chatInput.focus(),40);
 }
 function closeChat(){ chatBoxEl.style.display="none"; chatInput.blur(); }
@@ -2566,10 +2578,12 @@ function npcReply(){
 function workerUid(w){ return WORLD.workers.indexOf(w); }
 function faceMe(w){ w.g.getWorldPosition(_wp2); w.g.rotation.y=Math.atan2(player.pos.x-_wp2.x, player.pos.z-_wp2.z); }
 const ENC_OPENERS=[
-  "Got a minute, {n}? Quick question: how many software tools does your company pay for? Most people guess low by half.",
-  "Welcome aboard, {n}! First time in the harbor? Every building here is a real system doing real work.",
-  "{n}! Just the person. If your software stack were a boat, would it float? Ours does — ask me how.",
-  "Hey {n} — I'd shake your hand but mine's full of leads. Want to know what this place actually is?"];
+  "Oh! A human. {n}, right? Don't worry — the pig is the only one here who bites.",
+  "{n}! You walk way better than the last visitor. He was a seagull.",
+  "Psst, {n} — if the harbormaster asks, the smoke over at the Scanner was already like that.",
+  "Welcome aboard, {n}! Mind the envelopes — they've got somewhere to be.",
+  "A real visitor! I'd offer coffee, but my hands are hydraulic. What brings you to the harbor, {n}?",
+  "{n}! Perfect timing. Settle a bet: do I look taller than the Gatekeeper? Be honest."];
 function startEncounter(e){
   ENC.active=e; ENC.coolUntil=NOW+12;
   if(e.type==="npc"){ e.w.paused=true; faceMe(e.w); }
@@ -2614,35 +2628,44 @@ WORLD.updaters.push(()=>{
   }
 });
 /* ---- the harbor chatbot: every road leads back to the SeaLegs method ---- */
+let botTurns=0;
 const BOT_RULES=[
   [/\b(hi|hello|hey|howdy|good (morning|afternoon|evening))\b/i,[
-    "Hey {n}! Ask me anything — the harbor, the robots, or how we untangle software stacks for a living.",
-    "Hello {n}! Fair warning: every conversation here eventually docks at the SeaLegs method. Occupational habit."]],
+    "Hey {n}! Welcome to the only harbor where the seagulls are decorative and the robots are unionized.",
+    "Hello {n}! I'd tip my hat, but it's bolted on. What's on your mind?"]],
   [/\b(price|cost|pricing|how much|expensive|cheap)\b/i,[
-    "Straight answer: the Playbook is $49, done-for-you builds run $10K–$25K, retainers are custom. The 30-minute stack audit is free — start there: theclearstack.com/contact.html"]],
+    "Straight answer, no barnacles: Playbook $49, done-for-you builds $10K–$25K, and the 30-minute stack audit is free. Start with the free one. I would."]],
   [/\b(4c|method|sealegs|framework|process|how (do|does) (it|this|you))\b/i,[
-    "The SeaLegs method is four C's — Catalog every tool you pay for, Consolidate the overlap, Connect what's left with Make.com, and Coach your team to own it. Ninety days, start to finish: theclearstack.com/method.html"]],
+    "The SeaLegs method, four C's: Catalog what you pay for, Consolidate the overlap, Connect the rest with Make.com, Coach the humans. Ninety days. The pig supervised none of it: theclearstack.com/method.html"]],
   [/\b(harbor|this place|what is (this|here)|where am i|what.*website)\b/i,[
-    "This whole town is The Clear Stack's real infrastructure. Buildings are systems, robots are automations, envelopes are leads. It's what a consolidated stack looks like — the free audit shows you what yours looks like: theclearstack.com/contact.html"]],
+    "Everything here is real — buildings are our actual systems, robots are actual automations, envelopes are actual leads. Basically a giant confession that we practice what we preach."]],
   [/\b(audit|book|call|consult|meeting|demo|talk to (brian|someone|a human))\b/i,[
-    "Easy: free 30-minute stack audit at theclearstack.com/contact.html — Brian maps your software spend and shows you exactly where it leaks. No commitment."]],
+    "Smart. Free 30-minute stack audit: theclearstack.com/contact.html — Brian finds the leaks, you keep the money. He also answers faster than I walk."]],
   [/\b(make\.com|automation|automate|workflow|zapier|n8n)\b/i,[
-    "Everything moving around you runs on Make.com — that's the Connect step of our method. We build the same for clients, wired into tools they already own."]],
+    "All of it runs on Make.com — that's the Connect step of the method. I'm basically a scenario with legs."]],
   [/\b(hubspot|crm|gmail|supabase|stripe|calendar|drive|apollo)\b/i,[
-    "That's one of the buildings here — walk up and press E on it! The point: tools you already pay for, connected so your people stop being the glue. That's the SeaLegs method working."]],
+    "That's one of the buildings here — walk up and press E on it! Tools you already pay for, wired together so humans stop being the duct tape."]],
   [/\b(who are you|your name|are you (real|human|a bot|an? ai))\b/i,[
-    "I'm one of the harbor's robot workers — a stand-in until another real visitor wanders in. The genuinely human one is Brian: theclearstack.com/about.html"]],
+    "A dock robot with excellent posture and exactly one talking point. The actual human is Brian: theclearstack.com/about.html"]],
   [/\b(bye|goodbye|thanks|thank you|cya|later|gtg)\b/i,[
-    "Fair winds, {n}! When your stack starts feeling like fog, the free audit is at theclearstack.com/contact.html."]]];
-const BOT_FALLBACK=[
-  "Ha — fair enough, {n}. But speaking of things that pile up: how many software subscriptions does your company actually use? Cataloging them is step one of the SeaLegs method.",
-  "Interesting! Here's my angle on everything though: most companies pay for twice the software they need. The SeaLegs method trims that in 90 days — theclearstack.com/method.html",
-  "I'm a simple dock robot, {n}, but I know this much: when tools don't talk to each other, people become the connectors. That's exactly what we fix.",
-  "Can't help with that one — but I CAN tell you what a free 30-minute stack audit usually finds: $94K–$220K a year in waste. theclearstack.com/contact.html"];
+    "Fair winds, {n}! If your stack ever feels like fog, you know where the free audit lives: theclearstack.com/contact.html"]]];
+const BOT_SMALLTALK=[
+  "Ha! {n}, I like you already. Most visitors just press E on me and leave.",
+  "Careful — laugh too hard and a gull will steal your envelope. Happened to a lead once. Tragic.",
+  "You should see this place on Mondays. The cascade hits at six sharp and everyone pretends they weren't napping.",
+  "Between us? The pig has the best job in the harbor. Guardrails, snacks, zero deadlines.",
+  "I'd tell you a joke about our error rate, but the Scanner has 280 of them and it's sensitive.",
+  "Nice weather, right? It's permanent. Management pinned the sun. Morale is up 40%."];
+const BOT_PIVOT=[
+  "Anyway — enough about robots. Real talk, {n}: how many software tools does your company actually pay for? Counting them is step one of the SeaLegs method.",
+  "Fun fact between jokes: most companies pay for twice the software they use. Trimming that is the day job — theclearstack.com/method.html",
+  "You strike me as someone with 47 browser tabs and 30 SaaS logins, {n}. The free 30-minute stack audit fixes the second one: theclearstack.com/contact.html",
+  "OK, one sales-y thing and then I'll stop: this whole harbor runs on the SeaLegs method. Works on client stacks too. *ahem* Carry on."];
 function botReply(userText){
+  botTurns++;
   let pool=null;
   for(const [re,lines] of BOT_RULES){ if(re.test(userText)){ pool=lines; break; } }
-  if(!pool) pool=BOT_FALLBACK;
+  if(!pool) pool=(botTurns<3 || botTurns%2===1)?BOT_SMALLTALK:BOT_PIVOT;   // jokes first, pitch later
   const line=pool[(Math.random()*pool.length)|0].replace(/\{n\}/g,IDENT.name);
   let w=(ENC.active&&ENC.active.type==="npc")?ENC.active.w:null;
   if(!w){ let bd=1e9; for(const c of WORLD.workers){ if(c.verb==="sleep"||!visibleThrough(c.g)) continue;
