@@ -105,8 +105,14 @@
   .idCard input:focus{outline:none;border-color:var(--orange);}
   #idErr{font-family:var(--mono);font-size:11px;color:#ff9d6b;min-height:16px;margin-bottom:8px;}
   #idEnter{width:100%;font-size:14px;padding:9px;}
-  #chatBox{position:fixed;left:12px;bottom:64px;z-index:16;width:290px;display:none;flex-direction:column;gap:6px;}
-  #chatLog{max-height:170px;overflow-y:auto;font-family:var(--mono);font-size:11px;color:#dfe6f5;background:rgba(6,15,38,.72);border:1px solid #22366b;border-radius:6px;padding:8px 10px;line-height:1.65;}
+  #chatBox{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;width:min(480px,92vw);display:none;flex-direction:column;gap:8px;background:rgba(6,15,38,.95);border:1px solid var(--orange);border-radius:10px;padding:14px;box-shadow:0 12px 48px rgba(0,0,0,.55);}
+  #chatHead{display:flex;align-items:center;gap:8px;}
+  #chatTitle{flex:1;font-size:18px;letter-spacing:.1em;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #chatHead button{font-family:var(--mono);font-size:11px;color:var(--cream);background:rgba(224,123,42,.15);border:1px solid var(--orange);border-radius:4px;padding:4px 10px;cursor:pointer;}
+  #chatHead button:hover{background:rgba(224,123,42,.45);}
+  #chatOpen{position:fixed;left:12px;bottom:64px;z-index:16;display:none;font-family:var(--mono);font-size:12px;color:var(--cream);background:rgba(6,15,38,.85);border:1px solid var(--orange);border-radius:6px;padding:8px 14px;cursor:pointer;}
+  #chatOpen:hover{background:rgba(224,123,42,.35);}
+  #chatLog{max-height:46vh;min-height:110px;overflow-y:auto;font-family:var(--mono);font-size:11px;color:#dfe6f5;background:rgba(4,10,26,.6);border:1px solid #22366b;border-radius:6px;padding:8px 10px;line-height:1.65;}
   #chatLog .cline b{color:#ffb35c;font-weight:400;}
   #chatLog .cline.sys{color:#7186ad;font-style:italic;}
   #chatLog .cline.npc b{color:#9ec2ff;}
@@ -216,9 +222,11 @@
   <div id="idErr"></div>
   <button id="idEnter" class="tbtn">⚓ Enter the Harbor</button>
 </div></div>
+<button id="chatOpen">💬 Chat · T</button>
 <div id="chatBox">
+  <div id="chatHead"><span id="chatTitle">HARBOR CHAT</span><button id="chatIgnore" style="display:none">Ignore</button><button id="chatClose">✕</button></div>
   <div id="chatLog"></div>
-  <div id="chatRow"><input id="chatInput" maxlength="140" placeholder="Press T to chat…"><button id="chatSend">➤</button></div>
+  <div id="chatRow"><input id="chatInput" maxlength="140" placeholder="Say something…"><button id="chatSend">➤</button></div>
 </div>
 <div id="help"><b>WASD</b> walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>E</b> inspect · <b>scroll</b> 1st/3rd person · <b>B</b> bird's eye · <b>T</b> chat · <b>Esc</b> release mouse</div>
 
@@ -1840,6 +1848,7 @@ function walkAnim(w,t){ const L=w.limbs; const s=Math.sin(t*9+w.phase);
   L.lL.rotation.x=-s*0.8; L.lR.rotation.x=s*0.8; }
 function updateWorker(w,t,dt){
   if(w.g.visible===false) return;
+  if(w.paused){ w.limbs.lL.rotation.x=0; w.limbs.lR.rotation.x=0; VERBS.idle(w,t); return; } // stopped to talk to the player
   if(w.path){ w.u=(w.u+dt*w.speed/w.pathLen)%1;
     const p=w.path.getPointAt(w.u), q=w.path.getPointAt((w.u+0.006)%1);
     w.g.position.copy(p); w.g.rotation.y=Math.atan2(q.x-p.x,q.z-p.z); walkAnim(w,t); return; }
@@ -2488,6 +2497,21 @@ function nameTagSprite(name,color){
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
   sp.scale.set(2.2,0.55,1); return sp;
 }
+/* ---- centered chat window + proximity encounters ---- */
+const ENC={active:null, coolUntil:0, ignored:new Map()};
+const chatBoxEl=document.getElementById("chatBox");
+const chatTitleEl=document.getElementById("chatTitle");
+const chatIgnoreBtn=document.getElementById("chatIgnore");
+function openChat(title){
+  chatTitleEl.textContent=title||"HARBOR CHAT";
+  chatIgnoreBtn.style.display=ENC.active?"inline-block":"none";
+  chatBoxEl.style.display="flex";
+  setTimeout(()=>chatInput.focus(),40);
+}
+function closeChat(){ chatBoxEl.style.display="none"; chatInput.blur(); }
+document.getElementById("chatOpen").onclick=()=>openChat();
+document.getElementById("chatClose").onclick=()=>{ endEncounter(false); closeChat(); };
+chatIgnoreBtn.onclick=()=>{ endEncounter(true); closeChat(); };
 /* NPC chatter: nearby workers strike up little conversations */
 const NPC_CHAT=[
   ["Busy morning on the docks.","Aye — three leads before coffee."],
@@ -2538,11 +2562,100 @@ function npcReply(){
   sayOver(best.g,line,2.5,4);
   chatLine(npcName(best),line,"npc");
 }
+/* ---- proximity encounters: avatars stop to talk; Ignore sends them off ---- */
+function workerUid(w){ return WORLD.workers.indexOf(w); }
+function faceMe(w){ w.g.getWorldPosition(_wp2); w.g.rotation.y=Math.atan2(player.pos.x-_wp2.x, player.pos.z-_wp2.z); }
+const ENC_OPENERS=[
+  "Got a minute, {n}? Quick question: how many software tools does your company pay for? Most people guess low by half.",
+  "Welcome aboard, {n}! First time in the harbor? Every building here is a real system doing real work.",
+  "{n}! Just the person. If your software stack were a boat, would it float? Ours does — ask me how.",
+  "Hey {n} — I'd shake your hand but mine's full of leads. Want to know what this place actually is?"];
+function startEncounter(e){
+  ENC.active=e; ENC.coolUntil=NOW+12;
+  if(e.type==="npc"){ e.w.paused=true; faceMe(e.w); }
+  openChat(e.type==="npc"?npcName(e.w):("CHAT — "+e.name));
+  if(e.type==="npc"){
+    const line=ENC_OPENERS[(Math.random()*ENC_OPENERS.length)|0].replace(/\{n\}/g,IDENT.name);
+    chatLine(npcName(e.w),line,"npc"); sayOver(e.w.g,line.slice(0,64),2.5,4.5);
+  } else {
+    chatLine("","You've walked up to "+e.name+" — say hello. (Or hit Ignore to move on.)","sys");
+  }
+}
+function endEncounter(ignored){
+  const e=ENC.active; if(!e) return;
+  if(e.type==="npc"){ e.w.paused=false; if(ignored) ENC.ignored.set(workerUid(e.w),NOW+180); }
+  else if(ignored) ENC.ignored.set("p_"+e.id,NOW+180);
+  ENC.coolUntil=NOW+(ignored?30:15);
+  ENC.active=null;
+  chatIgnoreBtn.style.display="none";
+}
+let encT=0;
+WORLD.updaters.push(()=>{
+  if(NOW-encT<0.5) return; encT=NOW;
+  if(!IDENT.done || VIEW!=="fps" || WORLD.tour.active) return;
+  if(ENC.active){
+    const gw=ENC.active.type==="npc"?ENC.active.w.g:(PEERS[ENC.active.id]&&PEERS[ENC.active.id].g);
+    if(!gw){ endEncounter(false); closeChat(); return; }
+    if(ENC.active.type==="npc") faceMe(ENC.active.w);
+    gw.getWorldPosition(_wp1);
+    if(_wp1.distanceToSquared(player.pos)>49){ endEncounter(false); closeChat(); } // walked away
+    return;
+  }
+  if(NOW<ENC.coolUntil) return;
+  for(const id in PEERS){ const p=PEERS[id]; if(p.ty<-50) continue;
+    if((ENC.ignored.get("p_"+id)||0)>NOW) continue;
+    if(p.g.position.distanceToSquared(player.pos)<16){ startEncounter({type:"peer",id,name:p.name||"another visitor"}); return; }
+  }
+  for(const w of WORLD.workers){
+    if(w.verb==="sleep" || !visibleThrough(w.g)) continue;
+    if((ENC.ignored.get(workerUid(w))||0)>NOW) continue;
+    w.g.getWorldPosition(_wp1);
+    if(_wp1.distanceToSquared(player.pos)<10.5){ startEncounter({type:"npc",w}); return; }
+  }
+});
+/* ---- the harbor chatbot: every road leads back to the SeaLegs method ---- */
+const BOT_RULES=[
+  [/\b(hi|hello|hey|howdy|good (morning|afternoon|evening))\b/i,[
+    "Hey {n}! Ask me anything — the harbor, the robots, or how we untangle software stacks for a living.",
+    "Hello {n}! Fair warning: every conversation here eventually docks at the SeaLegs method. Occupational habit."]],
+  [/\b(price|cost|pricing|how much|expensive|cheap)\b/i,[
+    "Straight answer: the Playbook is $49, done-for-you builds run $10K–$25K, retainers are custom. The 30-minute stack audit is free — start there: theclearstack.com/contact.html"]],
+  [/\b(4c|method|sealegs|framework|process|how (do|does) (it|this|you))\b/i,[
+    "The SeaLegs method is four C's — Catalog every tool you pay for, Consolidate the overlap, Connect what's left with Make.com, and Coach your team to own it. Ninety days, start to finish: theclearstack.com/method.html"]],
+  [/\b(harbor|this place|what is (this|here)|where am i|what.*website)\b/i,[
+    "This whole town is The Clear Stack's real infrastructure. Buildings are systems, robots are automations, envelopes are leads. It's what a consolidated stack looks like — the free audit shows you what yours looks like: theclearstack.com/contact.html"]],
+  [/\b(audit|book|call|consult|meeting|demo|talk to (brian|someone|a human))\b/i,[
+    "Easy: free 30-minute stack audit at theclearstack.com/contact.html — Brian maps your software spend and shows you exactly where it leaks. No commitment."]],
+  [/\b(make\.com|automation|automate|workflow|zapier|n8n)\b/i,[
+    "Everything moving around you runs on Make.com — that's the Connect step of our method. We build the same for clients, wired into tools they already own."]],
+  [/\b(hubspot|crm|gmail|supabase|stripe|calendar|drive|apollo)\b/i,[
+    "That's one of the buildings here — walk up and press E on it! The point: tools you already pay for, connected so your people stop being the glue. That's the SeaLegs method working."]],
+  [/\b(who are you|your name|are you (real|human|a bot|an? ai))\b/i,[
+    "I'm one of the harbor's robot workers — a stand-in until another real visitor wanders in. The genuinely human one is Brian: theclearstack.com/about.html"]],
+  [/\b(bye|goodbye|thanks|thank you|cya|later|gtg)\b/i,[
+    "Fair winds, {n}! When your stack starts feeling like fog, the free audit is at theclearstack.com/contact.html."]]];
+const BOT_FALLBACK=[
+  "Ha — fair enough, {n}. But speaking of things that pile up: how many software subscriptions does your company actually use? Cataloging them is step one of the SeaLegs method.",
+  "Interesting! Here's my angle on everything though: most companies pay for twice the software they need. The SeaLegs method trims that in 90 days — theclearstack.com/method.html",
+  "I'm a simple dock robot, {n}, but I know this much: when tools don't talk to each other, people become the connectors. That's exactly what we fix.",
+  "Can't help with that one — but I CAN tell you what a free 30-minute stack audit usually finds: $94K–$220K a year in waste. theclearstack.com/contact.html"];
+function botReply(userText){
+  let pool=null;
+  for(const [re,lines] of BOT_RULES){ if(re.test(userText)){ pool=lines; break; } }
+  if(!pool) pool=BOT_FALLBACK;
+  const line=pool[(Math.random()*pool.length)|0].replace(/\{n\}/g,IDENT.name);
+  let w=(ENC.active&&ENC.active.type==="npc")?ENC.active.w:null;
+  if(!w){ let bd=1e9; for(const c of WORLD.workers){ if(c.verb==="sleep"||!visibleThrough(c.g)) continue;
+    c.g.getWorldPosition(_wp1); const d=_wp1.distanceToSquared(player.pos); if(d<bd){bd=d;w=c;} } }
+  if(!w) return;
+  chatLine(npcName(w),line,"npc");
+  sayOver(w.g,line.slice(0,64),2.5,4.5);
+}
 after(5,npcChatter);
 /* workers greet the player by name */
 let greetT=-30;
 WORLD.updaters.push(()=>{
-  if(!IDENT.done || NOW-greetT<26 || VIEW!=="fps") return;
+  if(!IDENT.done || NOW-greetT<26 || VIEW!=="fps" || ENC.active) return;
   for(const w of WORLD.workers){
     if(w.verb==="sleep"||!visibleThrough(w.g)) continue;
     w.g.getWorldPosition(_wp1);
@@ -2562,7 +2675,7 @@ document.getElementById("idEnter").onclick=()=>{
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){ err.textContent="Please enter a valid email."; return; }
   IDENT.done=true; IDENT.name=n.slice(0,24); IDENT.email=em;
   idModal.style.display="none";
-  document.getElementById("chatBox").style.display="flex";
+  document.getElementById("chatOpen").style.display="block";
   const chip=document.getElementById("playerChip"); chip.style.display="inline-block"; chip.textContent="⚓ "+IDENT.name;
   try{ const hdrs={"Content-Type":"application/json"};
     if(CHAT_CFG.apiKey) hdrs["x-make-apikey"]=CHAT_CFG.apiKey;
@@ -2588,7 +2701,7 @@ function initNet(){
       chatLine(nm,tx); const p=PEERS[id]; if(p) sayOver(p.g,tx.slice(0,60),2.6,4); });
     getPos((d,id)=>{ const p=PEERS[id]; if(!p||!Array.isArray(d)) return;
       p.tx=d[0]; p.ty=d[1]; p.tz=d[2]; p.ry=d[3];
-      if(d[4]&&!p.named){ p.named=true; const tag=nameTagSprite(String(d[4]).slice(0,24),"#58c8ff"); tag.position.y=2.35; p.g.add(tag); } });
+      if(d[4]&&!p.named){ p.named=true; p.name=String(d[4]).slice(0,24); const tag=nameTagSprite(p.name,"#58c8ff"); tag.position.y=2.35; p.g.add(tag); } });
     room.onPeerJoin(id=>{
       const g=makeHuman({color:0x7a5f9c}); g.position.set(0,-99,0); scene.add(g);
       PEERS[id]={g,tx:0,ty:-99,tz:0,ry:0,named:false};
@@ -2615,13 +2728,13 @@ function sendChat(){
   chatLine(IDENT.name,t);
   if(avatar&&avatar.visible) sayOver(avatar,t.slice(0,60),2.7,4);
   if(NET) try{ NET.sendMsg({n:IDENT.name,t:t.slice(0,140)}); }catch(e){}
-  if(!Object.keys(PEERS).length) after(1.1+Math.random(),npcReply);   // nobody else online → a worker answers
-  chatInput.blur();
+  // no real person in the conversation? the harbor bot answers — and steers back to the method
+  if((ENC.active&&ENC.active.type==="npc") || !Object.keys(PEERS).length) after(0.9+Math.random()*0.8,()=>botReply(t));
 }
-chatInput.addEventListener("keydown",e=>{ e.stopPropagation(); if(e.key==="Enter") sendChat(); if(e.key==="Escape") chatInput.blur(); });
+chatInput.addEventListener("keydown",e=>{ e.stopPropagation(); if(e.key==="Enter") sendChat(); if(e.key==="Escape"){ endEncounter(false); closeChat(); } });
 document.getElementById("chatSend").onclick=sendChat;
 addEventListener("keydown",e=>{
-  if(e.code==="KeyT" && IDENT.done && document.activeElement!==chatInput && !WORLD.tour.active){ e.preventDefault(); chatInput.focus(); }
+  if(e.code==="KeyT" && IDENT.done && document.activeElement!==chatInput && !WORLD.tour.active){ e.preventDefault(); openChat(); }
 });
 setTimeout(()=>{ if(!IDENT.done) idModal.style.display="flex"; },1300);
 
