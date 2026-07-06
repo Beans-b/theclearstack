@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- sitemap.xml — theclearstack.com
-     Lists only pages we WANT indexed. The paid Playbook download page
-     and PDF are intentionally omitted (omission = excluded from search).
-     Do not add /playbook/ or playbook-download.html here. -->
+     Lists only live canonical URLs (extensionless — Cloudflare Pages serves
+     /method for method.html and redirects the .html form). Pages we don't
+     want indexed carry noindex meta tags and are simply omitted here. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://theclearstack.com/</loc><lastmod>2026-06-15</lastmod></url>
-  <url><loc>https://theclearstack.com/method.html</loc><lastmod>2026-06-19</lastmod></url>
-  <url><loc>https://theclearstack.com/usecases.html</loc><lastmod>2026-06-15</lastmod></url>
-  <url><loc>https://theclearstack.com/contact.html</loc></url>
-  <url><loc>https://theclearstack.com/about.html</loc><lastmod>2026-06-19</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/index.html</loc><lastmod>2026-06-22</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/stack-detector.html</loc><lastmod>2026-07-01</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/stack-analyzer.html</loc><lastmod>2026-06-22</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/marketing-dashboard.html</loc><lastmod>2026-06-22</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/wheelhouse.html</loc><lastmod>2026-06-14</lastmod></url>
-  <url><loc>https://theclearstack.com/lab/command-center.html</loc></url>
+  <url><loc>https://theclearstack.com/</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/method</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/usecases</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/contact</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/about</loc><lastmod>2026-06-19</lastmod></url>
+  <url><loc>https://theclearstack.com/privacy</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/lab/</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://theclearstack.com/lab/stack-detector</loc><lastmod>2026-07-01</lastmod></url>
+  <url><loc>https://theclearstack.com/lab/stack-analyzer</loc><lastmod>2026-06-22</lastmod></url>
+  <url><loc>https://theclearstack.com/lab/chartroom</loc><lastmod>2026-06-22</lastmod></url>
+  <url><loc>https://theclearstack.com/lab/marketing-dashboard</loc><lastmod>2026-06-22</lastmod></url>
 </urlset>

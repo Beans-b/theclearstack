@@ -1,32 +1,18 @@
 # robots.txt — theclearstack.com
-# Merge with your existing robots.txt if you already have one.
-# Explicitly welcomes AI crawlers so the site can be read and cited in AI answers.
+# Last updated 2026-07-06
+# One group per user-agent, no conflicts. AI answer engines are welcome —
+# citation visibility (AEO) is the goal. Private pages are excluded via
+# noindex meta tags on the pages themselves, never listed here.
+#
+# NOTE (Brian): Cloudflare Dashboard -> theclearstack.com -> Settings ->
+# "Block AI bots" / managed robots.txt must be turned OFF, or Cloudflare
+# prepends a managed block that contradicts this file.
 
 User-agent: *
 Allow: /
 
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: CCBot
-Allow: /
+# Known abusive crawler that ignores robots.txt — also block at Cloudflare WAF
+User-agent: Bytespider
+Disallow: /
 
 Sitemap: https://theclearstack.com/sitemap.xml

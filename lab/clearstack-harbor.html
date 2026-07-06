@@ -3,14 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>The Harbor — Live Ops World | The Clear Stack</title>
 <meta name="description" content="The Clear Stack's live infrastructure as an explorable first-person 3D harbor town. Every building is a real system, every worker a real automation, every envelope a lead in motion.">
-<link rel="canonical" href="https://theclearstack.com/lab/clearstack-harbor.html">
+<link rel="canonical" href="https://theclearstack.com/lab/clearstack-harbor">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Clear Stack">
 <meta property="og:title" content="The Harbor — Live Ops World">
 <meta property="og:description" content="The whole business as an explorable 3D harbor town. Walk the streets or take the tour.">
-<meta property="og:url" content="https://theclearstack.com/lab/clearstack-harbor.html">
+<meta property="og:url" content="https://theclearstack.com/lab/clearstack-harbor">
 <!-- Google Analytics 4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
@@ -147,7 +148,7 @@
 </div></div>
 
 <div id="topbar">
-  <a class="brand-link" href="index.html" title="Back to the Lab">
+  <a class="brand-link" href="/" title="Back to the Lab">
     <svg width="22" height="25" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" aria-label="The Clear Stack logo">
       <defs>
         <linearGradient id="hb-base" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
@@ -166,8 +167,8 @@
     </svg>
     <span class="brand">THE CLEAR STACK <em>⚓</em> SeaLegs OS</span>
   </a>
-  <a class="navlink" href="index.html">LAB</a>
-  <a class="navlink" href="../index.html">SITE</a>
+  <a class="navlink" href="/">LAB</a>
+  <a class="navlink" href="/">SITE</a>
   <span id="clockDisp">MON 05:30</span>
   <span id="playerChip" style="display:none"></span>
   <span class="spacer"></span>
@@ -1174,7 +1175,7 @@ function clockUpdate(dt){
 }
 function onWorldHour(day,hh){ fireScheduled(day,hh); }
 /* (sync padding neutralized) —
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
 /* =====================================================================
    CHUNK 3 — Districts & buildings (placed from INFRA_DATA)
    ===================================================================== */
@@ -2785,4 +2786,3 @@ setTimeout(()=>document.getElementById("loader").classList.add("done"),900);
 </script>
 </body>
 </html>
-        

@@ -1,19 +1,22 @@
 # The Clear Stack
 
-> AI consolidation consulting for mid-market companies (50–500 employees). We audit AI and SaaS stacks, eliminate redundant tools, and build Make.com automation that connects the rest. Typical engagement identifies $94K–$220K in annual savings. Based in the US.
+> AI consolidation consulting for mid-market companies (50–500 employees). We audit AI and SaaS stacks, eliminate redundant tools, and build Make.com automation that connects the rest. Engagements start with a $1,500 Stack Audit, credited in full toward implementation. Based in Santa Barbara, California, US.
 
 ## Services
 
-- [What We Do](https://theclearstack.com/index.html): The Clear Stack Playbook ($49 PDF methodology), done-for-you implementation ($10K–$25K, 90-day delivery), retainers, Make.com template marketplace, and coaching cohort.
-- [The 4C Framework](https://theclearstack.com/method.html): Our methodology — Catalog, Consolidate, Connect, Coach. Includes a stack-savings calculator.
-- [Use Cases](https://theclearstack.com/usecases.html): Engagements for professional services, financial services, healthcare operations, manufacturing & logistics, and technology companies.
-- [Contact](https://theclearstack.com/contact.html): Book a free 30-minute stack audit — no commitment.
+- [What We Do](https://theclearstack.com/): The Clear Stack Audit ($1,500, two weeks, credited toward implementation) and done-for-you implementation ($10K–$25K, 90-day delivery). Retainers available for ongoing stack management. Self-serve Playbook PDF ($49).
+- [The 4C Framework](https://theclearstack.com/method): Our methodology — Catalog, Consolidate, Connect, Coach. Includes a stack-savings calculator.
+- [Use Cases](https://theclearstack.com/usecases): Engagements for professional services, financial services, healthcare operations, manufacturing & logistics, and technology companies.
+- [Contact](https://theclearstack.com/contact): Book a free 30-minute intro call — no commitment.
 
 ## Lab (free tools)
 
-- [Marketing Dashboard](https://theclearstack.com/lab/marketing-dashboard.html): Free drag-and-drop marketing tool. Answer a few questions about your business and generate a positioning line, a week of social media posts with image briefs, and SEO & AEO copy (page titles, meta descriptions, headlines, FAQs). No signup to start; data stays in the user's browser.
-- [Lab index](https://theclearstack.com/lab/index.html): All free tools and experiments.
+- [Stack Detector](https://theclearstack.com/lab/stack-detector): Enter a company domain and detect the SaaS and AI tools running on it, with evidence.
+- [Stack Analyzer](https://theclearstack.com/lab/stack-analyzer): List the software you pay for and get an instant overlap and consolidation report.
+- [Marketing Dashboard](https://theclearstack.com/lab/marketing-dashboard): Free marketing asset generator — positioning line, social posts, SEO & AEO copy. Data stays in the user's browser.
+- [Lab index](https://theclearstack.com/lab/): All free tools and experiments.
 
 ## About
 
-- [Founder](https://theclearstack.com/about.html): Who runs The Clear Stack and why.
+- [Founder](https://theclearstack.com/about): Who runs The Clear Stack and why.
+- [Privacy & Data Handling](https://theclearstack.com/privacy): How visitor and client data is collected, used, and protected.
