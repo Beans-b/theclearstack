@@ -645,6 +645,15 @@
             <div class="wh-kpi"><div class="wh-kpi-lbl">Avg Completion</div><div class="wh-kpi-val" id="wh-kpi-avg">—</div><div class="wh-kpi-sub">progress</div></div>
             <div class="wh-kpi hero editable" onclick="whEditPipelineValue()" title="Admin: click to edit"><div class="wh-kpi-lbl">Pipeline Value</div><div class="wh-kpi-val" id="wh-kpi-pipeline">$180K</div><div class="wh-kpi-sub" id="wh-kpi-pipeline-sub">3 opportunities</div></div>
           </div>
+          <a href="/lab/social" title="Open the Social Engine queue" style="display:block;text-decoration:none;color:inherit;margin-top:14px">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#5A6478;margin-bottom:8px">Social Engine &rarr;</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px">
+              <div style="background:#fff;border:1px solid #e6e8ee;border-radius:10px;padding:11px 13px"><div style="font-size:22px;font-weight:700;color:#0B1F4A" id="wh-soc-pending">&mdash;</div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#5A6478">Awaiting approval</div></div>
+              <div style="background:#fff;border:1px solid #e6e8ee;border-radius:10px;padding:11px 13px"><div style="font-size:22px;font-weight:700;color:#0B1F4A" id="wh-soc-pub7">&mdash;</div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#5A6478">Published &middot; 7d</div></div>
+              <div style="background:#fff;border:1px solid #e6e8ee;border-radius:10px;padding:11px 13px"><div style="font-size:22px;font-weight:700;color:#b3261e" id="wh-soc-failed">&mdash;</div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#5A6478">Failed</div></div>
+              <div style="background:#fff;border:1px solid #e6e8ee;border-radius:10px;padding:11px 13px"><div style="font-size:22px;font-weight:700;color:#0B1F4A" id="wh-soc-reach">&mdash;</div><div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#5A6478">Reach &middot; 30d</div></div>
+            </div>
+          </a>
         </div>
       </section>
 
@@ -909,6 +918,7 @@ async function ccReadPublic(){
    WH_PIPELINE_* / WH_FUNNEL constants in place; on failure leaves the
    hardcoded fallbacks so a public screen-share is never blank. ── */
 let WH_METRICS_AT=null;   // ISO string of last server refresh (refreshed_at)
+let WH_SOCIAL=null;       // {pending,pub7,failed,reach} from wheelhouse_metrics social columns
 async function whReadMetrics(){
   try{
     const r=await fetch(`${CC_URL}/rest/v1/wheelhouse_metrics?select=*`,{headers:{'apikey':CC_ANON,'Authorization':`Bearer ${CC_ANON}`}});
@@ -920,6 +930,7 @@ async function whReadMetrics(){
     if(m.pipeline_sub!=null)   WH_PIPELINE_SUB=m.pipeline_sub;
     if(m.seeded!=null) WH_FUNNEL=[['Seeded',m.seeded|0],['Scanned',m.scanned|0],['Enriched',m.enriched|0],['Outreach',m.outreach|0],['Booked',m.booked|0]];
     if(m.refreshed_at) WH_METRICS_AT=m.refreshed_at;
+    WH_SOCIAL={pending:m.social_pending, pub7:m.social_published_7d, failed:m.social_failed, reach:m.social_reach_30d};
   }catch(e){ console.warn('Metrics read failed; using hardcoded fallback:',e); }
 }
 /* Manual "get current data": trigger the server-side recompute (same RPC
@@ -1355,6 +1366,13 @@ function whRenderKPIs(){
   document.getElementById('wh-kpi-avg').textContent=avg+'%';
   document.getElementById('wh-kpi-pipeline').textContent=WH_PIPELINE_VALUE;
   document.getElementById('wh-kpi-pipeline-sub').textContent=WH_PIPELINE_SUB;
+  if(WH_SOCIAL){
+    const setSoc=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null) el.textContent=v;};
+    setSoc('wh-soc-pending',WH_SOCIAL.pending);
+    setSoc('wh-soc-pub7',WH_SOCIAL.pub7);
+    setSoc('wh-soc-failed',WH_SOCIAL.failed);
+    setSoc('wh-soc-reach',WH_SOCIAL.reach!=null?Number(WH_SOCIAL.reach).toLocaleString():WH_SOCIAL.reach);
+  }
 }
 function whTimelineRow(p){
   const cfg=CC_CATS[p.category]||CC_CATS.Client, score=ccScore(p).toFixed(1), bar=ccProgressColor(p.completion);
