@@ -137,6 +137,14 @@
   .okbox .body{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:11px 12px;font-size:13px;line-height:1.5;color:var(--text);max-height:220px;overflow:auto;white-space:pre-wrap}
   .okbox .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
   .okbox .retired{font-size:12px;color:var(--muted);margin-top:8px}
+  .okbox .okstatus{font-size:13px;margin-top:6px;padding:10px 12px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);line-height:1.5}
+  .okbox .okstatus.ok{color:var(--green);border-color:rgba(46,204,113,.35)}
+  .okbox .okstatus.warn{color:var(--amber);border-color:rgba(230,178,74,.35)}
+  .okbox .okstatus.bad{color:var(--red);border-color:rgba(255,92,87,.35)}
+  .okbox .okstatus a{color:var(--blue);font-weight:600}
+  /* left-side platform filter bar */
+  .platbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
+  .platbar-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:4px}
 </style>
 </head>
 <body>
@@ -168,23 +176,22 @@
     <section class="panel col-12">
       <div class="phead">
         <div class="t">Queue control</div>
-        <div class="qctl">
-          <div class="chips" id="chips">
-            <button class="chip active" data-f="pending" onclick="setFilter('pending')">Pending</button>
-            <button class="chip" data-f="failed" onclick="setFilter('failed')">Failed</button>
-            <button class="chip" data-f="video" onclick="setFilter('video')">Video</button>
-            <button class="chip" data-f="published" onclick="setFilter('published')">Published</button>
-            <button class="chip" data-f="all" onclick="setFilter('all')">All</button>
-          </div>
-          <select id="platSel" class="platsel" onchange="setPlatform(this.value)" aria-label="Filter by platform">
-            <option value="all">All platforms</option>
-            <option value="facebook">Facebook</option>
-            <option value="instagram">Instagram</option>
-            <option value="x">X</option>
-            <option value="tiktok">TikTok</option>
-            <option value="linkedin">LinkedIn</option>
-          </select>
+        <div class="chips" id="chips">
+          <button class="chip active" data-f="pending" onclick="setFilter('pending')">Pending</button>
+          <button class="chip" data-f="failed" onclick="setFilter('failed')">Failed</button>
+          <button class="chip" data-f="video" onclick="setFilter('video')">Video</button>
+          <button class="chip" data-f="published" onclick="setFilter('published')">Published</button>
+          <button class="chip" data-f="all" onclick="setFilter('all')">All</button>
         </div>
+      </div>
+      <div class="platbar" id="platChips">
+        <span class="platbar-lbl">Platform</span>
+        <button class="chip active" data-p="all" onclick="setPlatform('all')">All</button>
+        <button class="chip" data-p="facebook" onclick="setPlatform('facebook')">Facebook</button>
+        <button class="chip" data-p="instagram" onclick="setPlatform('instagram')">Instagram</button>
+        <button class="chip" data-p="x" onclick="setPlatform('x')">X</button>
+        <button class="chip" data-p="tiktok" onclick="setPlatform('tiktok')">TikTok</button>
+        <button class="chip" data-p="linkedin" onclick="setPlatform('linkedin')">LinkedIn</button>
       </div>
       <div class="qwrap" id="queuePanel"><div class="empty">Loading…</div></div>
     </section>
@@ -226,6 +233,8 @@
     <p class="note" id="okNote"></p>
     <div class="lbl">What was approved</div>
     <div class="body" id="okBody"></div>
+    <div class="lbl">Did it post?</div>
+    <div class="okstatus" id="okStatus">Checking…</div>
     <div class="retired" id="okRetired"></div>
     <div class="row">
       <button class="btn ghost sm" id="okCopy">Copy text</button>
@@ -397,8 +406,8 @@ function filteredQueue(){
   return rows;
 }
 function renderQueue(){ document.getElementById('queuePanel').innerHTML = queueTable(filteredQueue()); }
-function setFilter(f){ filter=f; document.querySelectorAll('.chip').forEach(el=>el.classList.toggle('active', el.dataset.f===f)); renderQueue(); }
-function setPlatform(p){ platformFilter=p; renderQueue(); }
+function setFilter(f){ filter=f; document.querySelectorAll('#chips .chip').forEach(el=>el.classList.toggle('active', el.dataset.f===f)); renderQueue(); }
+function setPlatform(p){ platformFilter=p; document.querySelectorAll('#platChips .chip').forEach(el=>el.classList.toggle('active', el.dataset.p===p)); renderQueue(); }
 
 /* ── per-platform panels ── */
 function activePlatforms(){
@@ -483,7 +492,7 @@ async function doAct(op, id){
 async function doApprove(id){
   const r = queue.find(x=>x.id===id) || {};
   disableRow(id);
-  try{ const res = await api('approve', { id }); showApproved(r, bestText(r), (res && res.retired) || 0); await loadAll(); }
+  try{ const res = await api('approve', { id }); showApproved(r, bestText(r), (res && res.retired) || 0); await loadAll(); pollApproved(id, r); }
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Approve failed', true); renderQueue(); }
 }
 
@@ -505,7 +514,7 @@ document.getElementById('saveDraftBtn').onclick = async ()=>{
 document.getElementById('saveApproveBtn').onclick = async ()=>{
   if(!editId) return; const text=document.getElementById('editText').value;
   const r = queue.find(x=>x.id===editId) || {};
-  try{ const res=await api('approve', { id:editId, text }); closeEdit(); showApproved(r, text, (res&&res.retired)||0); await loadAll(); }
+  try{ const res=await api('approve', { id:editId, text }); closeEdit(); showApproved(r, text, (res&&res.retired)||0); await loadAll(); pollApproved(r.id, r); }
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Approve failed', true); }
 };
 
@@ -524,6 +533,11 @@ function showApproved(r, text, retired){
     : `Approved for manual posting to ${plat}. Copy the text below and post it by hand.`;
   document.getElementById('okBody').textContent = approvedText || '(no text)';
   document.getElementById('okRetired').textContent = retired ? `${retired} A/B sibling${retired>1?'s':''} retired automatically.` : '';
+  const st = document.getElementById('okStatus');
+  st.className = 'okstatus' + (auto ? '' : ' warn');
+  st.textContent = auto
+    ? 'Approved — checking whether the publisher posted it…'
+    : `Manual platform — nothing posts automatically. Copy the text above and post it to ${plat} yourself.`;
   document.getElementById('okModal').classList.remove('hidden');
 }
 function closeApproved(){ document.getElementById('okModal').classList.add('hidden'); }
@@ -532,6 +546,26 @@ document.getElementById('okCopy').onclick = ()=>{
   if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copied')).catch(()=>toast('Copy failed', true)); }
   else toast('Copy not supported here', true);
 };
+
+/* Poll the row after approval and show whether it actually posted. */
+function setStatus(el, cls, html){ el.className = 'okstatus' + (cls ? (' ' + cls) : ''); el.innerHTML = html; }
+function postLink(row){ const u = postUrl(row); return u ? ` · <a href="${esc(u)}" target="_blank" rel="noopener">View post ↗</a>` : ''; }
+async function refreshQueueSilent(){ try{ const q = await api('queue'); if (Array.isArray(q)){ queue = q; renderTiles(); renderQueue(); } }catch(_){} }
+async function pollApproved(id, r){
+  const el = document.getElementById('okStatus'); if (!el) return;
+  const auto = !!AUTO[r.platform];
+  const plat = PLABEL[r.platform] || r.platform || 'the platform';
+  if (!auto){ setStatus(el, 'warn', `Manual platform — nothing posts automatically. Copy the text above and post it to ${esc(plat)} yourself.`); return; }
+  for (let i = 0; i < 4; i++){
+    const row = (queue || []).find(x => x.id === id);
+    if (row && row.status === 'published'){ setStatus(el, 'ok', `✓ Posted to ${esc(plat)}${postLink(row)}`); return; }
+    if (row && row.status === 'failed'){ setStatus(el, 'bad', `Publish failed: ${esc(String(row.error_detail || '').slice(0,160))}`); return; }
+    setStatus(el, '', i === 0 ? 'Approved — waiting for the publisher to post…' : 'Still waiting on the publisher…');
+    await new Promise(res => setTimeout(res, 2000));
+    await refreshQueueSilent();
+  }
+  setStatus(el, 'warn', 'Approved and queued, but no live post is confirmed yet. The auto-publisher isn’t connected — once you wire it, confirmation and the link show here.');
+}
 
 /* ── generate a fresh weekly batch (server-side generator) ── */
 async function doGenerate(){
