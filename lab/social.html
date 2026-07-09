@@ -129,6 +129,7 @@
       <span class="updated" id="updated"></span>
       <a class="btn ghost sm" href="/lab/wheelhouse">← Wheelhouse</a>
       <button class="btn ghost sm" id="reload" onclick="loadAll()">Reload</button>
+      <button class="btn sm" id="genBtn" onclick="doGenerate()">Generate now</button>
     </div>
   </header>
 
@@ -424,6 +425,34 @@ document.getElementById('saveApproveBtn').onclick = async ()=>{
   try{ const res=await api('approve', { id:editId, text }); toast(res&&res.retired?`Approved — ${res.retired} sibling retired`:'Approved — publishing'); closeEdit(); await loadAll(); }
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Approve failed', true); }
 };
+
+/* ── generate a fresh weekly batch (server-side generator) ── */
+async function doGenerate(){
+  const btn = document.getElementById('genBtn');
+  if (!token()){ showModal(true); return; }
+  if (!confirm('Generate this week\'s batch now? This calls Claude and adds ~16 pending variants plus 3 LinkedIn drafts to the queue.')) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Generating…';
+  try{
+    const r = await fetch('/api/generate', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token() },
+      body: '{}'
+    });
+    if (r.status === 401){ showModal(true); return; }
+    const t = await r.text();
+    const data = t ? JSON.parse(t) : {};
+    if (!r.ok || !data.ok){ throw new Error((data && data.error) || ('HTTP ' + r.status)); }
+    toast(`Generated — ${num(data.variants_inserted)} variants, ${num(data.drafts_inserted)} drafts`);
+    if (data.content_queue_error) toast('Drafts note: ' + String(data.content_queue_error).slice(0,120), true);
+    setFilter('pending');
+    await loadAll();
+  }catch(e){
+    toast(e.message || 'Generation failed', true);
+  }finally{
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
 
 /* ── boot ── */
 async function loadAll(){
