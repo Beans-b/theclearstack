@@ -42,7 +42,7 @@ export async function onRequestPost({ request, env }) {
   try {
     // ── READS ────────────────────────────────────────────────────────
     if (op === 'queue') {
-      const cols = 'id,platform,content_type,source_topic,post_text,approved_text,media_url,video_url,status,created_at,published_at,scheduled_for,updated_at,variant,style_tag,batch_id,client_id,error_detail';
+      const cols = 'id,platform,content_type,source_topic,post_text,approved_text,media_url,video_url,platform_post_id,status,created_at,published_at,scheduled_for,updated_at,variant,style_tag,batch_id,client_id,error_detail';
       const r = await fetch(`${base}?select=${cols}&order=created_at.desc&limit=200`, { headers });
       return passthrough(r);
     }

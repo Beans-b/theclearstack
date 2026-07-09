@@ -116,6 +116,27 @@
   .editbox textarea{min-height:150px;resize:vertical;line-height:1.5}
   .editbox .row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
   @media(max-width:880px){ .col-4{grid-column:span 12} }
+
+  /* platform filter select */
+  .qctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .platsel{background:var(--bg);color:var(--text);border:1px solid var(--line2);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:12.5px;cursor:pointer}
+  .platsel:focus{outline:none;border-color:var(--accent)}
+  /* published destination line */
+  .posted{margin-top:6px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .posted a{color:var(--blue);font-weight:600}
+  .posted .dim{color:var(--dim)}
+  /* approval confirmation modal */
+  .okbox{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:22px;width:520px;max-width:94vw}
+  .okbox h3{margin:0 0 2px;font-size:17px;display:flex;align-items:center;gap:8px}
+  .okbox .where{display:flex;align-items:center;gap:9px;margin:12px 0;padding:11px 13px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;font-size:13.5px}
+  .okbox .where .tag{margin-left:auto;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:999px;font-weight:700}
+  .okbox .tag.auto{background:rgba(46,204,113,.16);color:var(--green)}
+  .okbox .tag.manual{background:rgba(230,178,74,.16);color:var(--amber)}
+  .okbox .note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+  .okbox .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 5px}
+  .okbox .body{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:11px 12px;font-size:13px;line-height:1.5;color:var(--text);max-height:220px;overflow:auto;white-space:pre-wrap}
+  .okbox .row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+  .okbox .retired{font-size:12px;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
@@ -147,12 +168,22 @@
     <section class="panel col-12">
       <div class="phead">
         <div class="t">Queue control</div>
-        <div class="chips" id="chips">
-          <button class="chip active" data-f="pending" onclick="setFilter('pending')">Pending</button>
-          <button class="chip" data-f="failed" onclick="setFilter('failed')">Failed</button>
-          <button class="chip" data-f="video" onclick="setFilter('video')">Video</button>
-          <button class="chip" data-f="published" onclick="setFilter('published')">Published</button>
-          <button class="chip" data-f="all" onclick="setFilter('all')">All</button>
+        <div class="qctl">
+          <div class="chips" id="chips">
+            <button class="chip active" data-f="pending" onclick="setFilter('pending')">Pending</button>
+            <button class="chip" data-f="failed" onclick="setFilter('failed')">Failed</button>
+            <button class="chip" data-f="video" onclick="setFilter('video')">Video</button>
+            <button class="chip" data-f="published" onclick="setFilter('published')">Published</button>
+            <button class="chip" data-f="all" onclick="setFilter('all')">All</button>
+          </div>
+          <select id="platSel" class="platsel" onchange="setPlatform(this.value)" aria-label="Filter by platform">
+            <option value="all">All platforms</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="x">X</option>
+            <option value="tiktok">TikTok</option>
+            <option value="linkedin">LinkedIn</option>
+          </select>
         </div>
       </div>
       <div class="qwrap" id="queuePanel"><div class="empty">Loading…</div></div>
@@ -187,12 +218,28 @@
   </div>
 </div>
 
+<!-- approval confirmation modal -->
+<div class="modal hidden" id="okModal">
+  <div class="okbox">
+    <h3>✓ Approved</h3>
+    <div class="where" id="okWhere"></div>
+    <p class="note" id="okNote"></p>
+    <div class="lbl">What was approved</div>
+    <div class="body" id="okBody"></div>
+    <div class="retired" id="okRetired"></div>
+    <div class="row">
+      <button class="btn ghost sm" id="okCopy">Copy text</button>
+      <button class="btn approve sm" onclick="closeApproved()">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 const TOKEN_KEY = 'cc_token';
-let queue = [], perf = [], filter = 'pending';
+let queue = [], perf = [], filter = 'pending', platformFilter = 'all';
 const charts = {};
 const PLATFORMS = ['facebook','instagram','x','tiktok','linkedin'];
 const PLABEL = {facebook:'Facebook', instagram:'Instagram', x:'X', tiktok:'TikTok', linkedin:'LinkedIn'};
@@ -296,28 +343,62 @@ function actionsFor(r){
 }
 function statusPill(s){ return `<span class="pill st-${esc(s)}">${esc((s||'').replace(/_/g,' '))}</span>`; }
 
+/* build a best-effort live link to a published post from its platform id */
+function postUrl(r){
+  const id = r.platform_post_id; if(!id) return '';
+  if (r.platform === 'facebook')  return 'https://www.facebook.com/' + id;
+  if (r.platform === 'x')         return 'https://x.com/i/web/status/' + id;
+  if (r.platform === 'instagram') return 'https://www.instagram.com/p/' + id;
+  if (r.platform === 'tiktok')    return r.video_url || '';
+  if (r.platform === 'linkedin')  return 'https://www.linkedin.com/feed/update/' + id;
+  return '';
+}
+/* the "posted to X · when · View" line shown on published rows */
+function publishedLine(r){
+  if (r.status !== 'published') return '';
+  const url = postUrl(r);
+  const link = url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">View post ↗</a>` : ' · <span class="dim">link pending</span>';
+  return `<div class="posted">✓ Posted to ${esc(PLABEL[r.platform]||r.platform)}<span class="dim">· ${esc(fmtDate(r.published_at||r.updated_at))}</span>${link}</div>`;
+}
+
 function queueTable(rows){
   if (!rows.length) return '<div class="empty">Nothing here.</div>';
   const body = rows.map(r => `
     <tr>
       <td><div class="platcell">${logo(r.platform,true)}<span>${esc(PLABEL[r.platform]||r.platform)}</span>${r.variant?`<span class="chiptag">${esc(r.variant)}</span>`:''}</div><div class="muted" style="font-size:11px;margin-top:3px">${esc((r.content_type||'').replace(/_/g,' '))}</div></td>
       <td>${statusPill(r.status)}${r.style_tag?`<div class="chiptag" style="margin:5px 0 0">${esc(r.style_tag)}</div>`:''}</td>
-      <td class="txt"><div class="topic">${esc(r.source_topic||'')}</div><div class="preview">${esc(bestText(r).slice(0,190))}</div>${r.error_detail?`<div class="err">⚠ ${esc(String(r.error_detail).slice(0,180))}</div>`:''}</td>
+      <td class="txt"><div class="topic">${esc(r.source_topic||'')}</div><div class="preview">${esc(bestText(r).slice(0,190))}</div>${r.error_detail?`<div class="err">⚠ ${esc(String(r.error_detail).slice(0,180))}</div>`:''}${publishedLine(r)}</td>
       <td class="muted" style="white-space:nowrap">${fmtDate(r.created_at)}</td>
       <td>${actionsFor(r)}</td>
     </tr>`).join('');
   return `<table class="queue"><thead><tr><th>Platform</th><th>Status</th><th>Topic / preview</th><th>Created</th><th>Actions</th></tr></thead><tbody>${body}</tbody></table>`;
 }
 
-function filteredQueue(){
+function byStatus(){
   if (filter === 'pending')        return queue.filter(r => r.status === 'pending_approval');
   if (filter === 'failed')         return queue.filter(r => r.status === 'failed');
   if (filter === 'published')      return queue.filter(r => r.status === 'published');
   if (filter === 'video')          return queue.filter(r => r.status === 'video_generating' || r.status === 'video_ready');
   return queue;
 }
+function filteredQueue(){
+  let rows = byStatus();
+  if (platformFilter !== 'all') rows = rows.filter(r => r.platform === platformFilter);
+  else {
+    // group rows by platform so each platform stays together while scrolling
+    const order = {}; PLATFORMS.forEach((p,i)=>order[p]=i);
+    rows = rows.slice().sort((a,b)=>{
+      const pa = order[a.platform]==null?99:order[a.platform];
+      const pb = order[b.platform]==null?99:order[b.platform];
+      if (pa!==pb) return pa-pb;
+      return new Date(b.created_at||0) - new Date(a.created_at||0);
+    });
+  }
+  return rows;
+}
 function renderQueue(){ document.getElementById('queuePanel').innerHTML = queueTable(filteredQueue()); }
 function setFilter(f){ filter=f; document.querySelectorAll('.chip').forEach(el=>el.classList.toggle('active', el.dataset.f===f)); renderQueue(); }
+function setPlatform(p){ platformFilter=p; renderQueue(); }
 
 /* ── per-platform panels ── */
 function activePlatforms(){
@@ -400,8 +481,9 @@ async function doAct(op, id){
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Action failed', true); renderQueue(); }
 }
 async function doApprove(id){
+  const r = queue.find(x=>x.id===id) || {};
   disableRow(id);
-  try{ const res = await api('approve', { id }); toast(res && res.retired ? `Approved — ${res.retired} sibling retired` : 'Approved — publishing'); await loadAll(); }
+  try{ const res = await api('approve', { id }); showApproved(r, bestText(r), (res && res.retired) || 0); await loadAll(); }
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Approve failed', true); renderQueue(); }
 }
 
@@ -422,8 +504,33 @@ document.getElementById('saveDraftBtn').onclick = async ()=>{
 };
 document.getElementById('saveApproveBtn').onclick = async ()=>{
   if(!editId) return; const text=document.getElementById('editText').value;
-  try{ const res=await api('approve', { id:editId, text }); toast(res&&res.retired?`Approved — ${res.retired} sibling retired`:'Approved — publishing'); closeEdit(); await loadAll(); }
+  const r = queue.find(x=>x.id===editId) || {};
+  try{ const res=await api('approve', { id:editId, text }); closeEdit(); showApproved(r, text, (res&&res.retired)||0); await loadAll(); }
   catch(e){ if(e.code===401){showModal(true);return;} toast(e.message||'Approve failed', true); }
+};
+
+/* ── approval confirmation: where it went + what was approved ── */
+let approvedText = '';
+function showApproved(r, text, retired){
+  const plat = PLABEL[r.platform] || r.platform || 'post';
+  const auto = !!AUTO[r.platform];
+  approvedText = String(text||'').trim();
+  document.getElementById('okWhere').innerHTML =
+    `${logo(r.platform)}<b>${esc(plat)}</b>`
+    + (r.variant?`<span class="chiptag">${esc(r.variant)}</span>`:'')
+    + `<span class="tag ${auto?'auto':'manual'}">${auto?'auto-publish':'manual'}</span>`;
+  document.getElementById('okNote').textContent = auto
+    ? `Queued to publish to ${plat}. Once it posts, it moves to the Published tab with a live link.`
+    : `Approved for manual posting to ${plat}. Copy the text below and post it by hand.`;
+  document.getElementById('okBody').textContent = approvedText || '(no text)';
+  document.getElementById('okRetired').textContent = retired ? `${retired} A/B sibling${retired>1?'s':''} retired automatically.` : '';
+  document.getElementById('okModal').classList.remove('hidden');
+}
+function closeApproved(){ document.getElementById('okModal').classList.add('hidden'); }
+document.getElementById('okCopy').onclick = ()=>{
+  const t = approvedText || '';
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast('Copied')).catch(()=>toast('Copy failed', true)); }
+  else toast('Copy not supported here', true);
 };
 
 /* ── generate a fresh weekly batch (server-side generator) ── */
