@@ -9,17 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --hull:#0c1318;          /* deep below-decks dark */
-    --deck:#121c23;          /* panel surface */
-    --deck-2:#18242c;        /* lifted surface */
-    --rule:#23323c;          /* hairlines */
-    --ink:#e9e6dd;           /* warm off-white */
-    --mute:#7d8b95;          /* muted captions */
-    --brass:#c9a961;         /* maritime instrument brass */
-    --depth:#4fd1c5;         /* cool secondary (non-burn) */
-    --ember-hot:#ff5436;     /* hottest burner */
-    --ember:#ff8a3d;         /* burn accent */
-    --ember-low:#9a6b3f;     /* cool ember */
+    --hull:#0c1318; --deck:#121c23; --deck-2:#18242c; --rule:#23323c;
+    --ink:#e9e6dd; --mute:#7d8b95; --brass:#c9a961; --depth:#4fd1c5;
+    --ember-hot:#ff5436; --ember:#ff8a3d; --ember-low:#9a6b3f;
     --shadow:0 18px 50px -20px rgba(0,0,0,.7);
     --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
     --disp:'Space Grotesk',system-ui,sans-serif;
@@ -31,15 +23,11 @@
       radial-gradient(1200px 600px at 80% -10%, rgba(255,138,61,.08), transparent 60%),
       radial-gradient(900px 500px at -10% 110%, rgba(79,209,197,.05), transparent 55%),
       var(--hull);
-    color:var(--ink);
-    font-family:var(--disp);
-    line-height:1.45;
-    min-height:100vh;
+    color:var(--ink);font-family:var(--disp);line-height:1.45;min-height:100vh;
     padding:clamp(14px,3.5vw,34px);
   }
   .wrap{max-width:1080px;margin:0 auto}
 
-  /* ---- header ---- */
   header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px;justify-content:space-between;
     padding-bottom:18px;border-bottom:1px solid var(--rule);margin-bottom:22px}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
@@ -51,7 +39,6 @@
   h1 em{font-style:normal;color:var(--ember)}
   .sub{color:var(--mute);font-size:13.5px;margin-top:7px}
 
-  /* ---- controls ---- */
   .controls{display:flex;flex-direction:column;gap:9px;align-items:flex-end}
   .segs{display:flex;background:var(--deck);border:1px solid var(--rule);border-radius:9px;padding:3px;font-family:var(--mono)}
   .segs button{appearance:none;background:none;border:0;color:var(--mute);font-family:var(--mono);
@@ -59,25 +46,23 @@
   .segs button:hover{color:var(--ink)}
   .segs button[aria-pressed="true"]{background:var(--deck-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
 
-  /* ---- overview cluster ---- */
   .cluster{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:1px;background:var(--rule);
     border:1px solid var(--rule);border-radius:14px;overflow:hidden;margin-bottom:26px;box-shadow:var(--shadow)}
   .gauge{background:var(--deck);padding:18px 20px;display:flex;flex-direction:column;gap:4px}
   .gauge.total{background:linear-gradient(160deg,#1a1410,var(--deck) 70%)}
   .gauge .label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
   .gauge .val{font-family:var(--mono);font-weight:600;letter-spacing:-.01em;line-height:1}
-  .gauge.total .val{font-size:clamp(34px,7vw,52px);color:var(--ember);
-    text-shadow:0 0 28px rgba(255,138,61,.35)}
+  .gauge.total .val{font-size:clamp(34px,7vw,52px);color:var(--ember);text-shadow:0 0 28px rgba(255,138,61,.35)}
   .gauge .val.sm{font-size:clamp(20px,3.4vw,26px)}
   .gauge .foot{font-size:11.5px;color:var(--mute)}
   .gauge .foot b{color:var(--depth);font-weight:500}
   @media(max-width:720px){.cluster{grid-template-columns:1fr 1fr}.gauge.total{grid-column:1/-1}}
 
-  /* ---- burn stack ---- */
   .stack-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
   .stack-head h2{font-size:13px;font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-weight:500}
   .stack-head .hint{font-size:11.5px;color:var(--mute);font-family:var(--mono)}
-  .stack{display:flex;flex-direction:column;gap:9px}
+  .stack{display:flex;flex-direction:column;gap:9px;min-height:60px}
+  .empty{font-family:var(--mono);font-size:13px;color:var(--mute);padding:22px 4px}
   .burner{position:relative;background:var(--deck);border:1px solid var(--rule);border-radius:11px;
     padding:13px 16px 14px;cursor:pointer;overflow:hidden;transition:.16s;outline:none}
   .burner:hover,.burner:focus-visible{border-color:#36505d;transform:translateX(2px)}
@@ -97,7 +82,6 @@
   .chev{flex:none;color:var(--mute);font-size:13px;transition:.16s}
   .burner:hover .chev{color:var(--ink);transform:translateX(2px)}
 
-  /* ---- drawer ---- */
   .scrim{position:fixed;inset:0;background:rgba(6,10,13,.62);backdrop-filter:blur(2px);
     opacity:0;pointer-events:none;transition:.22s;z-index:40}
   .scrim.open{opacity:1;pointer-events:auto}
@@ -121,7 +105,6 @@
   .metric .k{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--mute)}
   .metric .v{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:3px;letter-spacing:-.01em}
   .metric .v small{font-size:11px;color:var(--mute);font-weight:400}
-  .spark-wrap{margin-bottom:6px}
   .spark-wrap .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:9px}
   svg.spark{width:100%;height:64px;display:block}
 
@@ -129,38 +112,13 @@
     display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
   .src{font-family:var(--mono);font-size:11px;color:var(--mute)}
   .src b{color:var(--ember)}
+  .src.live b{color:var(--depth)}
   .pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--depth);
     border:1px solid var(--rule);border-radius:99px;padding:4px 11px}
-  /* ---- access gate ---- */
-  body.locked{overflow:hidden}
-  .gate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;
-    background:radial-gradient(1200px 600px at 80% -10%,rgba(255,138,61,.10),transparent 60%),var(--hull)}
-  .gate-card{width:min(380px,100%);background:var(--deck);border:1px solid var(--rule);border-radius:14px;
-    padding:30px 28px 26px;box-shadow:var(--shadow)}
-  .gate-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:14px}
-  .gate-card h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
-  .gate-card p{color:var(--mute);font-size:13.5px;margin-bottom:20px;line-height:1.55}
-  .gate-card input{width:100%;background:var(--deck-2);border:1px solid var(--rule);border-radius:9px;
-    color:var(--ink);font-family:var(--mono);font-size:15px;padding:12px 14px;outline:none;transition:.16s}
-  .gate-card input:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(255,138,61,.12)}
-  .gate-err{color:var(--ember-hot);font-family:var(--mono);font-size:12px;margin-top:10px;display:none}
-  .gate-card button{width:100%;margin-top:16px;background:var(--ember);color:#1a0f06;border:0;border-radius:9px;
-    font-family:var(--mono);font-weight:600;font-size:14px;letter-spacing:.04em;padding:12px;cursor:pointer;transition:.16s}
-  .gate-card button:hover{background:#ff9a52}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body class="locked">
-<div class="gate" id="gate">
-  <div class="gate-card">
-    <div class="gate-eyebrow">🔒 SeaLegs OS · Below Decks</div>
-    <h2>Admin Access</h2>
-    <p>The Engine Room is a private ops view. Enter the admin password to unlock.</p>
-    <input id="pw" type="password" placeholder="Password" autocomplete="off" aria-label="Admin password" />
-    <div class="gate-err" id="gateErr">Wrong password. Try again.</div>
-    <button id="unlockBtn">Unlock</button>
-  </div>
-</div>
+<body>
 <div class="wrap">
   <header>
     <div>
@@ -170,10 +128,10 @@
     </div>
     <div class="controls">
       <div class="segs" id="rangeSeg" role="group" aria-label="Time window">
-        <button data-range="run">This run</button>
-        <button data-range="today">Today</button>
+        <button data-range="24h">24h</button>
         <button data-range="7d" aria-pressed="true">7 days</button>
         <button data-range="30d">30 days</button>
+        <button data-range="all">All</button>
       </div>
       <div class="segs" id="groupSeg" role="group" aria-label="Group by">
         <button data-group="process" aria-pressed="true">By process</button>
@@ -191,7 +149,7 @@
   <div class="stack" id="stack"></div>
 
   <footer>
-    <span class="src">Source: <b>demo data</b> — wire to Supabase <code>api_traces</code> to go live.</span>
+    <span class="src" id="src">Connecting…</span>
     <span class="pill">● normalized to USD</span>
   </footer>
 </div>
@@ -208,126 +166,131 @@
 
 <script>
 /* ============================================================
-   CONFIG — edit prices here when rates change.
-   Anthropic = per 1M tokens (input / output).
-   Others = per call (credits/$). Update to your real rates.
+   DATA SOURCE
+   Live: GET /lab/engine-room/burn?range=… (Cloudflare function
+   holds the Supabase service key; browser never sees it).
+   If that call fails (e.g. previewing this file, or before
+   deploy), it falls back to demo data so the page still renders.
    ============================================================ */
+const ENDPOINT = '/lab/engine-room/burn';
+let DATA_MODE = 'live';
+
+async function getData(range){
+  try{
+    const res = await fetch(`${ENDPOINT}?range=${range}`, {headers:{accept:'application/json'}});
+    if(!res.ok) throw new Error('http '+res.status);
+    const p = await res.json();
+    if(!p || !Array.isArray(p.by_process)) throw new Error('bad payload');
+    DATA_MODE = 'live';
+    return normalizeLive(p);
+  }catch(e){
+    DATA_MODE = 'demo';
+    return demoData(range);
+  }
+}
+
+function normalizeLive(p){
+  const rows = p.by_process.map(x=>({
+    id:x.process, name:x.label||x.process, platform:x.platform, model:x.model||null,
+    calls:+x.calls||0, inTok:+x.input_tokens||0, outTok:+x.output_tokens||0,
+    lat:+x.avg_latency_ms||0, cost:+x.cost_usd||0, does:x.does||'',
+    trend:(x.trend||[]).map(Number)
+  }));
+  const t = p.totals||{};
+  return {rows, totals:{cost:+t.cost_usd||0, calls:+t.calls||0, tokens:+t.tokens||0, runs:+t.runs||0}};
+}
+
+/* ---- demo fallback (mirrors the live shape) ---- */
 const PRICES = {
-  anthropic: { 'opus-4.8':{in:15,out:75}, 'sonnet-4.6':{in:3,out:15}, 'haiku-4.5':{in:0.8,out:4} },
-  apollo:    { perCall:0.024 },   // ~credits per enrich
-  webreveal: { perCall:0.010 },
-  hubspot:   { perCall:0.000 },   // within plan
-  supabase:  { perCall:0.000 }
+  anthropic:{ 'opus-4.8':{in:15,out:75}, 'sonnet-4.6':{in:3,out:15}, 'haiku-4.5':{in:0.8,out:4} },
+  apollo:{perCall:0.024}, webreveal:{perCall:0.010}, hubspot:{perCall:0}, supabase:{perCall:0}
 };
-
-/* Process registry. `does` is the plain-language "what it does exactly"
-   shown in the drill-down. Swap the metric loader below for a real query. */
 const PROCESSES = [
-  { id:'shore', name:'Shore — Stack Analysis', platform:'anthropic', model:'opus-4.8',
-    does:'Reads the raw tech-stack signal from WebReveal and runs the 4C Audit (Cost, Coverage, Coherence, Control). The heaviest reasoning step in the pipeline — long inputs, long structured output, top-tier model.' },
-  { id:'depth', name:'Depth — Report Synthesis', platform:'anthropic', model:'sonnet-4.6',
-    does:'Turns the Shore analysis into the finished stack_report: narrative, consolidation recommendations, and the headline savings number written back to Supabase.' },
-  { id:'current', name:'Current — Intake & Routing', platform:'anthropic', model:'haiku-4.5',
-    does:'First touch on every inbound lead. Classifies the company, checks the ICP fit (150–500-employee Shopify Plus brands) and routes it down the right chain. Cheap model, high call volume.' },
-  { id:'tide', name:'Tide — Contact Enrichment', platform:'apollo', model:null,
-    does:'Calls Apollo to enrich the company with decision-maker contacts and firmographics. Billed in Apollo credits, not tokens — one charge per enriched record.' },
-  { id:'scanner', name:'T3 Scanner — WebReveal', platform:'webreveal', model:null,
-    does:'Detects the live technology stack of a target domain. Per-call charge; the input that feeds Shore. Replaced BuiltWith in Stage 01.' },
-  { id:'sync', name:'HubSpot Sync', platform:'hubspot', model:null,
-    does:'Upserts the finished report and contact into HubSpot (account 246175188). Inside plan limits, so $0 burn — tracked here for call volume only.' },
-  { id:'intake', name:'Webhook Intake', platform:'supabase', model:null,
-    does:'Writes the inbound payload to Supabase to open a run. Effectively free; included so every run is fully accounted for end to end.' }
+  {id:'shore',name:'Shore — Stack Analysis',platform:'anthropic',model:'opus-4.8',does:'Reads the raw tech-stack signal from WebReveal and runs the 4C Audit (Cost, Coverage, Coherence, Control). The heaviest reasoning step in the pipeline.'},
+  {id:'depth',name:'Depth — Report Synthesis',platform:'anthropic',model:'sonnet-4.6',does:'Turns the Shore analysis into the finished stack_report and writes the headline savings number back to Supabase.'},
+  {id:'current',name:'Current — Intake & Routing',platform:'anthropic',model:'haiku-4.5',does:'First touch on every inbound lead. Classifies the company, checks ICP fit, and routes it down the right chain. Cheap model, high volume.'},
+  {id:'tide',name:'Tide — Contact Enrichment',platform:'apollo',model:null,does:'Calls Apollo to enrich the company with decision-maker contacts and firmographics. Billed in Apollo credits, one charge per record.'},
+  {id:'scanner',name:'T3 Scanner — WebReveal',platform:'webreveal',model:null,does:'Detects the live technology stack of a target domain. Per-call charge; the input that feeds Shore.'},
+  {id:'sync',name:'HubSpot Sync',platform:'hubspot',model:null,does:'Upserts the finished report and contact into HubSpot. Inside plan limits, tracked for call volume.'},
+  {id:'intake',name:'Webhook Intake',platform:'supabase',model:null,does:'Writes the inbound payload to Supabase to open a run. Effectively free; included so every run is accounted for.'}
 ];
-
-/* ---- DEMO metric loader ----------------------------------------
-   Returns per-process aggregates for the selected window.
-   GO LIVE: replace this function body with a fetch to your
-   burn_by_process view (or aggregate api_traces) in Supabase. */
-function loadMetrics(range){
-  const scale = {run:0.04, today:0.18, '7d':1, '30d':4.1}[range];
+function demoData(range){
+  const scale = {'24h':0.16,'7d':1,'30d':4.1,'all':9}[range] ?? 1;
   const seed = {
-    shore:   {calls:142, inTok:1420000, outTok:498000, lat:8200},
-    depth:   {calls:138, inTok:690000,  outTok:430000, lat:5400},
-    current: {calls:1190,inTok:910000,  outTok:120000, lat:900},
-    tide:    {calls:138, inTok:0,       outTok:0,      lat:1600},
-    scanner: {calls:151, inTok:0,       outTok:0,      lat:2300},
-    sync:    {calls:130, inTok:0,       outTok:0,      lat:420},
-    intake:  {calls:151, inTok:0,       outTok:0,      lat:60}
+    shore:{calls:142,inTok:1420000,outTok:498000,lat:8200},
+    depth:{calls:138,inTok:690000,outTok:430000,lat:5400},
+    current:{calls:1190,inTok:910000,outTok:120000,lat:900},
+    tide:{calls:138,inTok:0,outTok:0,lat:1600},
+    scanner:{calls:151,inTok:0,outTok:0,lat:2300},
+    sync:{calls:130,inTok:0,outTok:0,lat:420},
+    intake:{calls:151,inTok:0,outTok:0,lat:60}
   };
-  return PROCESSES.map(p=>{
-    const s = seed[p.id];
-    const calls = Math.max(1, Math.round(s.calls*scale));
-    const inTok = Math.round(s.inTok*scale), outTok = Math.round(s.outTok*scale);
+  const rows = PROCESSES.map(p=>{
+    const s=seed[p.id];
+    const calls=Math.max(1,Math.round(s.calls*scale));
+    const inTok=Math.round(s.inTok*scale), outTok=Math.round(s.outTok*scale);
     let cost;
-    if(p.platform==='anthropic'){
-      const pr = PRICES.anthropic[p.model];
-      cost = (inTok/1e6)*pr.in + (outTok/1e6)*pr.out;
-    } else {
-      cost = calls * (PRICES[p.platform].perCall||0);
-    }
-    // 7-pt trend for the sparkline
-    const trend = Array.from({length:7},(_,i)=>{
-      const base = cost/7; return base*(0.6+Math.random()*0.9);
-    });
+    if(p.platform==='anthropic'){const pr=PRICES.anthropic[p.model];cost=(inTok/1e6)*pr.in+(outTok/1e6)*pr.out;}
+    else cost=calls*(PRICES[p.platform].perCall||0);
+    const trend=Array.from({length:7},()=>(cost/7)*(0.6+Math.random()*0.9));
     return {...p, calls, inTok, outTok, lat:s.lat, cost, trend};
   });
+  const total=rows.reduce((a,r)=>a+r.cost,0);
+  const runs=Math.max(1,Math.round(seed.intake.calls*scale));
+  return {rows, totals:{cost:total, calls:rows.reduce((a,r)=>a+r.calls,0),
+    tokens:rows.reduce((a,r)=>a+r.inTok+r.outTok,0), runs}};
 }
 
-/* ---- state ---- */
+/* ---- state + helpers ---- */
 let RANGE='7d', GROUP='process';
-const RANGE_LABEL={run:'this run',today:'today','7d':'last 7 days','30d':'last 30 days'};
+const RANGE_LABEL={'24h':'last 24 hours','7d':'last 7 days','30d':'last 30 days','all':'all time'};
 const PLAT_LABEL={anthropic:'Anthropic',apollo:'Apollo',webreveal:'WebReveal',hubspot:'HubSpot',supabase:'Supabase'};
-
-const fmt$=n=> n>=100? '$'+n.toFixed(0) : n>=1? '$'+n.toFixed(2) : n>0? '$'+n.toFixed(3) : '$0';
-const fmtK=n=> n>=1e6? (n/1e6).toFixed(2)+'M' : n>=1e3? (n/1e3).toFixed(1)+'k' : ''+n;
-
-function emberColor(share){ // hottest at top of rank
-  if(share>=.30) return 'var(--ember-hot)';
-  if(share>=.12) return 'var(--ember)';
-  return 'var(--ember-low)';
-}
+const fmt$=n=> n>=100?'$'+n.toFixed(0):n>=1?'$'+n.toFixed(2):n>0?'$'+n.toFixed(3):'$0';
+const fmtK=n=> n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':''+n;
+function emberColor(share){ return share>=.30?'var(--ember-hot)':share>=.12?'var(--ember)':'var(--ember-low)'; }
 
 function aggregate(rows){
   if(GROUP==='process') return rows.slice();
   const byPlat={};
   rows.forEach(r=>{
     const k=r.platform;
-    if(!byPlat[k]) byPlat[k]={id:k,name:PLAT_LABEL[k],platform:k,model:null,calls:0,inTok:0,outTok:0,cost:0,lat:0,
-      does:`All pipeline calls routed through ${PLAT_LABEL[k]}, summed across every process that uses it.`,trend:Array(7).fill(0),_n:0};
-    const g=byPlat[k]; g.calls+=r.calls; g.inTok+=r.inTok; g.outTok+=r.outTok; g.cost+=r.cost;
-    g.lat+=r.lat; g._n++; r.trend.forEach((v,i)=>g.trend[i]+=v);
+    if(!byPlat[k]) byPlat[k]={id:k,name:PLAT_LABEL[k]||k,platform:k,model:null,calls:0,inTok:0,outTok:0,cost:0,lat:0,_n:0,
+      does:`All pipeline calls routed through ${PLAT_LABEL[k]||k}, summed across every process that uses it.`,trend:Array(7).fill(0)};
+    const g=byPlat[k]; g.calls+=r.calls; g.inTok+=r.inTok; g.outTok+=r.outTok; g.cost+=r.cost; g.lat+=r.lat; g._n++;
+    (r.trend||[]).forEach((v,i)=>{g.trend[i]=(g.trend[i]||0)+(+v||0);});
   });
-  return Object.values(byPlat).map(g=>({...g,lat:Math.round(g.lat/g._n)}));
+  return Object.values(byPlat).map(g=>({...g,lat:g._n?Math.round(g.lat/g._n):0}));
 }
 
-function render(){
-  const rows=aggregate(loadMetrics(RANGE)).sort((a,b)=>b.cost-a.cost);
-  const total=rows.reduce((s,r)=>s+r.cost,0);
-  const calls=rows.reduce((s,r)=>s+r.calls,0);
-  const tok=rows.reduce((s,r)=>s+r.inTok+r.outTok,0);
-  const leads=Math.max(1,Math.round((loadMetrics(RANGE).find(r=>r.id==='intake')||{calls:1}).calls));
-  const top=rows[0];
+let CURRENT=[], CURRENT_TOTAL=0;
 
-  // overview cluster
+async function render(){
+  const {rows, totals} = await getData(RANGE);
+  const ranked = aggregate(rows).sort((a,b)=>b.cost-a.cost);
+  const total = totals.cost || ranked.reduce((s,r)=>s+r.cost,0);
+  CURRENT=ranked; CURRENT_TOTAL=total;
+  const leads = totals.runs>0?totals.runs:Math.max(1,totals.calls||1);
+
   document.getElementById('cluster').innerHTML=`
     <div class="gauge total">
       <span class="label">Total burn · ${RANGE_LABEL[RANGE]}</span>
       <span class="val">${fmt$(total)}</span>
-      <span class="foot"><b>${calls.toLocaleString()}</b> calls · <b>${fmtK(tok)}</b> tokens</span>
+      <span class="foot"><b>${(totals.calls||0).toLocaleString()}</b> calls · <b>${fmtK(totals.tokens||0)}</b> tokens</span>
     </div>
-    <div class="gauge"><span class="label">Cost / lead</span><span class="val sm">${fmt$(total/leads)}</span><span class="foot">${leads} runs</span></div>
-    <div class="gauge"><span class="label">Top burner</span><span class="val sm" style="color:var(--ember)">${(top.cost/total*100).toFixed(0)}%</span><span class="foot">${top.name.split(' — ')[0]}</span></div>
-    <div class="gauge"><span class="label">Tracked sources</span><span class="val sm" style="color:var(--depth)">${rows.length}</span><span class="foot">${GROUP==='process'?'processes':'platforms'}</span></div>`;
+    <div class="gauge"><span class="label">Cost / lead</span><span class="val sm">${fmt$(total/leads)}</span><span class="foot">${leads.toLocaleString()} runs</span></div>
+    <div class="gauge"><span class="label">Top burner</span><span class="val sm" style="color:var(--ember)">${ranked.length&&total?((ranked[0].cost/total*100).toFixed(0)):'0'}%</span><span class="foot">${ranked.length?ranked[0].name.split(' — ')[0]:'—'}</span></div>
+    <div class="gauge"><span class="label">Tracked sources</span><span class="val sm" style="color:var(--depth)">${ranked.length}</span><span class="foot">${GROUP==='process'?'processes':'platforms'}</span></div>`;
 
   document.getElementById('stackTitle').textContent = GROUP==='process'?'Burn ranking · by process':'Burn ranking · by platform';
 
-  // burn stack
-  document.getElementById('stack').innerHTML = rows.map((r,i)=>{
-    const share=r.cost/total||0, col=emberColor(share), w=Math.max(2,share*100);
+  const stack=document.getElementById('stack');
+  if(!ranked.length){ stack.innerHTML='<div class="empty">No calls logged in this window yet.</div>'; }
+  else stack.innerHTML = ranked.map((r,i)=>{
+    const share=total?r.cost/total:0, col=emberColor(share), w=Math.max(2,share*100);
     const detail = r.platform==='anthropic'
-      ? `${PLAT_LABEL[r.platform]} · <span class="tag">${r.model}</span> · ${fmtK(r.inTok+r.outTok)} tok`
-      : `${PLAT_LABEL[r.platform]} · ${r.calls.toLocaleString()} calls`;
-    return `<div class="burner" tabindex="0" data-id="${r.id}" role="button" aria-label="${r.name}, ${fmt$(r.cost)}">
+      ? `${PLAT_LABEL[r.platform]||r.platform} · <span class="tag">${r.model||''}</span> · ${fmtK(r.inTok+r.outTok)} tok`
+      : `${PLAT_LABEL[r.platform]||r.platform} · ${r.calls.toLocaleString()} calls`;
+    return `<div class="burner" tabindex="0" data-i="${i}" role="button" aria-label="${r.name}, ${fmt$(r.cost)}">
       <span class="fill" style="background:${col};width:${w}%"></span>
       <div class="row">
         <span class="rank">${String(i+1).padStart(2,'0')}</span>
@@ -341,18 +304,20 @@ function render(){
   }).join('');
 
   document.querySelectorAll('.burner').forEach(el=>{
-    const open=()=>openDrawer(rows.find(r=>r.id===el.dataset.id),total);
+    const open=()=>openDrawer(CURRENT[+el.dataset.i], CURRENT_TOTAL);
     el.addEventListener('click',open);
     el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
   });
+
+  const src=document.getElementById('src');
+  if(DATA_MODE==='live'){ src.className='src live'; src.innerHTML='Source: <b>live</b> · Supabase api_traces'; }
+  else { src.className='src'; src.innerHTML='Source: <b>demo data</b> — deploy behind Cloudflare Access to go live.'; }
 }
 
 function sparkline(trend){
+  trend=(trend&&trend.length)?trend:[0,0,0,0,0,0,0];
   const max=Math.max(...trend,0.0001), W=380, H=64, pad=4;
-  const pts=trend.map((v,i)=>{
-    const x=pad+(i/(trend.length-1))*(W-pad*2);
-    const y=H-pad-(v/max)*(H-pad*2); return [x,y];
-  });
+  const pts=trend.map((v,i)=>{const x=pad+(i/(trend.length-1))*(W-pad*2);const y=H-pad-((+v||0)/max)*(H-pad*2);return [x,y];});
   const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const area=line+` L ${W-pad} ${H-pad} L ${pad} ${H-pad} Z`;
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
@@ -365,15 +330,16 @@ function sparkline(trend){
 }
 
 function openDrawer(r,total){
-  document.getElementById('drPlat').textContent = (r.platform==='anthropic'? PLAT_LABEL[r.platform]+' · '+r.model : PLAT_LABEL[r.platform]);
+  if(!r) return;
+  document.getElementById('drPlat').textContent = (r.platform==='anthropic'? (PLAT_LABEL[r.platform]+' · '+(r.model||'')) : (PLAT_LABEL[r.platform]||r.platform));
   document.getElementById('drTitle').textContent = r.name;
   const isTok = r.platform==='anthropic';
-  const perCall = r.cost/r.calls;
+  const perCall = r.calls? r.cost/r.calls : 0;
   document.getElementById('drBody').innerHTML=`
-    <div class="does"><h3>What it does</h3><p>${r.does}</p></div>
+    <div class="does"><h3>What it does</h3><p>${r.does||'—'}</p></div>
     <div class="metrics">
       <div class="metric"><div class="k">Burn · ${RANGE_LABEL[RANGE]}</div><div class="v" style="color:var(--ember)">${fmt$(r.cost)}</div></div>
-      <div class="metric"><div class="k">Share of total</div><div class="v">${(r.cost/total*100).toFixed(1)}<small>%</small></div></div>
+      <div class="metric"><div class="k">Share of total</div><div class="v">${total?(r.cost/total*100).toFixed(1):'0'}<small>%</small></div></div>
       <div class="metric"><div class="k">Calls</div><div class="v">${r.calls.toLocaleString()}</div></div>
       <div class="metric"><div class="k">Cost / call</div><div class="v">${fmt$(perCall)}</div></div>
       ${isTok?`<div class="metric"><div class="k">Tokens in</div><div class="v">${fmtK(r.inTok)}</div></div>
@@ -381,7 +347,7 @@ function openDrawer(r,total){
       <div class="metric"><div class="k">Avg latency</div><div class="v">${(r.lat/1000).toFixed(1)}<small>s</small></div></div>
       <div class="metric"><div class="k">Unit</div><div class="v">${isTok?'tokens':'per&nbsp;call'}</div></div>
     </div>
-    <div class="spark-wrap"><div class="k">Burn trend</div>${sparkline(r.trend)}</div>`;
+    <div class="spark-wrap"><div class="k">Burn trend · last 7 days</div>${sparkline(r.trend)}</div>`;
   document.getElementById('scrim').classList.add('open');
   const dr=document.getElementById('drawer'); dr.classList.add('open'); dr.setAttribute('aria-hidden','false');
 }
@@ -390,7 +356,6 @@ function closeDrawer(){
   const dr=document.getElementById('drawer'); dr.classList.remove('open'); dr.setAttribute('aria-hidden','true');
 }
 
-/* ---- wiring ---- */
 document.getElementById('rangeSeg').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
   RANGE=b.dataset.range;
@@ -407,28 +372,7 @@ document.getElementById('scrim').addEventListener('click',closeDrawer);
 document.getElementById('drClose').addEventListener('click',closeDrawer);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
 
-/* ---- access gate ----------------------------------------------
-   Client-side gate. Set ACCESS_CODE to the SAME password as your
-   Social Engine so both unlock with one credential.
-   NOTE: this keeps casual visitors out, it is not real security —
-   the page source is downloadable. Safe here because it runs on
-   demo data with no keys. For true protection, put /lab/engine-room
-   behind Cloudflare Access (server-side) instead. ---------------- */
-const ACCESS_CODE = "CHANGE-ME"; // ← set to your Social Engine admin password
-function unlock(){
-  const f=document.getElementById('pw');
-  if(f.value===ACCESS_CODE){
-    document.getElementById('gate').style.display='none';
-    document.body.classList.remove('locked');
-    render();
-  } else {
-    document.getElementById('gateErr').style.display='block';
-    f.value=''; f.focus();
-  }
-}
-document.getElementById('unlockBtn').addEventListener('click',unlock);
-document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
-window.addEventListener('load',()=>document.getElementById('pw').focus());
+render();
 </script>
 </body>
 </html>
