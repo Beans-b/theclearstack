@@ -7,10 +7,19 @@
 // an environment variable, calls the locked-down engine_room_burn
 // RPC, and returns the aggregated JSON.
 //
-// Fails CLOSED: it requires a Cloudflare Access identity header.
-// If this route is not yet behind Access, there is no header, so it
-// returns 403 and leaks nothing. Set up Access before real numbers
-// mean anything (steps in the chat).
+// Fails CLOSED: it requires a Cloudflare Access identity. If this route
+// is not behind Access there is no identity, so it returns 403 and
+// leaks nothing.
+//
+// NOTE (the fix): on Cloudflare Pages, Access does NOT reliably forward
+// the convenience header `Cf-Access-Authenticated-User-Email` to a Pages
+// Function. The reliable identity signal is the Access JWT, available as
+// the `Cf-Access-Jwt-Assertion` header and (always) in the `CF_Authorization`
+// cookie. getAccessEmail() reads the email from whichever is present.
+// The route is already gated by Access (an unauthenticated request is
+// redirected to login and never reaches this code), so decoding the JWT
+// claim is sufficient here; add JWKS signature verification if you want
+// defense-in-depth.
 //
 // Required Cloudflare env vars (Pages → Settings → Environment vars):
 //   SUPABASE_URL          e.g. https://aicnfrbafeydlrkvsprd.supabase.co
@@ -30,7 +39,7 @@ export async function onRequestGet(context) {
   const { request, env } = context;
 
   // --- auth: fail closed ---
-  const email = request.headers.get('Cf-Access-Authenticated-User-Email');
+  const email = getAccessEmail(request);
   if (!email) {
     return json({ error: 'Not authenticated. This route must sit behind Cloudflare Access.' }, 403);
   }
@@ -70,6 +79,40 @@ export async function onRequestGet(context) {
     });
   } catch (e) {
     return json({ error: 'Fetch failed', detail: String(e) }, 502);
+  }
+}
+
+// Resolve the Cloudflare Access identity email from, in order:
+//   1) Cf-Access-Authenticated-User-Email header (self-hosted origins)
+//   2) Cf-Access-Jwt-Assertion header (present on many setups)
+//   3) CF_Authorization cookie (always sent same-origin) -> decode JWT
+// Returns the email string, or null if none is available.
+function getAccessEmail(request) {
+  const direct = request.headers.get('Cf-Access-Authenticated-User-Email');
+  if (direct) return direct;
+
+  let token = request.headers.get('Cf-Access-Jwt-Assertion');
+  if (!token) {
+    const cookie = request.headers.get('Cookie') || '';
+    const m = cookie.match(/(?:^|;\s*)CF_Authorization=([^;]+)/);
+    if (m) token = m[1];
+  }
+  if (!token) return null;
+
+  const claims = decodeJwtPayload(token);
+  if (!claims) return null;
+  return claims.email || claims.identity_email || null;
+}
+
+function decodeJwtPayload(token) {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return null;
+    let b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    return JSON.parse(atob(b64));
+  } catch (e) {
+    return null;
   }
 }
 
