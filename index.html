@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & CANVAS / MEDIA GRID
+   6. HERO SECTION & EMBEDDED HOVER-ONLY ANIMATION
    ============================================================ */
 #hero{
   position: relative;
@@ -253,26 +253,27 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Embedded Media Viewport */
+/* Embedded Media Container (Seamless visual blend) */
 .media-container {
   position: relative;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border: var(--hair) solid var(--rule);
-  background: var(--surface);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
-.media-container video,
-.media-container img {
+.hover-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  mix-blend-mode: multiply; /* Seamlessly blends video background with page */
+  border: none;
+  outline: none;
 }
 
 /* ============================================================
@@ -373,13 +374,12 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Right Column Media Component -->
+      <!-- Right Column Media Component (Hover-Driven) -->
       <div>
-        <div class="media-container">
-          <video autoplay loop muted playsinline aria-label="3D Mechanical AI Brain disassembly animation">
+        <div class="media-container" id="mediaWrapper">
+          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain disassembly animation">
             <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
             <source src="mechanical-brain.mp4" type="video/mp4">
-            <img src="./1.JPG" alt="Assembled Mechanical AI Brain">
           </video>
         </div>
       </div>
@@ -427,6 +427,20 @@ body.nav-lock{overflow:hidden;}
   window.addEventListener('resize', function(){
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
+
+  /* Mouse-Hover Playback Control for Embedded Video */
+  var mediaWrapper = document.getElementById('mediaWrapper');
+  var video = document.getElementById('brainVideo');
+
+  if (mediaWrapper && video) {
+    mediaWrapper.addEventListener('mouseenter', function() {
+      video.play().catch(function(e){ console.log("Autoplay prevented:", e); });
+    });
+
+    mediaWrapper.addEventListener('mouseleave', function() {
+      video.pause();
+    });
+  }
 
   /* Mouse-Controlled Interactive Canvas Animation */
   var canvas = document.getElementById('bgCanvas');
