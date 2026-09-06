@@ -31,11 +31,9 @@
 ]}
 </script>
 
-<!-- Google Analytics 4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -45,13 +43,13 @@
    1. TOKENS
    ============================================================ */
 :root{
-  --ink:        #0A0A0A;
-  --ink-2:      #3D3D3D;
-  --ink-3:      #5C5C5C;
-  --ink-4:      #737373;
-  --rule:       #DAD7D2;
-  --paper:      #FBFAF8;
-  --surface:    #F2EFEA;
+  --ink:         #0A0A0A;
+  --ink-2:       #3D3D3D;
+  --ink-3:       #5C5C5C;
+  --ink-4:       #737373;
+  --rule:        #DAD7D2;
+  --paper:       #FBFAF8;
+  --surface:     #F2EFEA;
   --logo-accent: #E07B2A;
   --font-logo: 'Cormorant Garamond', Georgia, serif;
   --font-mono: 'DM Mono', monospace;
@@ -203,7 +201,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & MECHANICAL BRAIN ASSEMBLY ANIMATION
+   6. HERO SECTION & INTERACTIVE CANVAS
    ============================================================ */
 #hero{padding-top:var(--s8);padding-bottom:var(--s9);}
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
@@ -222,48 +220,23 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Mechanical Assembly Interactive Viewport */
-.brain-assembly-container {
-  position: relative;
+/* Interactive Canvas Container */
+.particle-container {
   width: 100%;
   max-width: 420px;
   aspect-ratio: 4 / 3;
+  position: relative;
   overflow: hidden;
-  cursor: pointer;
-  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.brain-layer {
-  position: absolute;
-  inset: 0;
+#synthesisCanvas {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-
-.brain-assembled {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.brain-exploded {
-  opacity: 0;
-  transform: scale(1.1);
-}
-
-/* Hover and Touch Active States */
-.brain-assembly-container:hover .brain-assembled,
-.brain-assembly-container.is-active .brain-assembled {
-  opacity: 0;
-  transform: scale(0.92);
-}
-
-.brain-assembly-container:hover .brain-exploded,
-.brain-assembly-container.is-active .brain-exploded {
-  opacity: 1;
-  transform: scale(1);
+  cursor: pointer;
 }
 
 /* ============================================================
@@ -294,7 +267,6 @@ body.nav-lock{overflow:hidden;}
 
 <a class="skip" href="#main">Skip to main content</a>
 
-<!-- NAV -->
 <nav id="nav" aria-label="Primary">
   <a href="/" class="nav-logo" aria-label="The Clear Stack, home">
     <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -350,7 +322,6 @@ body.nav-lock{overflow:hidden;}
 
 <main id="main">
 
-  <!-- HERO -->
   <section id="hero" class="wrap">
     <h1>Your AI stack <br>should work <br><span class="u-em">for you.</span> <br>Not against you.</h1>
 
@@ -363,10 +334,8 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
       <div>
-        <!-- Mechanical Assembly & Disassembly Viewport -->
-        <div class="brain-assembly-container" id="brainContainer">
-          <img class="brain-layer brain-assembled" src="1.JPG" alt="Assembled Mechanical AI Brain">
-          <img class="brain-layer brain-exploded" src="2.JPG" alt="Exploded Mechanical Brain Components">
+        <div class="particle-container">
+          <canvas id="synthesisCanvas"></canvas>
         </div>
       </div>
     </div>
@@ -414,13 +383,133 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Touch Toggle Support for Mobile */
-  var brainContainer = document.getElementById('brainContainer');
-  if (brainContainer) {
-    brainContainer.addEventListener('touchstart', function(e) {
-      this.classList.toggle('is-active');
-    }, { passive: true });
+  /* ============================================================
+     Interactive Particle Synthesis Canvas Logic
+     ============================================================ */
+  const canvas = document.getElementById('synthesisCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const PARTICLE_SPACING = 3; 
+  const MOUSE_RADIUS = 100;   
+  const RETURN_SPEED = 0.08;  
+
+  let particles = [];
+  let mouse = { x: null, y: null, active: false };
+
+  const img = new Image();
+  img.crossOrigin = "Anonymous";
+  img.src = "1.JPG"; // Using your primary image file
+
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.drawImage(img, 0, 0);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < canvas.height; y += PARTICLE_SPACING) {
+      for (let x = 0; x < canvas.width; x += PARTICLE_SPACING) {
+        const index = (y * canvas.width + x) * 4;
+        const alpha = imgData.data[index + 3];
+
+        if (alpha > 128) {
+          const red = imgData.data[index];
+          const green = imgData.data[index + 1];
+          const blue = imgData.data[index + 2];
+          particles.push(new Particle(x, y, `rgb(${red},${green},${blue})`));
+        }
+      }
+    }
+
+    animate();
+  };
+
+  class Particle {
+    constructor(x, y, color) {
+      this.originX = x;
+      this.originY = y;
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.size = PARTICLE_SPACING * 0.9;
+      this.vx = 0;
+      this.vy = 0;
+      this.friction = 0.88;
+      this.ease = RETURN_SPEED;
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.size, this.size);
+    }
+
+    update() {
+      if (mouse.active) {
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < MOUSE_RADIUS) {
+          const angle = Math.atan2(dy, dx);
+          const force = (MOUSE_RADIUS - distance) / MOUSE_RADIUS;
+          const pushX = Math.cos(angle) * force * 15;
+          const pushY = Math.sin(angle) * force * 15;
+
+          this.vx -= pushX;
+          this.vy -= pushY;
+        }
+      }
+
+      this.vx *= this.friction;
+      this.vy *= this.friction;
+
+      this.x += this.vx + (this.originX - this.x) * this.ease;
+      this.y += this.vy + (this.originY - this.y) * this.ease;
+    }
   }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].draw();
+    }
+    requestAnimationFrame(animate);
+  }
+
+  function updateMousePos(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    mouse.x = (clientX - rect.left) * scaleX;
+    mouse.y = (clientY - rect.top) * scaleY;
+    mouse.active = true;
+  }
+
+  canvas.addEventListener('mousemove', (e) => {
+    updateMousePos(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    mouse.active = false;
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+      updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+      updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+
+  canvas.addEventListener('touchend', () => {
+    mouse.active = false;
+  });
 })();
 </script>
 </body>
