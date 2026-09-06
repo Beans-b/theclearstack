@@ -78,6 +78,22 @@
     .sub{color:var(--gray);font-size:16px;max-width:640px;margin-top:10px;}
     .badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:3px;white-space:nowrap;}
     .badge.local{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35);}
+    
+    /* BRAIN IMAGE BANNER */
+    .brain-banner-card {
+      margin-top: 20px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .brain-banner-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
     /* CARD */
     .card{background:rgba(255,255,255,0.92);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-top:24px;backdrop-filter:blur(4px);}
     .card > h2{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);
@@ -139,11 +155,6 @@
     td.c-move{width:30px;padding:9px 0 9px 10px;}
     td.c-check{width:30px;padding-top:13px;}
     td.c-subj{width:230px;} td.c-desc{width:360px;} td.c-cat{width:130px;} td.c-src{width:110px;}
-    /* reorder chevrons */
-    .move{display:flex;flex-direction:column;gap:1px;}
-    .move button{background:none;border:none;padding:0 3px;line-height:1;color:var(--border2);font-size:11px;transition:color .15s;}
-    .move button:hover{color:var(--orange);}
-    .move button:disabled{opacity:.25;cursor:default;}
     .srccell{display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:10.5px;color:var(--gray);line-height:1.35;}
     .srccell b{font-weight:500;color:var(--slate);}
     .linkcell{font-family:var(--font-mono);font-size:11px;color:var(--orange);word-break:break-all;line-height:1.4;display:block;max-width:280px;}
@@ -169,41 +180,11 @@
     .plat.instagram{border-left-color:#C13584;}
     .plat.tiktok{border-left-color:#25F4EE;}
     .plat.youtube{border-left-color:#FF0000;}
-    .link{font-family:var(--font-mono);font-size:11.5px;color:var(--orange);white-space:nowrap;}
-    .link:hover{text-decoration:underline;}
-    .blankstate{padding:44px 20px;text-align:center;color:var(--gray);font-size:14px;}
-    .blankstate b{display:block;font-family:var(--font-head);font-size:20px;color:var(--navy);margin-bottom:5px;}
-    /* RULES */
-    .rule{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-    .rule:last-of-type{border-bottom:0;}
-    .rule .r-main{font-size:13.5px;color:var(--slate);min-width:0;overflow-wrap:anywhere;}
-    .rule code{font-family:var(--font-mono);font-size:12px;background:var(--cream);border:1px solid var(--border);padding:1px 6px;border-radius:3px;color:var(--navy);}
-    .rule .r-out{color:var(--gray);font-size:12.5px;}
-    .rule button{background:none;border:none;color:var(--gray);font-size:17px;line-height:1;padding:4px 8px;}
-    .rule button:hover{color:#c0392b;}
-    /* NOTICE + FOOTER + MODAL + TOAST */
     .notice{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:rgba(247,244,239,0.92);border:1px dashed var(--border2);
       border-radius:4px;padding:13px 16px;margin-top:24px;font-size:13.5px;color:var(--slate);backdrop-filter:blur(4px);}
     .notice b{color:var(--navy);}
     footer{background:var(--navy2);color:rgba(247,244,239,.6);padding:34px 40px;text-align:center;font-size:12px;font-family:var(--font-mono);letter-spacing:.05em;}
     footer a:hover{color:var(--orange);}
-    .overlay{display:none;position:fixed;inset:0;background:rgba(7,21,47,.85);align-items:center;justify-content:center;z-index:2400;padding:20px;}
-    .overlay.open{display:flex;}
-    .modal{background:var(--white);border-radius:8px;padding:30px;max-width:560px;width:100%;box-shadow:0 24px 80px rgba(7,21,47,.35);max-height:86vh;overflow:auto;}
-    .modal h3{font-family:var(--font-head);font-size:27px;font-weight:600;color:var(--navy);line-height:1.15;}
-    .modal p.msub{color:var(--gray);font-size:13.5px;margin:6px 0 18px;}
-    .modal label{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:5px;}
-    .modal .f{margin-bottom:14px;}
-    .modal input,.modal select,.modal textarea{width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;
-      padding:11px 13px;font-size:14px;font-family:var(--font-body);outline:none;color:var(--charcoal);}
-    .modal textarea{font-family:var(--font-mono);font-size:12.5px;min-height:130px;resize:vertical;line-height:1.5;}
-    .modal .mrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
-    .msplit{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    @media(max-width:560px){.msplit{grid-template-columns:1fr;}}
-    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--cream);
-      font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;padding:11px 20px;border-radius:4px;
-      box-shadow:var(--shadow2);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3000;max-width:88vw;text-align:center;}
-    .toast.show{opacity:1;}
     @media(max-width:760px){
       .nav-links{display:none;} .burger{display:flex;}
       .wrap{padding:22px 20px 60px;} .crumb{padding:16px 20px 0;} h1{font-size:34px;}
@@ -213,7 +194,7 @@
 </head>
 <body>
 
-<!-- Interactive 3D Brain Container Background -->
+<!-- Interactive 3D Mouse-Driven Brain Container Background -->
 <div id="brain-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.65;"></div>
 
 <nav>
@@ -251,14 +232,6 @@
   <a href="/contact" class="nav-cta">Work With Us</a>
   </div>
 </nav>
-<div class="drawer" id="drawer"><ul>
-  <li><a href="/">What We Do</a></li>
-  <li><a href="/method">How It Works</a></li>
-  <li><a href="/usecases">Use Cases</a></li>
-  <li><a href="/about">Founder</a></li>
-  <li><a href="/lab/">Lab</a></li>
-  <li><a href="/contact" style="color:var(--orange);font-weight:700;">Work With Us</a></li>
-</ul></div>
 
 <div class="crumb"><a href="/">Home</a> / <a href="/lab/">The Lab</a> / The Locker</div>
 
@@ -266,192 +239,45 @@
   <div class="hero">
     <div>
       <h1>The Locker</h1>
-      <p class="sub">Everything you have ever bookmarked on Instagram, TikTok and YouTube, stowed in one ledger. Request the export, drop the file, and get subject, description, category and the original link for every saved post — three platforms merged into one table, tagged automatically and exported in one click.</p>
+      <p class="sub">Everything you have ever bookmarked on Instagram, TikTok and YouTube, stowed in one ledger.</p>
     </div>
     <span class="badge local">Runs in your browser</span>
+  </div>
+
+  <!-- Embedded Showcase Image Card -->
+  <div class="brain-banner-card">
+    <img src="Gemini_Generated_Image_8n7trd8n7trd8n7t.jpg" alt="Mind Unified - Neural Syntheses, Assemblies, and Sculptures of Thought" />
   </div>
 
   <!-- STEP 1 -->
   <div class="card">
     <h2>Step 1 — Request the export</h2>
-    <div class="tabs" id="tabs" role="tablist">
-      <button class="tab" role="tab" data-p="ig" aria-selected="true">Instagram</button>
-      <button class="tab" role="tab" data-p="tt" aria-selected="false">TikTok</button>
-      <button class="tab" role="tab" data-p="yt" aria-selected="false">YouTube</button>
-    </div>
-
-    <div class="stepgrid pane" data-pane="ig">
+    <div class="stepgrid">
       <div>
         <a class="btn-primary" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Open Instagram export &rarr;</a>
         <p class="hint">accountscenter.instagram.com/info_and_permissions/dyi</p>
-        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
-          <b>Not under Your Activity.</b> The export lives in <b>Accounts Center</b>, a different area of settings. If you
-          land on a page listing profile changes — phone number, bio, privacy — you are in Your Activity &rarr; Account
-          history and the export is not there. Go back to Settings and open Accounts Center at the top.
-        </div>
-        <p class="hint">Gives you: permalink, date saved, and <b>the full caption</b>. Ready in about an hour.</p>
       </div>
       <ol class="steps">
         <li>Sign in if prompted, then choose <b>Download or transfer information</b></li>
-        <li>Pick your Instagram account, then <b>Some of your information</b> — not All available information, which pulls every photo you have ever posted</li>
-        <li>Scroll to the <b>Your Instagram activity</b> group and tick <b>Saved posts</b>. It sits inside that group, not at the top level, and is easy to scroll past. Add Likes and Collections if you want them logged too.</li>
-        <li>Choose <b>Download to device</b>, date range <b>All time</b>, and switch format to <b>JSON</b> — it defaults to HTML on some accounts, and HTML carries no dates or account names</li>
-        <li>Submit, then watch for Meta's email</li>
-        <li>Come back here and drop the zip below. No need to unzip it.</li>
+        <li>Choose <b>Download to device</b>, date range <b>All time</b>, and set format to <b>JSON</b></li>
+        <li>Drop the downloaded zip file below.</li>
       </ol>
-    </div>
-
-    <div class="stepgrid pane" data-pane="tt" hidden>
-      <div>
-        <a class="btn-primary" href="https://www.tiktok.com/setting/download-your-data" target="_blank" rel="noopener noreferrer">Open TikTok export &rarr;</a>
-        <p class="hint">tiktok.com/setting/download-your-data</p>
-        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
-          <b>Watch the clock on this one.</b> The file takes one to four days to build, and TikTok's own terms allow up to
-          thirty. Once it is ready the download link <b>expires after four days</b>. Miss that window and you start the
-          request over.
-        </div>
-        <p class="hint">Looking for bookmarks? TikTok calls them <b>Favorites</b>. There is no category by any other name.</p>
-        <p class="hint">Gives you: link and date only — no account name, no caption.</p>
-      </div>
-      <ol class="steps">
-        <li>Open the <b>Request data</b> tab. In the app the path is Profile &rarr; <b>☰</b> &rarr; Settings and privacy &rarr; Account &rarr; Download your data.</li>
-        <li>Hit <b>Deselect all</b>, then tick <b>Likes and Favorites</b> — TikTok has no category called bookmarks or saved, and this is the one that holds them</li>
-        <li>Leave <b>Your Activity</b> unticked despite the name. That is watch history, search history, ad interests and Off-TikTok activity — a large file with nothing for the ledger in it.</li>
-        <li>Scroll down past the category list and set file format to <b>JSON</b>. This matters more than on Instagram — the TXT export carries a fraction of the data and cannot be parsed.</li>
-        <li><b>Request data</b>, then check the <b>Download data</b> tab over the next few days</li>
-        <li>Drop the zip below. Favorite Videos and Like List are both picked up.</li>
-      </ol>
-    </div>
-
-    <div class="stepgrid pane" data-pane="yt" hidden>
-      <div>
-        <a class="btn-primary" href="https://takeout.google.com/settings/takeout" target="_blank" rel="noopener noreferrer">Open Google Takeout &rarr;</a>
-        <p class="hint">takeout.google.com/settings/takeout</p>
-        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
-          <b>Watch Later does not export.</b> Google treats it as a system playlist and leaves it out of Takeout, and
-          there is no resource for it in the portability schema either. The workaround is to open Watch Later, add the
-          videos to an ordinary playlist, and export that. Liked videos have the same problem.
-        </div>
-        <p class="hint">Gives you: video ID and the date added, per playlist. The playlist name becomes the subject.</p>
-      </div>
-      <ol class="steps">
-        <li>Click <b>Deselect all</b> at the top — Takeout ticks every Google product by default</li>
-        <li>Scroll to <b>YouTube and YouTube Music</b> and tick it</li>
-        <li>Open <b>All YouTube data included</b> and reduce it to <b>playlists</b> — leave out history and videos unless you want a very large file</li>
-        <li>Next step &rarr; delivery by download link, one-off export, <b>.zip</b></li>
-        <li>Create export, then wait for the email. Large accounts can take hours.</li>
-        <li>Drop the zip below. Each playlist CSV becomes a group of rows.</li>
-      </ol>
-    </div>
-
-    <div class="lock-note" style="margin-top:20px;">
-      <b>Why none of these is fully automatic.</b> None of the three platforms exposes your saves, favorites or playlists
-      to an API that another app can read on your behalf. The export download link only works inside your own logged-in
-      session. Any tool claiming one-click retrieval is driving your logged-in browser, which breaks the platform's terms
-      and puts the account at risk. These buttons remove every step that can be removed; the automation starts once the
-      file is in hand.
     </div>
   </div>
 
   <!-- STEP 2 -->
   <div class="card">
     <h2>Step 2 — Drop the file</h2>
-    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop your Instagram export here or click to choose files">
+    <div class="drop" id="drop">
       <b>Drop the export here</b>
-      <small>The whole <code>.zip</code> from any of the three, or the loose files if you have already unzipped it. Drop more than one and they merge into a single ledger. Everything is parsed on your own machine — no upload, no server, no account needed.</small>
-      <span class="codes">saved_posts.json · liked_posts.json · user_data.json · playlists .csv</span>
+      <small>The whole <code>.zip</code> file from Instagram, TikTok, or YouTube.</small>
     </div>
-    <p class="hint" id="parseHint">Re-import any time. New posts are added, and every subject and description you have written is kept.</p>
-  </div>
-
-  <div class="stats" id="stats"></div>
-
-  <div id="banner"></div>
-
-  <div class="toolbar">
-    <input type="search" id="q" placeholder="Search subject, description, account, link…" aria-label="Search the ledger">
-    <select id="fPlat" aria-label="Filter by platform"><option value="">All platforms</option></select>
-    <select id="fCat" aria-label="Filter by subject matter"><option value="">All subjects</option></select>
-    <select id="fAcct" aria-label="Filter by account"><option value="">All accounts</option></select>
-    <select id="fSrc" aria-label="Filter by source"><option value="">All sources</option></select>
-    <select id="fSort" aria-label="Sort order">
-      <option value="savedAt|-1">Newest first</option>
-      <option value="savedAt|1">Oldest first</option>
-      <option value="subject|1">Subject A–Z</option>
-      <option value="order|1">Manual order</option>
-    </select>
-    <button class="btn-ghost btn-sm" id="btnAutoTag">Tag subjects</button>
-    <button class="btn-ghost btn-sm" id="btnManageCats">Rename subjects</button>
-    <button class="btn-ghost btn-sm" id="btnBulkCat">Set on selection</button>
-    <button class="btn-ghost btn-sm" id="btnFill">Fill descriptions</button>
-    <button class="btn-primary btn-sm" id="btnExport">Export</button>
-    <span class="selcount" id="selCount">0 selected</span>
-  </div>
-
-  <div class="tablewrap">
-    <table>
-      <thead>
-        <tr>
-          <th class="nosort" aria-label="Reorder"></th>
-          <th class="nosort"><input type="checkbox" id="allCheck" aria-label="Select all visible rows"></th>
-          <th data-sort="subject">Subject</th>
-          <th data-sort="description">Description</th>
-          <th data-sort="category">Subject matter</th>
-          <th data-sort="source">Source</th>
-          <th class="nosort">Link</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
-
-  <!-- RULES -->
-  <div class="card">
-    <h2>Subject matter rules</h2>
-    <p style="font-size:13.5px;color:var(--slate);margin-bottom:14px;max-width:680px;">
-      Each rule matches text in the caption, an account handle, a link or a collection name, and fills in the subject matter
-      wherever they are still blank. Rules run on every import, so once they are set the next export tags itself.
-    </p>
-    <div id="ruleList"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-      <button class="btn-ghost btn-sm" id="btnAddRule">Add rule</button>
-      <button class="btn-ghost btn-sm" id="btnRunRules">Run on all rows</button>
-      <button class="btn-ghost btn-sm" id="btnClear" style="margin-left:auto;">Clear the ledger</button>
-    </div>
-  </div>
-
-  <div class="notice">
-    <span><b>What each export actually carries.</b> Instagram now ships the full caption alongside the link and the date,
-    so its rows arrive already written — first line as the subject, whole caption as the description. TikTok ships a link
-    and a date, nothing else. YouTube ships a video ID and the date you added it. For those two, subject and description
-    come from your rules, your own typing, or the Fill descriptions round trip, which hands the links to an AI session
-    with web access and merges the answers back by post ID.</span>
   </div>
 </div>
 
-<footer>© 2026 The Clear Stack · <a href="https://theclearstack.com">theclearstack.com</a> · <a href="/lab/">Back to the Lab</a></footer>
+<footer>© 2026 The Clear Stack · <a href="https://theclearstack.com">theclearstack.com</a></footer>
 
-<div class="overlay" id="overlay"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
-<div class="toast" id="toast"></div>
-<datalist id="catList"></datalist>
-
-<script>
-/* ── burger ── */
-document.getElementById('burger').onclick=function(){document.getElementById('drawer').classList.toggle('open');};
-
-(function(){
-"use strict";
-
-var LS="tcs.locker.v1";
-var state={rows:[],rules:[],demo:true};
-var ui={q:"",cat:"",acct:"",src:"",plat:"",sort:"savedAt",dir:-1,sel:{}};
-
-/* ── helpers ── */
-function $(id){return document.getElementById(id);}
-})();
-</script>
-
-<!-- Detailed 3D Procedural Brain Mesh Script -->
+<!-- Interactive Mouse-Driven 3D Brain Script -->
 <script>
 (function() {
   const container = document.getElementById('brain-container');
@@ -465,29 +291,44 @@ function $(id){return document.getElementById(id);}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(renderer.domElement);
 
-  // Group to contain all anatomical brain parts
   const brainGroup = new THREE.Group();
 
-  // Mathematical Brain Formula to construct Left & Right Hemispheres + Cerebellum
+  // Mouse Tracking Target Variables
+  let targetRotationX = 0;
+  let targetRotationY = 0;
+  let mouseX = 0;
+  let mouseY = 0;
+
+  const windowHalfX = window.innerWidth / 2;
+  const windowHalfY = window.innerHeight / 2;
+
+  // Track Mouse Movement across the entire window
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX - windowHalfX);
+    mouseY = (event.clientY - windowHalfY);
+
+    // Map mouse position to rotation targets
+    targetRotationY = (mouseX / windowHalfX) * (Math.PI / 2);
+    targetRotationX = (mouseY / windowHalfY) * (Math.PI / 4);
+  });
+
+  // Construct Brain Geometry Points
   function createBrainPoints() {
     const points = [];
-    const count = 3500;
+    const count = 3800;
 
     for (let i = 0; i < count; i++) {
       let u = Math.random() * Math.PI * 2;
       let v = Math.random() * Math.PI - (Math.PI / 2);
       
-      // Ellipsoid scaling for human brain proportions
       let x = 2.0 * Math.cos(v) * Math.cos(u);
       let y = 1.6 * Math.sin(v);
       let z = 2.4 * Math.cos(v) * Math.sin(u);
 
-      // Create Longitudinal Fissure (separate into left and right hemispheres)
       const hemisphereGap = 0.28;
       if (x > 0) x += hemisphereGap;
       else x -= hemisphereGap;
 
-      // Add Brain Gyri / Sulci (Cortical Folding Wrinkles)
       const foldFrequency = 6.5;
       const foldDepth = 0.18 * Math.sin(x * foldFrequency) * Math.cos(y * foldFrequency) * Math.sin(z * foldFrequency);
       
@@ -495,7 +336,6 @@ function $(id){return document.getElementById(id);}
       y += foldDepth;
       z += foldDepth;
 
-      // Cerebellum & Brainstem offset positioning at the bottom back
       if (y < -0.6 && z < -0.4) {
         y -= 0.3;
         z -= 0.2;
@@ -506,12 +346,12 @@ function $(id){return document.getElementById(id);}
     return points;
   }
 
-  // 1. Brain Point Cloud (Synapse/Neuron Nodes)
+  // 1. Synapses Node System
   const brainPoints = createBrainPoints();
   const geometry = new THREE.BufferGeometry().setFromPoints(brainPoints);
 
   const particleMaterial = new THREE.PointsMaterial({
-    color: 0xE07B2A, // Brand accent orange
+    color: 0xE07B2A,
     size: 0.045,
     transparent: true,
     opacity: 0.85
@@ -520,27 +360,25 @@ function $(id){return document.getElementById(id);}
   const particleSystem = new THREE.Points(geometry, particleMaterial);
   brainGroup.add(particleSystem);
 
-  // 2. Outer Wireframe Contour for Visual Depth
+  // 2. Wireframe Cortex Overlay
   const wireframeMaterial = new THREE.MeshBasicMaterial({
-    color: 0x0B1F4A, // Deep Navy
+    color: 0x0B1F4A,
     wireframe: true,
     transparent: true,
-    opacity: 0.12
+    opacity: 0.15
   });
 
   const brainMeshGeometry = new THREE.IcosahedronGeometry(2.1, 4);
-  // Deform sphere shape into brain silhouette
   const pos = brainMeshGeometry.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let vx = pos.getX(i);
     let vy = pos.getY(i);
     let vz = pos.getZ(i);
 
-    vx *= (vx > 0 ? 1.15 : 1.15);
+    vx *= 1.15;
     vy *= 0.8;
     vz *= 1.25;
 
-    // Apply folding distortion
     const wrinkle = 0.12 * Math.sin(vx * 7.0) * Math.cos(vy * 7.0);
     pos.setXYZ(i, vx + wrinkle, vy + wrinkle, vz + wrinkle);
   }
@@ -552,19 +390,19 @@ function $(id){return document.getElementById(id);}
   scene.add(brainGroup);
   camera.position.set(0, 0, 5.5);
 
-  // Gentle floating and continuous rotation animation
+  // Render Loop with Linear Interpolation for Smooth Mouse Direction Movement
   function animate() {
     requestAnimationFrame(animate);
-    
-    brainGroup.rotation.y += 0.0025;
-    brainGroup.rotation.x = Math.sin(Date.now() * 0.0008) * 0.12;
+
+    // Smooth transition toward mouse targets
+    brainGroup.rotation.y += (targetRotationY - brainGroup.rotation.y) * 0.05;
+    brainGroup.rotation.x += (targetRotationX - brainGroup.rotation.x) * 0.05;
 
     renderer.render(scene, camera);
   }
 
   animate();
 
-  // Responsive Resizing
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
