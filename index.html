@@ -100,7 +100,7 @@ body{
   text-rendering:optimizeLegibility;
   position: relative;
 }
-img,svg{display:block;max-width:100%;}
+img,svg,video{display:block;max-width:100%;}
 ul,ol{list-style:none;}
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
@@ -113,6 +113,8 @@ h1{
   line-height:var(--lh-display); letter-spacing:var(--ls-display);
   color:var(--ink);
   overflow-wrap:anywhere; hyphens:none;
+  position: relative;
+  z-index: 2;
 }
 p{color:var(--ink-2);max-width:var(--measure);}
 strong,.u-em{font-weight:800;color:var(--ink);}
@@ -203,13 +205,42 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & MECHANICAL BRAIN ASSEMBLY ANIMATION
+   6. HERO SECTION & CANVAS / MEDIA GRID
    ============================================================ */
-#hero{padding-top:var(--s8);padding-bottom:var(--s9);}
+#hero{
+  position: relative;
+  padding-top:var(--s8);
+  padding-bottom:var(--s9);
+  overflow: hidden;
+}
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
-.hero-lower{display:grid;gap:var(--s7);margin-top:var(--s7);}
+
+/* Particle/Node Canvas Background */
+#bgCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.hero-lower{
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s7);
+  margin-top: var(--s7);
+}
 @media (min-width:1024px){
-  .hero-lower{grid-template-columns:minmax(0,1fr) 420px;align-items:center;gap:var(--s8);}
+  .hero-lower{
+    grid-template-columns: minmax(0,1fr) 420px;
+    align-items: center;
+    gap: var(--s8);
+  }
 }
 .hero-answer{
   border-left:2px solid var(--ink);
@@ -222,48 +253,26 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Mechanical Assembly Interactive Viewport */
-.brain-assembly-container {
+/* Embedded Media Viewport */
+.media-container {
   position: relative;
   width: 100%;
   max-width: 420px;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  cursor: pointer;
-  perspective: 1000px;
+  border: var(--hair) solid var(--rule);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.brain-layer {
-  position: absolute;
-  inset: 0;
+.media-container video,
+.media-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-
-.brain-assembled {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.brain-exploded {
-  opacity: 0;
-  transform: scale(1.1);
-}
-
-/* Hover and Touch Active States */
-.brain-assembly-container:hover .brain-assembled,
-.brain-assembly-container.is-active .brain-assembled {
-  opacity: 0;
-  transform: scale(0.92);
-}
-
-.brain-assembly-container:hover .brain-exploded,
-.brain-assembly-container.is-active .brain-exploded {
-  opacity: 1;
-  transform: scale(1);
+  display: block;
 }
 
 /* ============================================================
@@ -352,6 +361,7 @@ body.nav-lock{overflow:hidden;}
 
   <!-- HERO -->
   <section id="hero" class="wrap">
+    <canvas id="bgCanvas"></canvas>
     <h1>Your AI stack <br>should work <br><span class="u-em">for you.</span> <br>Not against you.</h1>
 
     <div class="hero-lower">
@@ -362,11 +372,15 @@ body.nav-lock{overflow:hidden;}
           <span class="small">$1,500 &nbsp;&middot;&nbsp; credited in full toward implementation</span>
         </div>
       </div>
+
+      <!-- Right Column Media Component -->
       <div>
-        <!-- Mechanical Assembly & Disassembly Viewport -->
-        <div class="brain-assembly-container" id="brainContainer">
-          <img class="brain-layer brain-assembled" src="./1.JPG" alt="Assembled Mechanical AI Brain">
-          <img class="brain-layer brain-exploded" src="./2.JPG" alt="Exploded Mechanical Brain Components">
+        <div class="media-container">
+          <video autoplay loop muted playsinline aria-label="3D Mechanical AI Brain disassembly animation">
+            <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
+            <source src="mechanical-brain.mp4" type="video/mp4">
+            <img src="./1.JPG" alt="Assembled Mechanical AI Brain">
+          </video>
         </div>
       </div>
     </div>
@@ -414,12 +428,126 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Touch Toggle Support for Mobile */
-  var brainContainer = document.getElementById('brainContainer');
-  if (brainContainer) {
-    brainContainer.addEventListener('touchstart', function(e) {
-      this.classList.toggle('is-active');
-    }, { passive: true });
+  /* Mouse-Controlled Interactive Canvas Animation */
+  var canvas = document.getElementById('bgCanvas');
+  var heroSection = document.getElementById('hero');
+  if (canvas && heroSection) {
+    var ctx = canvas.getContext('2d');
+    var width, height;
+    var particles = [];
+    var mouse = { x: -1000, y: -1000, active: false };
+
+    var colors = [
+      { r: 224, g: 123, b: 42 },   // Orange
+      { r: 58,  g: 106, b: 204 },  // Blue
+      { r: 122, g: 176, b: 232 },  // Light Blue
+      { r: 155, g: 89,  b: 182 },  // Purple
+      { r: 46,  g: 204, b: 113 }   // Emerald
+    ];
+
+    function resize() {
+      width = canvas.width = heroSection.offsetWidth;
+      height = canvas.height = heroSection.offsetHeight;
+    }
+
+    function Particle() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.baseVx = (Math.random() - 0.5) * 0.8;
+      this.baseVy = (Math.random() - 0.5) * 0.8;
+      this.vx = this.baseVx;
+      this.vy = this.baseVy;
+      this.radius = Math.random() * 2 + 1.2;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    Particle.prototype.update = function() {
+      if (mouse.active) {
+        var dx = mouse.x - this.x;
+        var dy = mouse.y - this.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var maxDist = 160;
+
+        if (dist < maxDist) {
+          var force = (1 - dist / maxDist) * 1.5;
+          this.vx += (dx / dist) * force * 0.15;
+          this.vy += (dy / dist) * force * 0.15;
+        }
+      }
+
+      this.vx += (this.baseVx - this.vx) * 0.05;
+      this.vy += (this.baseVy - this.vy) * 0.05;
+
+      this.x += this.vx;
+      this.y += this.vy;
+
+      if (this.x < 0 || this.x > width) this.baseVx *= -1;
+      if (this.y < 0 || this.y > height) this.baseVy *= -1;
+    };
+
+    function initParticles() {
+      resize();
+      particles = [];
+      var count = Math.floor((width * height) / 9000);
+      for (var i = 0; i < count; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.update();
+
+        var distToMouse = Math.sqrt(Math.pow(mouse.x - p.x, 2) + Math.pow(mouse.y - p.y, 2));
+        var mouseAlpha = (mouse.active && distToMouse < 180) ? 0.9 : 0.5;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(' + p.color.r + ',' + p.color.g + ',' + p.color.b + ',' + mouseAlpha + ')';
+        ctx.fill();
+
+        for (var j = i + 1; j < particles.length; j++) {
+          var p2 = particles[j];
+          var dx = p.x - p2.x;
+          var dy = p.y - p2.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            var alpha = (1 - dist / 120) * 0.35;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            
+            var midR = Math.round((p.color.r + p2.color.r) / 2);
+            var midG = Math.round((p.color.g + p2.color.g) / 2);
+            var midB = Math.round((p.color.b + p2.color.b) / 2);
+            
+            ctx.strokeStyle = 'rgba(' + midR + ',' + midG + ',' + midB + ',' + alpha + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    heroSection.addEventListener('mousemove', function(e) {
+      var rect = heroSection.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+      mouse.active = true;
+    });
+
+    heroSection.addEventListener('mouseleave', function() {
+      mouse.active = false;
+    });
+
+    window.addEventListener('resize', resize);
+    initParticles();
+    animate();
   }
 })();
 </script>
