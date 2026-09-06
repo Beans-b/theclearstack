@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="The Clear Stack audits fragmented AI and SaaS stacks at companies of 50 to 500 people, cuts redundant tools, and connects the rest with Make.com.">
 <meta name="twitter:image" content="https://theclearstack.com/og-cover.png">
 <link rel="canonical" href="https://theclearstack.com/">
-<!-- TODO (Brian): add "sameAs":["<LinkedIn profile URL>"] to the Organization node below once confirmed. [CONFIRM: profile URLs] -->
+
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://theclearstack.com/#organization","name":"The Clear Stack","url":"https://theclearstack.com/","logo":"https://theclearstack.com/logo.svg","description":"AI consolidation consulting for mid-market companies (50–500 employees). We audit fragmented AI and SaaS stacks, eliminate redundancy, and build Make.com automation that connects what remains.","founder":{"@id":"https://theclearstack.com/about#brian-burge"},"slogan":"AI clarity for mid-market companies","areaServed":{"@type":"Country","name":"United States"}},
@@ -30,30 +30,32 @@
 {"@type":"Service","@id":"https://theclearstack.com/#service","name":"AI Consolidation Consulting","serviceType":"AI and SaaS stack consolidation and automation consulting","provider":{"@id":"https://theclearstack.com/#organization"},"areaServed":{"@type":"Country","name":"United States"},"description":"We audit your AI and SaaS stack, eliminate redundant tools, and build Make.com automation that connects what remains. A 90-day path to a consolidated, connected stack.","offers":[{"@type":"Offer","@id":"https://theclearstack.com/#offer-audit","name":"The Clear Stack Audit","price":"1500","priceCurrency":"USD","description":"Two-week stack audit: every tool mapped and priced, savings roadmap included. Fee credited in full toward implementation."}]}
 ]}
 </script>
-<!-- Google Analytics 4: replace G-WYQ7R625ZT with your Measurement ID -->
+
+<!-- Google Analytics 4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+
+<!-- Fonts & Three.js Library -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <style>
 /* ============================================================
    1. TOKENS
-   Every rule below references these. No raw values anywhere.
    ============================================================ */
 :root{
-  /* ink ramp, all ratios stated against --paper */
-  --ink:        #0A0A0A;   /* 18.98:1 */
-  --ink-2:      #3D3D3D;   /* 10.41:1 */
-  --ink-3:      #5C5C5C;   /*  6.41:1 */
-  --ink-4:      #737373;   /*  4.55:1 */
-  --rule:       #DAD7D2;   /* decorative hairline, never carries text */
+  --ink:        #0A0A0A;
+  --ink-2:      #3D3D3D;
+  --ink-3:      #5C5C5C;
+  --ink-4:      #737373;
+  --rule:       #DAD7D2;
   --paper:      #FBFAF8;
   --surface:    #F2EFEA;
-  /* logo lockup, the single exempt element */
   --logo-accent: #E07B2A;
   --font-logo: 'Cormorant Garamond', Georgia, serif;
-  /* type */
+  --font-mono: 'DM Mono', monospace;
   --font: "Helvetica Neue", Helvetica, "Inter", "Segoe UI", Arial, sans-serif;
   --fs-h1:    clamp(2.25rem, 8.5vw, 7.5rem);
   --fs-lede:  clamp(1.0625rem, 1.6vw, 1.3125rem);
@@ -64,7 +66,6 @@
   --lh-body:    1.65;
   --ls-display: -.035em;
   --ls-label:   .08em;
-  /* space */
   --s1:4px; --s2:8px;  --s3:12px;  --s4:16px;  --s5:24px;  --s6:32px;
   --s7:48px; --s8:64px; --s9:96px; --s10:128px;
   --margin: 20px;
@@ -98,6 +99,7 @@ body{
   padding-top:var(--nav-h);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
+  position: relative;
 }
 img,svg{display:block;max-width:100%;}
 ul,ol{list-style:none;}
@@ -106,8 +108,6 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
 
 /* ============================================================
    3. TYPOGRAPHY
-   Display is tight and heavy. Small text is the opposite.
-   Italics are never emitted. No serif except the logo lockup.
    ============================================================ */
 h1{
   font-size:var(--fs-h1); font-weight:800;
@@ -119,20 +119,14 @@ p{color:var(--ink-2);max-width:var(--measure);}
 strong,.u-em{font-weight:800;color:var(--ink);}
 .lede{font-size:var(--fs-lede);line-height:1.55;letter-spacing:-.005em;color:var(--ink-2);}
 .small{font-size:var(--fs-small);line-height:1.5;color:var(--ink-3);}
-/* hero line breaks only apply once there is room for them */
 h1 br{display:none;}
 @media (min-width:768px){ h1 br{display:inline;} }
 
 /* ============================================================
-   4. LAYOUT PRIMITIVES
-   The outer margin is one token. Nav and hero align to it.
+   4. LAYOUT & SKIP LINK
    ============================================================ */
 .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--margin);}
 
-/* ============================================================
-   5. SKIP LINK AND GLOBAL FOCUS
-   Focus is an outline, never a color change.
-   ============================================================ */
 .skip{
   position:absolute;left:var(--margin);top:calc(var(--s2) * -12);
   z-index:2100;background:var(--ink);color:var(--paper);
@@ -143,8 +137,7 @@ h1 br{display:none;}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
 
 /* ============================================================
-   6. NAV AND DRAWER
-   One hairline row. Compact mark far left, links right.
+   5. NAVIGATION
    ============================================================ */
 #nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
@@ -156,7 +149,6 @@ h1 br{display:none;}
   border-bottom:var(--hair) solid var(--rule);
 }
 #nav.scrolled{border-bottom-color:var(--ink-4);}
-/* logo lockup: the only element exempt from the monochrome palette */
 .nav-logo{display:flex;align-items:center;gap:var(--s3);text-decoration:none;flex-shrink:0;}
 .logo-wm{display:flex;flex-direction:column;line-height:1;gap:var(--s1);}
 .logo-name{
@@ -201,7 +193,6 @@ h1 br{display:none;}
 #drawer .d-cta{font-weight:800;}
 body.nav-lock{overflow:hidden;}
 @media (max-width:899px){
-  /* JS on: burger drives the drawer. JS off: links stay, as a scrollable row. */
   .js .nav-links{display:none;}
   .js .burger{display:flex;}
   .nav-links{
@@ -213,23 +204,13 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   7. HERO
-   Display type dominates. Small image tile sits beside the intro.
+   6. HERO SECTION & BRAIN ANIMATION INTEGRATION
    ============================================================ */
 #hero{padding-top:var(--s8);padding-bottom:var(--s9);}
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
 .hero-lower{display:grid;gap:var(--s7);margin-top:var(--s7);}
 @media (min-width:1024px){
-  .hero-lower{grid-template-columns:minmax(0,1fr) 280px;align-items:start;gap:var(--s8);}
-}
-.hero-tile{
-  width:100%;max-width:280px;height:auto;aspect-ratio:3/2;
-  border:var(--hair) solid var(--rule);background:var(--surface);
-}
-.hero-tile rect{fill:none;stroke:var(--rule);stroke-width:var(--hair);}
-.hero-tile text{
-  font-family:var(--font);font-size:var(--fs-label);
-  letter-spacing:var(--ls-label);fill:var(--ink-4);
+  .hero-lower{grid-template-columns:minmax(0,1fr) 380px;align-items:start;gap:var(--s8);}
 }
 .hero-answer{
   border-left:2px solid var(--ink);
@@ -242,9 +223,84 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
+/* Animated "Digital Synthesis" Brain Card */
+.brain-banner-container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  height: 250px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 244, 238, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: #040d12;
+  perspective: 1000px;
+}
+
+.brain-image-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.brain-image-wrapper img {
+  width: 200%;
+  height: 200%;
+  object-fit: cover;
+  /* Crop directly to tile #3: The Digital Synthesis */
+  object-position: 0% 100%;
+  position: absolute;
+  top: -100%;
+  left: 0;
+  animation: digitalPulse 4s infinite alternate ease-in-out, floatMotion 6s infinite ease-in-out;
+}
+
+.brain-banner-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 35% 50%, rgba(37, 244, 238, 0.15), transparent 70%),
+              linear-gradient(to top, rgba(4, 13, 18, 0.7) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.brain-overlay-title {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #25F4EE;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(37, 244, 238, 0.6);
+  background: rgba(4, 13, 18, 0.7);
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(37, 244, 238, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+@keyframes digitalPulse {
+  0% {
+    filter: brightness(0.9) contrast(1.05) drop-shadow(0 0 4px rgba(37, 244, 238, 0.2));
+  }
+  100% {
+    filter: brightness(1.2) contrast(1.2) drop-shadow(0 0 20px rgba(37, 244, 238, 0.8));
+  }
+}
+
+@keyframes floatMotion {
+  0%, 100% { transform: scale(1) translateY(0px); }
+  50% { transform: scale(1.03) translateY(-6px); }
+}
+
 /* ============================================================
-   8. BUTTONS
-   Hover and focus use border and inversion. Never color.
+   7. BUTTONS & MOTION
    ============================================================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -258,13 +314,6 @@ body.nav-lock{overflow:hidden;}
 .btn-primary{background:var(--ink);color:var(--paper);}
 .btn-primary:hover{background:var(--paper);color:var(--ink);}
 
-/* ============================================================
-   9. MOTION
-   Fast and subtle, on interaction only. There is no entrance
-   animation: nothing on this page is ever hidden waiting for
-   JavaScript, so a crawler, a print, a screenshot and a reader
-   with JS off all see identical, complete content.
-   ============================================================ */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
   *,*::before,*::after{
@@ -275,6 +324,9 @@ body.nav-lock{overflow:hidden;}
 </style>
 </head>
 <body>
+
+<!-- Background Interactive 3D Canvas -->
+<div id="brain-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.35;"></div>
 
 <a class="skip" href="#main">Skip to main content</a>
 
@@ -347,11 +399,13 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
       <div>
-        <!-- [IMAGE NEEDED: hero inset tile, subject to be specified, landscape, 3:2] -->
-        <svg class="hero-tile" width="280" height="187" viewBox="0 0 280 187" role="img" aria-label="Image placeholder, landscape, three by two" focusable="false">
-          <rect x="0.5" y="0.5" width="279" height="186"/>
-          <text x="140" y="97" text-anchor="middle">IMAGE NEEDED</text>
-        </svg>
+        <!-- Animated Interactive "Digital Synthesis" Brain Banner -->
+        <div class="brain-banner-container" id="bannerContainer">
+          <div class="brain-image-wrapper" id="imageWrapper">
+            <img src="Gemini_Generated_Image_8n7trd8n7trd8n7t_2.jpg" alt="The Digital Synthesis Brain" />
+          </div>
+          <div class="brain-overlay-title">The Digital Synthesis</div>
+        </div>
       </div>
     </div>
   </section>
@@ -363,13 +417,13 @@ body.nav-lock{overflow:hidden;}
   'use strict';
   document.documentElement.classList.add('js');
 
-  /* nav hairline darkens once scrolled, same trigger as before */
+  /* Nav Scroll Effect */
   var nav = document.getElementById('nav');
   window.addEventListener('scroll', function(){
     nav.classList.toggle('scrolled', window.scrollY > 40);
   }, { passive: true });
 
-  /* burger and drawer, with aria state, Escape and focus return */
+  /* Mobile Drawer */
   var burger = document.getElementById('burger');
   var drawer = document.getElementById('drawer');
   function setDrawer(open){
@@ -397,6 +451,72 @@ body.nav-lock{overflow:hidden;}
   window.addEventListener('resize', function(){
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
+
+  /* 3D Mouse Parallax Tilt on the Banner */
+  var container = document.getElementById('bannerContainer');
+  var wrapper = document.getElementById('imageWrapper');
+  if (container && wrapper) {
+    container.addEventListener('mousemove', function(e) {
+      var rect = container.getBoundingClientRect();
+      var x = e.clientX - rect.left - (rect.width / 2);
+      var y = e.clientY - rect.top - (rect.height / 2);
+      var rotateX = (-y / rect.height) * 12;
+      var rotateY = (x / rect.width) * 12;
+      wrapper.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.02)';
+    });
+    container.addEventListener('mouseleave', function() {
+      wrapper.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+  }
+
+  /* Background Interactive 3D Brain Point-Cloud */
+  var bgContainer = document.getElementById('brain-container');
+  if (bgContainer && typeof THREE !== 'undefined') {
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    bgContainer.appendChild(renderer.domElement);
+
+    var brainGroup = new THREE.Group();
+    var targetRotationX = 0, targetRotationY = 0;
+
+    document.addEventListener('mousemove', function(event) {
+      var windowHalfX = window.innerWidth / 2;
+      var windowHalfY = window.innerHeight / 2;
+      targetRotationY = ((event.clientX - windowHalfX) / windowHalfX) * (Math.PI / 2);
+      targetRotationX = ((event.clientY - windowHalfY) / windowHalfY) * (Math.PI / 4);
+    });
+
+    var points = [];
+    for (var i = 0; i < 3000; i++) {
+      var u = Math.random() * Math.PI * 2;
+      var v = Math.random() * Math.PI - (Math.PI / 2);
+      var x = 2.0 * Math.cos(v) * Math.cos(u);
+      var y = 1.6 * Math.sin(v);
+      var z = 2.4 * Math.cos(v) * Math.sin(u);
+      x += (x > 0 ? 0.28 : -0.28);
+      var fold = 0.18 * Math.sin(x * 6.5) * Math.cos(y * 6.5) * Math.sin(z * 6.5);
+      points.push(new THREE.Vector3(x + fold, y + fold, z + fold));
+    }
+
+    var geometry = new THREE.BufferGeometry().setFromPoints(points);
+    var particleMaterial = new THREE.PointsMaterial({ color: 0x25F4EE, size: 0.035, transparent: true, opacity: 0.75 });
+    brainGroup.add(new THREE.Points(geometry, particleMaterial));
+
+    scene.add(brainGroup);
+    camera.position.z = 5.5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      brainGroup.rotation.y += (targetRotationY - brainGroup.rotation.y) * 0.05;
+      brainGroup.rotation.x += (targetRotationX - brainGroup.rotation.x) * 0.05;
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
 })();
 </script>
 </body>
