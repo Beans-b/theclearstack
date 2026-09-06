@@ -253,7 +253,7 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Embedded Media Styles */
+/* Embedded Media Container */
 .media-wrapper {
   position: relative;
   width: 100%;
@@ -266,12 +266,13 @@ body.nav-lock{overflow:hidden;}
   cursor: pointer;
 }
 
+/* The multiply blend mode strips away light/grey backgrounds from the video */
 .hover-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  mix-blend-mode: multiply; /* Blends light background into the canvas naturally */
+  mix-blend-mode: multiply;
   border: none;
   outline: none;
 }
@@ -374,11 +375,11 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Right Column Media Component (MP4 with Hover-Only Playback) -->
+      <!-- Video element with background blending -->
       <div>
         <div class="media-wrapper" id="mediaWrapper">
-          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain disassembly animation">
-            <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
+          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain animation">
+            <source src="davinci_deconstruction_animation_into_individual_mechanica_2.mp4" type="video/mp4">
           </video>
         </div>
       </div>
@@ -432,13 +433,13 @@ body.nav-lock{overflow:hidden;}
   var video = document.getElementById('brainVideo');
 
   if (mediaWrapper && video) {
-    // Force initial frame preview
+    // Pre-render the first frame so it acts as a static graphic on load
     video.addEventListener('loadeddata', function() {
       video.currentTime = 0;
     });
 
     mediaWrapper.addEventListener('mouseenter', function() {
-      video.play().catch(function(e){ console.log("Play interrupted:", e); });
+      video.play().catch(function(e){ console.log("Playback interrupted:", e); });
     });
 
     mediaWrapper.addEventListener('mouseleave', function() {
