@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & INTERACTIVE MOUSE-CONTROLLED CANVAS
+   6. HERO SECTION & CANVAS / MEDIA GRID
    ============================================================ */
 #hero{
   position: relative;
@@ -230,12 +230,17 @@ body.nav-lock{overflow:hidden;}
 .hero-lower{
   position: relative;
   z-index: 2;
-  display:grid;
-  gap:var(--s7);
-  margin-top:var(--s7);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s7);
+  margin-top: var(--s7);
 }
 @media (min-width:1024px){
-  .hero-lower{grid-template-columns:minmax(0,1fr) 420px;align-items:center;gap:var(--s8);}
+  .hero-lower{
+    grid-template-columns: minmax(0,1fr) 420px;
+    align-items: center;
+    gap: var(--s8);
+  }
 }
 .hero-answer{
   border-left:2px solid var(--ink);
@@ -248,17 +253,22 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Mechanical Assembly Embedded Video Container */
-.brain-assembly-container {
+/* Embedded Media Viewport */
+.media-container {
   position: relative;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: var(--radius);
+  border: var(--hair) solid var(--rule);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.brain-video {
+.media-container video,
+.media-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -362,12 +372,14 @@ body.nav-lock{overflow:hidden;}
           <span class="small">$1,500 &nbsp;&middot;&nbsp; credited in full toward implementation</span>
         </div>
       </div>
+
+      <!-- Right Column Media Component -->
       <div>
-        <!-- Mechanical Assembly Video Viewport -->
-        <div class="brain-assembly-container">
-          <video class="brain-video" autoplay loop muted playsinline aria-label="3D Mechanical AI Brain expanding and disassembling">
+        <div class="media-container">
+          <video autoplay loop muted playsinline aria-label="3D Mechanical AI Brain disassembly animation">
+            <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
             <source src="mechanical-brain.mp4" type="video/mp4">
-            Your browser does not support the video tag.
+            <img src="./1.JPG" alt="Assembled Mechanical AI Brain">
           </video>
         </div>
       </div>
@@ -425,7 +437,6 @@ body.nav-lock{overflow:hidden;}
     var particles = [];
     var mouse = { x: -1000, y: -1000, active: false };
 
-    // Palette of vibrant colors
     var colors = [
       { r: 224, g: 123, b: 42 },   // Orange
       { r: 58,  g: 106, b: 204 },  // Blue
