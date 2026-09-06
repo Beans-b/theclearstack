@@ -100,7 +100,7 @@ body{
   text-rendering:optimizeLegibility;
   position: relative;
 }
-img,svg{display:block;max-width:100%;}
+img,svg,video{display:block;max-width:100%;}
 ul,ol{list-style:none;}
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
@@ -235,7 +235,7 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 @media (min-width:1024px){
-  .hero-lower{align-items:center;gap:var(--s8);}
+  .hero-lower{grid-template-columns:minmax(0,1fr) 420px;align-items:center;gap:var(--s8);}
 }
 .hero-answer{
   border-left:2px solid var(--ink);
@@ -246,6 +246,23 @@ body.nav-lock{overflow:hidden;}
 .hero-act{
   display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5);
   margin-top:var(--s7);
+}
+
+/* Mechanical Assembly Embedded Video Container */
+.brain-assembly-container {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.brain-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ============================================================
@@ -345,6 +362,15 @@ body.nav-lock{overflow:hidden;}
           <span class="small">$1,500 &nbsp;&middot;&nbsp; credited in full toward implementation</span>
         </div>
       </div>
+      <div>
+        <!-- Mechanical Assembly Video Viewport -->
+        <div class="brain-assembly-container">
+          <video class="brain-video" autoplay loop muted playsinline aria-label="3D Mechanical AI Brain expanding and disassembling">
+            <source src="mechanical-brain.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -425,7 +451,6 @@ body.nav-lock{overflow:hidden;}
     }
 
     Particle.prototype.update = function() {
-      // Mouse interaction: push/pull particles near mouse
       if (mouse.active) {
         var dx = mouse.x - this.x;
         var dy = mouse.y - this.y;
@@ -439,7 +464,6 @@ body.nav-lock{overflow:hidden;}
         }
       }
 
-      // Smooth dampening towards base speed
       this.vx += (this.baseVx - this.vx) * 0.05;
       this.vy += (this.baseVy - this.vy) * 0.05;
 
@@ -466,7 +490,6 @@ body.nav-lock{overflow:hidden;}
         var p = particles[i];
         p.update();
 
-        // Check proximity to mouse to increase particle glow
         var distToMouse = Math.sqrt(Math.pow(mouse.x - p.x, 2) + Math.pow(mouse.y - p.y, 2));
         var mouseAlpha = (mouse.active && distToMouse < 180) ? 0.9 : 0.5;
 
@@ -475,7 +498,6 @@ body.nav-lock{overflow:hidden;}
         ctx.fillStyle = 'rgba(' + p.color.r + ',' + p.color.g + ',' + p.color.b + ',' + mouseAlpha + ')';
         ctx.fill();
 
-        // Connect nearby particles with gradient lines
         for (var j = i + 1; j < particles.length; j++) {
           var p2 = particles[j];
           var dx = p.x - p2.x;
@@ -488,7 +510,6 @@ body.nav-lock{overflow:hidden;}
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
             
-            // Blend colors between connected nodes
             var midR = Math.round((p.color.r + p2.color.r) / 2);
             var midG = Math.round((p.color.g + p2.color.g) / 2);
             var midB = Math.round((p.color.b + p2.color.b) / 2);
@@ -502,7 +523,6 @@ body.nav-lock{overflow:hidden;}
       requestAnimationFrame(animate);
     }
 
-    // Mouse events
     heroSection.addEventListener('mousemove', function(e) {
       var rect = heroSection.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
