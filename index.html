@@ -100,7 +100,7 @@ body{
   text-rendering:optimizeLegibility;
   position: relative;
 }
-img,svg{display:block;max-width:100%;}
+img,svg,video{display:block;max-width:100%;}
 ul,ol{list-style:none;}
 a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & VISUAL GRAPHIC CONTAINER
+   6. HERO SECTION & VIDEO CONTAINER
    ============================================================ */
 #hero{
   position: relative;
@@ -253,7 +253,7 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Visual Wrapper Container */
+/* Video Wrapper Container */
 .media-wrapper {
   position: relative;
   width: 100%;
@@ -265,15 +265,14 @@ body.nav-lock{overflow:hidden;}
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.media-graphic {
-  width: 80%;
-  height: 80%;
-  transition: transform 0.4s var(--ease);
-}
-.media-wrapper:hover .media-graphic {
-  transform: scale(1.03);
+.hover-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ============================================================
@@ -374,25 +373,12 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Functional Graphic Container (Replaces broken video with an explicit SVG illustration) -->
+      <!-- Restored Video Element Container -->
       <div>
         <div class="media-wrapper" id="mediaWrapper">
-          <svg class="media-graphic" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="AI Stack Architecture illustration">
-            <circle cx="100" cy="100" r="70" stroke="#0A0A0A" stroke-width="2" stroke-dasharray="4 4" opacity="0.3"/>
-            <circle cx="100" cy="100" r="45" stroke="#E07B2A" stroke-width="2" opacity="0.6"/>
-            <!-- Central Node -->
-            <rect x="80" y="80" width="40" height="40" fill="#0A0A0A"/>
-            <circle cx="100" cy="100" r="8" fill="#E07B2A"/>
-            <!-- Connecting Nodes -->
-            <line x1="100" y1="30" x2="100" y2="80" stroke="#0A0A0A" stroke-width="2"/>
-            <circle cx="100" cy="30" r="6" fill="#3A6ACC"/>
-            <line x1="30" y1="100" x2="80" y2="100" stroke="#0A0A0A" stroke-width="2"/>
-            <circle cx="30" cy="100" r="6" fill="#3A6ACC"/>
-            <line x1="170" y1="100" x2="120" y2="100" stroke="#0A0A0A" stroke-width="2"/>
-            <circle cx="170" cy="100" r="6" fill="#3A6ACC"/>
-            <line x1="100" y1="170" x2="100" y2="120" stroke="#0A0A0A" stroke-width="2"/>
-            <circle cx="100" cy="170" r="6" fill="#3A6ACC"/>
-          </svg>
+          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain animation">
+            <source src="mechanical-brain?v=4" type="video/mp4">
+          </video>
         </div>
       </div>
     </div>
@@ -439,6 +425,20 @@ body.nav-lock{overflow:hidden;}
   window.addEventListener('resize', function(){
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
+
+  /* Hover Video Playback Logic */
+  var mediaWrapper = document.getElementById('mediaWrapper');
+  var video = document.getElementById('brainVideo');
+
+  if (mediaWrapper && video) {
+    mediaWrapper.addEventListener('mouseenter', function() {
+      video.play().catch(function(e){ console.log("Playback interrupted:", e); });
+    });
+
+    mediaWrapper.addEventListener('mouseleave', function() {
+      video.pause();
+    });
+  }
 
   /* Interactive Background Particle Canvas */
   var canvas = document.getElementById('bgCanvas');
