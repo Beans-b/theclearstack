@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & EMBEDDED HOVER-ONLY ANIMATION
+   6. HERO SECTION & TRANSPARENT HOVER VIDEO
    ============================================================ */
 #hero{
   position: relative;
@@ -253,8 +253,8 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Embedded Media Container (Seamless visual blend) */
-.media-container {
+/* Seamless Transparent Embed Container */
+.transparent-media-wrapper {
   position: relative;
   width: 100%;
   max-width: 420px;
@@ -266,12 +266,12 @@ body.nav-lock{overflow:hidden;}
   cursor: pointer;
 }
 
-.hover-video {
+.transparent-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
-  mix-blend-mode: multiply; /* Seamlessly blends video background with page */
+  background: transparent;
   border: none;
   outline: none;
 }
@@ -374,12 +374,12 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Right Column Media Component (Hover-Driven) -->
+      <!-- Right Column Media Component (Transparent Alpha Video, Plays on Hover) -->
       <div>
-        <div class="media-container" id="mediaWrapper">
-          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain disassembly animation">
-            <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
-            <source src="mechanical-brain.mp4" type="video/mp4">
+        <div class="transparent-media-wrapper" id="mediaWrapper">
+          <video class="transparent-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain disassembly animation">
+            <source src="mechanical-brain.webm" type="video/webm">
+            <source src="mechanical-brain.mov" type="video/quicktime">
           </video>
         </div>
       </div>
@@ -434,7 +434,7 @@ body.nav-lock{overflow:hidden;}
 
   if (mediaWrapper && video) {
     mediaWrapper.addEventListener('mouseenter', function() {
-      video.play().catch(function(e){ console.log("Autoplay prevented:", e); });
+      video.play().catch(function(e){ console.log("Playback interrupted:", e); });
     });
 
     mediaWrapper.addEventListener('mouseleave', function() {
