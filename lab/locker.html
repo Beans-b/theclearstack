@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Locker — The Clear Stack Lab</title>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+  <meta name="description" content="The Locker — drop your Instagram data export and get a working ledger of every saved post: subject, description, category, account and the original link, exported to CSV or Markdown in one click." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://theclearstack.com/lab/locker">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The Clear Stack" />
+  <meta property="og:title" content="The Locker — The Clear Stack Lab" />
+  <meta property="og:description" content="Drop your Instagram export. Get a ledger of every saved post, tagged and exportable. Nothing leaves your browser." />
+  <meta property="og:url" content="https://theclearstack.com/lab/locker" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="The Locker — The Clear Stack Lab" />
+  <meta name="twitter:description" content="Drop your Instagram export. Get a ledger of every saved post, tagged and exportable." />
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","@id":"https://theclearstack.com/lab/locker#app","name":"The Locker","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://theclearstack.com/lab/locker","description":"Turns an Instagram data export into a working ledger of saved posts with subject, description, category and original link. Runs entirely in the browser.","publisher":{"@id":"https://theclearstack.com/#organization"},"isPartOf":{"@id":"https://theclearstack.com/#website"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://theclearstack.com/"},{"@type":"ListItem","position":2,"name":"The Lab","item":"https://theclearstack.com/lab/"},{"@type":"ListItem","position":3,"name":"The Locker","item":"https://theclearstack.com/lab/locker"}]}
+]}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1F4A; --navy2:#07152F; --orange:#E07B2A;
+      --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+      --charcoal:#1A1A1A; --gray:#5A6478; --slate:#334155;
+      --live:#4A9E6B;
+      --border:rgba(11,31,74,0.10); --border2:rgba(11,31,74,0.18);
+      --shadow:0 2px 24px rgba(11,31,74,0.08); --shadow2:0 8px 48px rgba(11,31,74,0.13);
+      --radius:4px;
+      --font-head:'Cormorant Garamond',serif; --font-body:'Outfit',sans-serif; --font-mono:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;scrollbar-gutter:stable;overflow-y:scroll;}
+    body{background:var(--light);color:var(--charcoal);font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:var(--font-body);cursor:pointer;}
+    :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+    /* NAV */
+    nav{background:var(--navy);height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100;}
+    .nav-inner{max-width:1480px;margin:0 auto;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:11px;}
+    .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+    .logo-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em;}
+    .logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+    .logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+    .logo-tag{font-family:var(--font-mono);font-size:6.5px;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+    .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+    .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+    .nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;transition:background .2s;}
+    .nav-cta:hover{background:#C96A1A!important;}
+    .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px;}
+    .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+    .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px;}
+    .drawer.open{display:block;}
+    .drawer ul{list-style:none;}
+    .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);border-bottom:1px solid rgba(255,255,255,.07);}
+    /* BREADCRUMB + SHELL */
+    .crumb{max-width:1180px;margin:0 auto;padding:20px 40px 0;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--gray);text-transform:uppercase;}
+    .crumb a:hover{color:var(--orange);}
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 40px 80px;}
+    .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:8px;}
+    h1{font-family:var(--font-head);font-size:44px;font-weight:600;color:var(--navy);letter-spacing:-.01em;line-height:1.05;}
+    .sub{color:var(--gray);font-size:16px;max-width:640px;margin-top:10px;}
+    .badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:3px;white-space:nowrap;}
+    .badge.local{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35);}
+    /* CARD */
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-top:24px;}
+    .card > h2{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);
+      border-left:2px solid var(--orange);padding-left:9px;margin-bottom:16px;font-weight:500;}
+    .btn-primary{background:var(--orange);color:#fff;border:none;border-radius:3px;padding:13px 26px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background .2s;display:inline-flex;align-items:center;gap:9px;}
+    .btn-primary:hover{background:#C96A1A;}
+    .btn-primary:disabled{opacity:.5;cursor:default;}
+    .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border2);border-radius:3px;padding:12px 20px;font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:.2s;}
+    .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+    .btn-sm{padding:8px 13px;font-size:11px;}
+    .hint{font-family:var(--font-mono);font-size:11px;color:var(--gray);margin-top:10px;letter-spacing:.03em;}
+    /* STEP 1 */
+    .stepgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+    @media(max-width:860px){.stepgrid{grid-template-columns:1fr;}}
+    .steps{counter-reset:s;list-style:none;display:flex;flex-direction:column;gap:9px;}
+    .steps li{counter-increment:s;position:relative;padding-left:28px;font-size:13.5px;color:var(--slate);line-height:1.5;}
+    .steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:19px;height:19px;border-radius:3px;
+      background:var(--cream);border:1px solid var(--border2);color:var(--gray);font-family:var(--font-mono);font-size:10px;
+      display:grid;place-items:center;}
+    .steps b{color:var(--navy);font-weight:600;}
+    .lock-note{background:var(--cream);border:1px dashed var(--border2);border-radius:4px;padding:14px 16px;color:var(--slate);font-size:13.5px;margin-top:16px;}
+    .lock-note b{color:var(--navy);}
+    /* DROPZONE */
+    .drop{border:1.5px dashed var(--border2);border-radius:4px;background:var(--cream);padding:30px 20px;text-align:center;cursor:pointer;transition:.18s;}
+    .drop:hover,.drop.hot{border-color:var(--orange);background:rgba(224,123,42,.06);}
+    .drop b{display:block;font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+    .drop small{display:block;color:var(--gray);font-size:13px;max-width:380px;margin:0 auto;}
+    .drop .codes{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--gray);margin-top:11px;letter-spacing:.04em;}
+    /* STATS */
+    .stats{display:flex;flex-wrap:wrap;gap:0;margin-top:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .stat{flex:1 1 130px;padding:16px 20px;border-right:1px solid var(--border);}
+    .stat:last-child{border-right:0;}
+    .stat b{display:block;font-family:var(--font-mono);font-size:24px;font-weight:400;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.2;}
+    .stat span{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+    /* TOOLBAR */
+    .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:24px;padding:14px 16px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+    .toolbar input[type=search],.toolbar select{background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:9px 12px;font-size:14px;font-family:var(--font-body);outline:none;color:var(--charcoal);}
+    .toolbar input[type=search]{flex:1 1 220px;min-width:160px;}
+    .selcount{font-family:var(--font-mono);font-size:11px;color:var(--gray);letter-spacing:.05em;margin-left:auto;}
+    /* TABLE */
+    .tablewrap{margin-top:16px;overflow-x:auto;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+    table{border-collapse:collapse;width:100%;min-width:940px;}
+    thead th{position:sticky;top:64px;z-index:4;background:var(--cream);text-align:left;font-family:var(--font-mono);font-size:10px;
+      letter-spacing:.1em;text-transform:uppercase;color:var(--gray);font-weight:500;padding:11px 12px;
+      border-bottom:1px solid var(--border2);white-space:nowrap;cursor:pointer;user-select:none;}
+    thead th.nosort{cursor:default;}
+    thead th .arrow{color:var(--orange);margin-left:4px;}
+    tbody td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+    tbody tr:hover{background:var(--cream);}
+    tbody tr.sel{background:rgba(224,123,42,.07);}
+    tbody tr:last-child td{border-bottom:0;}
+    td.c-check{width:34px;padding-top:12px;}
+    td.c-subj{width:210px;} td.c-desc{width:330px;} td.c-cat{width:140px;}
+    .cellin{width:100%;border:1px solid transparent;background:transparent;border-radius:3px;padding:5px 7px;
+      font-size:14px;font-family:var(--font-body);color:var(--charcoal);outline:none;}
+    .cellin:hover{border-color:var(--border);}
+    .cellin:focus{border-color:var(--orange);background:var(--white);}
+    textarea.cellin{resize:vertical;min-height:32px;line-height:1.45;}
+    .cellin.blank{background:repeating-linear-gradient(135deg,transparent,transparent 7px,rgba(224,123,42,.07) 7px,rgba(224,123,42,.07) 14px);}
+    .acct{font-family:var(--font-mono);font-size:12.5px;color:var(--navy);white-space:nowrap;}
+    .when{font-family:var(--font-mono);font-size:11.5px;color:var(--gray);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    .src{display:inline-block;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap;}
+    .src.saved{background:rgba(37,80,168,.12);color:#2550A8;}
+    .src.liked{background:rgba(90,100,120,.12);color:var(--gray);}
+    .src.collection{background:rgba(74,158,107,.14);color:#2f7a4f;}
+    .src.example{background:rgba(224,123,42,.14);color:#b5641f;}
+    .link{font-family:var(--font-mono);font-size:11.5px;color:var(--orange);white-space:nowrap;}
+    .link:hover{text-decoration:underline;}
+    .blankstate{padding:44px 20px;text-align:center;color:var(--gray);font-size:14px;}
+    .blankstate b{display:block;font-family:var(--font-head);font-size:20px;color:var(--navy);margin-bottom:5px;}
+    /* RULES */
+    .rule{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .rule:last-of-type{border-bottom:0;}
+    .rule .r-main{font-size:13.5px;color:var(--slate);min-width:0;overflow-wrap:anywhere;}
+    .rule code{font-family:var(--font-mono);font-size:12px;background:var(--cream);border:1px solid var(--border);padding:1px 6px;border-radius:3px;color:var(--navy);}
+    .rule .r-out{color:var(--gray);font-size:12.5px;}
+    .rule button{background:none;border:none;color:var(--gray);font-size:17px;line-height:1;padding:4px 8px;}
+    .rule button:hover{color:#c0392b;}
+    /* NOTICE + FOOTER + MODAL + TOAST */
+    .notice{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--cream);border:1px dashed var(--border2);
+      border-radius:4px;padding:13px 16px;margin-top:24px;font-size:13.5px;color:var(--slate);}
+    .notice b{color:var(--navy);}
+    footer{background:var(--navy2);color:rgba(247,244,239,.6);padding:34px 40px;text-align:center;font-size:12px;font-family:var(--font-mono);letter-spacing:.05em;}
+    footer a:hover{color:var(--orange);}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(7,21,47,.85);align-items:center;justify-content:center;z-index:2400;padding:20px;}
+    .overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:8px;padding:30px;max-width:560px;width:100%;box-shadow:0 24px 80px rgba(7,21,47,.35);max-height:86vh;overflow:auto;}
+    .modal h3{font-family:var(--font-head);font-size:27px;font-weight:600;color:var(--navy);line-height:1.15;}
+    .modal p.msub{color:var(--gray);font-size:13.5px;margin:6px 0 18px;}
+    .modal label{display:block;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:5px;}
+    .modal .f{margin-bottom:14px;}
+    .modal input,.modal select,.modal textarea{width:100%;background:var(--light);border:1px solid var(--border2);border-radius:4px;
+      padding:11px 13px;font-size:14px;font-family:var(--font-body);outline:none;color:var(--charcoal);}
+    .modal textarea{font-family:var(--font-mono);font-size:12.5px;min-height:130px;resize:vertical;line-height:1.5;}
+    .modal .mrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+    .msplit{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    @media(max-width:560px){.msplit{grid-template-columns:1fr;}}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--cream);
+      font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;padding:11px 20px;border-radius:4px;
+      box-shadow:var(--shadow2);opacity:0;pointer-events:none;transition:opacity .25s;z-index:3000;max-width:88vw;text-align:center;}
+    .toast.show{opacity:1;}
+    @media(max-width:760px){
+      .nav-links{display:none;} .burger{display:flex;}
+      .wrap{padding:22px 20px 60px;} .crumb{padding:16px 20px 0;} h1{font-size:34px;}
+      thead th{top:0;}
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+  <a href="/" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="/">What We Do</a></li>
+    <li><a href="/method">How It Works</a></li>
+    <li><a href="/usecases">Use Cases</a></li>
+    <li><a href="/about">Founder</a></li>
+    <li><a href="/lab/" class="active">Lab</a></li>
+  </ul>
+  <a href="/contact" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+<div class="drawer" id="drawer"><ul>
+  <li><a href="/">What We Do</a></li>
+  <li><a href="/method">How It Works</a></li>
+  <li><a href="/usecases">Use Cases</a></li>
+  <li><a href="/about">Founder</a></li>
+  <li><a href="/lab/">Lab</a></li>
+  <li><a href="/contact" style="color:var(--orange);font-weight:700;">Work With Us</a></li>
+</ul></div>
+
+<div class="crumb"><a href="/">Home</a> / <a href="/lab/">The Lab</a> / The Locker</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <h1>The Locker</h1>
+      <p class="sub">Everything you have ever bookmarked on Instagram, stowed in one ledger. Request the export, drop the file, and get subject, description, category, account and the original link for every saved post — tagged automatically and exported in one click.</p>
+    </div>
+    <span class="badge local">Runs in your browser</span>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <h2>Step 1 — Request the export</h2>
+    <div class="stepgrid">
+      <div>
+        <a class="btn-primary" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Open the export request &rarr;</a>
+        <p class="hint">Opens Instagram Accounts Center in a new tab. You stay signed in to Instagram; nothing is shared with this page.</p>
+        <div class="lock-note">
+          <b>Why this is not fully automatic.</b> Instagram has never exposed saved posts through any API, and the export
+          download link only works inside your own logged-in session. Any tool that claims one-click retrieval is driving
+          your logged-in browser, which breaks Meta's terms and puts the account at risk. This button removes every step
+          that can be removed; the rest of the automation happens once the file is in hand.
+        </div>
+      </div>
+      <ol class="steps">
+        <li>Sign in if prompted, then choose <b>Download or transfer information</b></li>
+        <li>Pick your Instagram account &rarr; <b>Some of your information</b></li>
+        <li>Under Your Instagram activity, tick <b>Saved posts</b> (add Likes and Collections if you want them logged too)</li>
+        <li>Choose <b>Download to device</b>, date range <b>All time</b>, format <b>JSON</b></li>
+        <li>Submit, then watch for Meta's email — usually under an hour</li>
+        <li>Come back here and drop the zip below. No need to unzip it.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <h2>Step 2 — Drop the file</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop your Instagram export here or click to choose files">
+      <b>Drop the export here</b>
+      <small>The whole <code>.zip</code>, or the loose JSON files if you have already unzipped it. Everything is parsed on your own machine — no upload, no server, no account needed.</small>
+      <span class="codes">saved_posts.json · liked_posts.json · saved_collections.json</span>
+    </div>
+    <p class="hint" id="parseHint">Re-import any time. New posts are added, and every subject and description you have written is kept.</p>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div id="banner"></div>
+
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search subject, description, account, link…" aria-label="Search the ledger">
+    <select id="fCat" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="fAcct" aria-label="Filter by account"><option value="">All accounts</option></select>
+    <select id="fSrc" aria-label="Filter by source"><option value="">All sources</option></select>
+    <button class="btn-ghost btn-sm" id="btnBulkCat">Set category</button>
+    <button class="btn-ghost btn-sm" id="btnFill">Fill descriptions</button>
+    <button class="btn-primary btn-sm" id="btnExport">Export</button>
+    <span class="selcount" id="selCount">0 selected</span>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="nosort"><input type="checkbox" id="allCheck" aria-label="Select all visible rows"></th>
+          <th data-sort="subject">Subject</th>
+          <th data-sort="description">Description</th>
+          <th data-sort="category">Category</th>
+          <th data-sort="account">Account</th>
+          <th data-sort="savedAt">Saved</th>
+          <th data-sort="source">Source</th>
+          <th class="nosort">Original link</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <!-- RULES -->
+  <div class="card">
+    <h2>Auto-tag rules</h2>
+    <p style="font-size:13.5px;color:var(--slate);margin-bottom:14px;max-width:680px;">
+      Each rule matches text in an account handle, a link or a collection name, and fills in the subject and category
+      wherever they are still blank. Rules run on every import, so once they are set the next export tags itself.
+    </p>
+    <div id="ruleList"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+      <button class="btn-ghost btn-sm" id="btnAddRule">Add rule</button>
+      <button class="btn-ghost btn-sm" id="btnRunRules">Run on all rows</button>
+      <button class="btn-ghost btn-sm" id="btnClear" style="margin-left:auto;">Clear the ledger</button>
+    </div>
+  </div>
+
+  <div class="notice">
+    <span><b>Captions are not in the export.</b> Meta ships the link, the account and the date you saved it — nothing else.
+    Subject and description come from your rules, your own typing, or the Fill descriptions round trip, which hands the
+    links to an AI session with web access and merges the answers back by post code.</span>
+  </div>
+</div>
+
+<footer>© 2026 The Clear Stack · <a href="https://theclearstack.com">theclearstack.com</a> · <a href="/lab/">Back to the Lab</a></footer>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
+<datalist id="catList"></datalist>
+
+<script>
+/* ── burger ── */
+document.getElementById('burger').onclick=function(){document.getElementById('drawer').classList.toggle('open');};
+
+(function(){
+"use strict";
+
+var LS="tcs.locker.v1";
+var state={rows:[],rules:[],demo:true};
+var ui={q:"",cat:"",acct:"",src:"",sort:"savedAt",dir:-1,sel:{}};
+
+/* ── helpers ── */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+var toastT=null;
+function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("show");},3400);}
+/* Meta writes UTF-8 bytes as latin-1 in its JSON exports; this puts them back. */
+function fixText(s){if(typeof s!=="string"||!/[Â-ô]/.test(s))return s||"";
+  try{return decodeURIComponent(escape(s));}catch(e){return s;}}
+function codeOf(url){var m=/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(url||"");return m?m[1]:null;}
+function fmtDate(ms){if(!ms)return "—";var d=new Date(ms);if(isNaN(d.getTime()))return "—";
+  return d.toLocaleDateString("en-US",{year:"numeric",month:"short",day:"2-digit"});}
+function srcLabel(k){k=String(k||"").toLowerCase();
+  if(k.indexOf("like")>-1)return "liked";
+  if(k.indexOf("collection")>-1)return "collection";
+  return "saved";}
+
+/* ── example rows ── */
+function demoRows(){
+  var day=86400000,now=Date.now();
+  var d=[["Cold email teardown","Six subject lines rewritten side by side with the reply rate each one pulled.","Outreach","@example.saas.notes",4],
+    ["Retainer pricing model","Why the poster moved off hourly billing and what it did to margin over two quarters.","Consulting","@example.solofounder",11],
+    ["Make.com error handling","Break-and-resume pattern for scenarios that touch a flaky API.","Automation","@example.opsdaily",17],
+    ["Santa Barbara tide pools","Low tide windows and the three spots worth the drive north.","Local","@example.sbcoast",26],
+    ["Discovery call script","Eleven questions, in order, for a first call with a mid-market buyer.","Sales","@example.b2bplaybook",39],
+    ["Kettlebell complex","Five moves, three rounds, no rest between the moves.","Fitness","@example.strengthlab",52]];
+  return d.map(function(r,i){return{
+    id:"demo"+i,code:"EXAMPLE"+i,account:r[3],
+    url:"https://www.instagram.com/p/EXAMPLE"+i+"/",
+    savedAt:now-r[4]*day,source:"example",collection:"",
+    subject:r[0],description:r[1],category:r[2]};});
+}
+
+/* ── storage ── */
+function save(){try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){}}
+function load(){try{var raw=localStorage.getItem(LS);if(!raw)return null;
+  var p=JSON.parse(raw);return (p&&Array.isArray(p.rows))?p:null;}catch(e){return null;}}
+
+/* ── rules ── */
+function seedRules(){return[
+  {id:"r1",field:"account",contains:"recipe",subject:"",category:"Cooking"},
+  {id:"r2",field:"account",contains:"fitness",subject:"",category:"Fitness"},
+  {id:"r3",field:"url",contains:"/reel/",subject:"",category:"Video"}];}
+function applyRules(rows,force){
+  var n=0;
+  rows.forEach(function(row){
+    state.rules.forEach(function(rule){
+      if(!rule.contains)return;
+      var hay=String(rule.field==="url"?row.url:rule.field==="collection"?row.collection:row.account).toLowerCase();
+      if(hay.indexOf(rule.contains.toLowerCase())===-1)return;
+      if(rule.category&&(force||!row.category)){row.category=rule.category;n++;}
+      if(rule.subject&&(force||!row.subject)){row.subject=rule.subject;n++;}
+    });
+  });
+  return n;
+}
+
+/* ── JSON extraction ────────────────────────────────────────────────
+   Meta reshuffles these files between export versions, so rather than
+   matching filenames we walk the JSON for any entry carrying
+   string_map_data / string_list_data and harvest its href, timestamp
+   and title. Survives a rename; picks up formats not shipped yet. */
+function extract(json,topHint){
+  var found=[];
+  (function scan(node,topKey){
+    if(!node||typeof node!=="object")return;
+    if(Array.isArray(node)){for(var i=0;i<node.length;i++)scan(node[i],topKey);return;}
+    var smd=node.string_map_data,sld=node.string_list_data;
+    if(smd||sld){
+      var href=null,ts=null,extra="";
+      if(smd)for(var k in smd){var v=smd[k]||{};
+        if(v.href&&!href)href=v.href;
+        if(v.timestamp&&!ts)ts=v.timestamp;
+        if(v.value&&!extra&&!/^https?:/i.test(v.value))extra=fixText(v.value);}
+      if(sld)for(var j=0;j<sld.length;j++){var s=sld[j]||{};
+        if(s.href&&!href)href=s.href;
+        if(s.timestamp&&!ts)ts=s.timestamp;}
+      if(href)found.push({account:fixText(node.title||""),url:href,ts:ts,key:topKey||topHint||"",extra:extra});
+      return;
+    }
+    for(var key in node)scan(node[key],topKey||key);
+  })(json,null);
+  return found;
+}
+function extractHTML(text){
+  var out=[],seen={},doc=new DOMParser().parseFromString(text,"text/html");
+  Array.prototype.forEach.call(doc.querySelectorAll('a[href*="instagram.com/"]'),function(a){
+    var href=a.getAttribute("href");
+    if(!codeOf(href)||seen[href])return;
+    seen[href]=1;out.push({account:"",url:href,ts:null,key:"saved",extra:""});
+  });
+  return out;
+}
+
+/* ── zip reading, no library ──────────────────────────────────────── */
+function readZip(file){
+  return file.arrayBuffer().then(function(buf){
+    var dv=new DataView(buf),u8=new Uint8Array(buf);
+    var eocd=-1,start=Math.max(0,buf.byteLength-66000);
+    for(var i=buf.byteLength-22;i>=start;i--){ if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;} }
+    if(eocd<0)throw new Error("not-a-zip");
+    var count=dv.getUint16(eocd+10,true),cdOff=dv.getUint32(eocd+16,true);
+    if(cdOff===0xFFFFFFFF)throw new Error("zip64");
+    var jobs=[],p=cdOff,dec=new TextDecoder("utf-8");
+    for(var n=0;n<count&&p+46<=buf.byteLength;n++){
+      if(dv.getUint32(p,true)!==0x02014b50)break;
+      var method=dv.getUint16(p+10,true),
+          csize=dv.getUint32(p+20,true),
+          nameLen=dv.getUint16(p+28,true),
+          extraLen=dv.getUint16(p+30,true),
+          cmtLen=dv.getUint16(p+32,true),
+          lho=dv.getUint32(p+42,true),
+          name=dec.decode(u8.subarray(p+46,p+46+nameLen));
+      p+=46+nameLen+extraLen+cmtLen;
+      if(!/\.json$/i.test(name))continue;
+      if(!/saved|liked|likes|collection|bookmark/i.test(name))continue;
+      if(lho===0xFFFFFFFF)throw new Error("zip64");
+      var lNameLen=dv.getUint16(lho+26,true),lExtraLen=dv.getUint16(lho+28,true),
+          dataAt=lho+30+lNameLen+lExtraLen,
+          slice=u8.subarray(dataAt,dataAt+csize);
+      jobs.push(inflate(slice,method).then(function(txt){
+        try{return extract(JSON.parse(txt),name);}catch(e){return [];}
+      }));
+    }
+    if(!jobs.length)throw new Error("no-json");
+    return Promise.all(jobs).then(function(lists){return [].concat.apply([],lists);});
+  });
+}
+function inflate(bytes,method){
+  if(method===0)return Promise.resolve(new TextDecoder("utf-8").decode(bytes));
+  if(method!==8)return Promise.reject(new Error("method"));
+  if(typeof DecompressionStream==="undefined")return Promise.reject(new Error("nostream"));
+  var copy=bytes.slice();
+  var ds=new DecompressionStream("deflate-raw");
+  var stream=new Blob([copy]).stream().pipeThrough(ds);
+  return new Response(stream).text();
+}
+
+/* ── ingest ── */
+function ingest(found){
+  var index={};
+  state.rows.forEach(function(r){index[r.id]=r;});
+  var added=0,merged=0,fresh=[];
+  found.forEach(function(f){
+    var code=codeOf(f.url),src=srcLabel(f.key),id=(code||f.url)+"|"+src;
+    var savedAt=f.ts?(f.ts>1e12?f.ts:f.ts*1000):null;
+    if(index[id]){
+      var ex=index[id];
+      if(!ex.savedAt&&savedAt)ex.savedAt=savedAt;
+      if(!ex.account&&f.account)ex.account=f.account;
+      merged++;return;
+    }
+    var row={id:id,code:code||"",
+      account:f.account?(f.account.charAt(0)==="@"?f.account:"@"+f.account):"",
+      url:f.url,savedAt:savedAt,source:src,
+      collection:src==="collection"?f.extra:"",
+      subject:"",description:"",category:""};
+    if(row.collection)row.subject=row.collection;
+    index[id]=row;fresh.push(row);added++;
+  });
+  if(state.demo&&fresh.length){state.rows=[];state.demo=false;}
+  applyRules(fresh,false);
+  state.rows=state.rows.concat(fresh);
+  return {added:added,merged:merged};
+}
+
+function readFiles(files){
+  $("parseHint").textContent="Reading…";
+  var jobs=Array.prototype.map.call(files,function(file){
+    var name=(file.name||"").toLowerCase();
+    if(/\.zip$/.test(name)){
+      return readZip(file).then(function(found){return {found:found};})
+        .catch(function(e){
+          var m=e&&e.message;
+          if(m==="no-json")return {err:"No saved, liked or collection JSON in that zip. Check that Saved posts was ticked, and that the format was JSON."};
+          if(m==="zip64")return {err:"That zip is too large to read here. Unzip it and drop saved_posts.json on its own."};
+          if(m==="nostream"||m==="method")return {err:"This browser cannot unzip in page. Unzip the export and drop the JSON files instead."};
+          return {err:"That zip could not be opened. Unzip it and drop the JSON files instead."};
+        });
+    }
+    return file.text().then(function(txt){
+      if(/\.html?$/.test(name))return {found:extractHTML(txt)};
+      try{return {found:extract(JSON.parse(txt),name)};}
+      catch(e){return {err:file.name+" is not readable JSON. Pick JSON, not HTML, in the export settings."};}
+    });
+  });
+  Promise.all(jobs).then(function(results){
+    var all=[],errs=[];
+    results.forEach(function(r){if(r.err)errs.push(r.err);else all=all.concat(r.found||[]);});
+    $("parseHint").textContent="Re-import any time. New posts are added, and every subject and description you have written is kept.";
+    if(!all.length){toast(errs[0]||"Nothing readable in those files.");return;}
+    var res=ingest(all);
+    render();save();
+    toast(res.added+" added"+(res.merged?", "+res.merged+" already logged":"")+". Your writing was kept.");
+  });
+}
+
+/* ── filtering ── */
+function visibleRows(){
+  var q=ui.q.trim().toLowerCase();
+  var out=state.rows.filter(function(r){
+    if(ui.cat&&r.category!==ui.cat)return false;
+    if(ui.acct&&r.account!==ui.acct)return false;
+    if(ui.src&&r.source!==ui.src)return false;
+    if(q){
+      var hay=(r.subject+" "+r.description+" "+r.account+" "+r.category+" "+r.url+" "+r.collection).toLowerCase();
+      if(hay.indexOf(q)===-1)return false;
+    }
+    return true;
+  });
+  var k=ui.sort,dir=ui.dir;
+  out.sort(function(a,b){
+    var x=a[k],y=b[k];
+    if(k==="savedAt")return ((x||0)-(y||0))*dir;
+    x=String(x||"").toLowerCase();y=String(y||"").toLowerCase();
+    if(x===y)return 0;
+    if(!x)return 1;
+    if(!y)return -1;
+    return (x<y?-1:1)*dir;
+  });
+  return out;
+}
+function selectedRows(){
+  var picked=state.rows.filter(function(r){return ui.sel[r.id];});
+  return picked.length?picked:visibleRows();
+}
+
+/* ── render ── */
+function render(){
+  renderStats();renderBanner();renderFilters();renderRules();
+  var rows=visibleRows(),tb=$("rows");
+  if(!state.rows.length){
+    tb.innerHTML='<tr><td colspan="8"><div class="blankstate"><b>The ledger is empty</b>'+
+      'Request your export above and drop it in, or load a few example rows to see the shape of it.'+
+      '<br><br><button class="btn-ghost btn-sm" id="btnDemo">Load example rows</button></div></td></tr>';
+    var bd=$("btnDemo");
+    if(bd)bd.onclick=function(){state.rows=demoRows();state.demo=true;render();save();};
+    updateSelCount();return;
+  }
+  if(!rows.length){
+    tb.innerHTML='<tr><td colspan="8"><div class="blankstate"><b>Nothing matches</b>'+
+      'Clear the search or the filters to see the rest of the ledger.</div></td></tr>';
+    updateSelCount();return;
+  }
+  var html="";
+  rows.forEach(function(r){
+    var on=!!ui.sel[r.id];
+    html+='<tr class="'+(on?"sel":"")+'" data-id="'+esc(r.id)+'">'+
+      '<td class="c-check"><input type="checkbox" data-act="sel" '+(on?"checked":"")+' aria-label="Select row"></td>'+
+      '<td class="c-subj"><input class="cellin'+(r.subject?"":" blank")+'" data-f="subject" value="'+esc(r.subject)+'" placeholder="Subject"></td>'+
+      '<td class="c-desc"><textarea class="cellin'+(r.description?"":" blank")+'" data-f="description" rows="1" placeholder="What it is, why you kept it">'+esc(r.description)+'</textarea></td>'+
+      '<td class="c-cat"><input class="cellin" data-f="category" list="catList" value="'+esc(r.category)+'" placeholder="Category"></td>'+
+      '<td><span class="acct">'+esc(r.account||"—")+'</span></td>'+
+      '<td><span class="when">'+fmtDate(r.savedAt)+'</span></td>'+
+      '<td><span class="src '+esc(r.source)+'">'+esc(r.source)+'</span>'+
+        (r.collection?'<br><span class="when">'+esc(r.collection)+'</span>':'')+'</td>'+
+      '<td><a class="link" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">'+esc(r.code||"open")+'</a></td></tr>';
+  });
+  tb.innerHTML=html;
+  autosize();updateSelCount();
+}
+function autosize(){
+  Array.prototype.forEach.call(document.querySelectorAll("textarea.cellin"),function(t){
+    t.style.height="auto";t.style.height=Math.min(t.scrollHeight+2,150)+"px";});
+}
+function renderStats(){
+  var total=state.rows.length,
+      described=state.rows.filter(function(r){return r.description;}).length,
+      cats={},accts={};
+  state.rows.forEach(function(r){if(r.category)cats[r.category]=1;if(r.account)accts[r.account]=1;});
+  $("stats").innerHTML=
+    '<div class="stat"><b>'+total+'</b><span>Entries</span></div>'+
+    '<div class="stat"><b>'+described+'</b><span>Described</span></div>'+
+    '<div class="stat"><b>'+(total-described)+'</b><span>To write</span></div>'+
+    '<div class="stat"><b>'+Object.keys(cats).length+'</b><span>Categories</span></div>'+
+    '<div class="stat"><b>'+Object.keys(accts).length+'</b><span>Accounts</span></div>';
+}
+function renderBanner(){
+  var b=$("banner");
+  if(state.demo&&state.rows.length){
+    b.innerHTML='<div class="notice"><span><b>Example rows.</b> These are invented so you can see how the ledger works. '+
+      'Dropping your export clears them.</span><button class="btn-ghost btn-sm" id="dropDemo" style="margin-left:auto;">Clear now</button></div>';
+    $("dropDemo").onclick=function(){state.rows=[];state.demo=false;render();save();};
+  }else b.innerHTML="";
+}
+function renderFilters(){
+  var cats={},accts={},srcs={};
+  state.rows.forEach(function(r){
+    if(r.category)cats[r.category]=(cats[r.category]||0)+1;
+    if(r.account)accts[r.account]=(accts[r.account]||0)+1;
+    srcs[r.source]=(srcs[r.source]||0)+1;});
+  function fill(sel,map,keep,label){
+    sel.innerHTML='<option value="">'+label+'</option>'+Object.keys(map).sort().map(function(k){
+      return '<option value="'+esc(k)+'"'+(k===keep?" selected":"")+'>'+esc(k)+" ("+map[k]+")</option>";}).join("");
+  }
+  fill($("fCat"),cats,ui.cat,"All categories");
+  fill($("fAcct"),accts,ui.acct,"All accounts");
+  fill($("fSrc"),srcs,ui.src,"All sources");
+  $("catList").innerHTML=Object.keys(cats).sort().map(function(k){return '<option value="'+esc(k)+'">';}).join("");
+}
+function renderRules(){
+  var host=$("ruleList");
+  if(!state.rules.length){host.innerHTML='<p style="font-size:13.5px;color:var(--gray);">No rules yet.</p>';return;}
+  host.innerHTML=state.rules.map(function(r){
+    return '<div class="rule" data-id="'+esc(r.id)+'"><div class="r-main">'+esc(r.field)+
+      ' contains <code>'+esc(r.contains)+'</code><br><span class="r-out">&rarr; '+
+      (r.category?esc(r.category):"—")+(r.subject?" · "+esc(r.subject):"")+'</span></div>'+
+      '<button data-act="delrule" aria-label="Delete rule">×</button></div>';}).join("");
+}
+function updateSelCount(){
+  var n=Object.keys(ui.sel).filter(function(k){return ui.sel[k];}).length;
+  $("selCount").textContent=n+" selected";
+}
+
+/* ── modal ── */
+function modal(title,sub,body,buttons){
+  $("modal").innerHTML='<h3>'+esc(title)+'</h3><p class="msub">'+sub+'</p>'+body+'<div class="mrow" id="mbtns"></div>';
+  var bar=$("mbtns");
+  buttons.forEach(function(b){
+    var el=document.createElement("button");
+    el.className=b.primary?"btn-primary":"btn-ghost";
+    el.textContent=b.label;
+    el.onclick=function(){if(b.act)b.act();if(b.close!==false)closeModal();};
+    bar.appendChild(el);
+  });
+  $("overlay").classList.add("open");
+}
+function closeModal(){$("overlay").classList.remove("open");$("modal").innerHTML="";}
+$("overlay").addEventListener("click",function(e){if(e.target===this)closeModal();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
+
+/* ── output ── */
+var COLS=["Subject","Description","Category","Account","Source","Collection","Saved date","Original link","Post code"];
+function rowValues(r){
+  return [r.subject,r.description,r.category,r.account,r.source,r.collection,
+    r.savedAt?new Date(r.savedAt).toISOString().slice(0,10):"",r.url,r.code];
+}
+function toCSV(rows){
+  var lines=[COLS.join(",")];
+  rows.forEach(function(r){
+    lines.push(rowValues(r).map(function(v){
+      v=String(v==null?"":v);
+      return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(","));
+  });
+  return "﻿"+lines.join("\r\n");
+}
+function toMarkdown(rows){
+  return "| "+COLS.join(" | ")+" |\n|"+COLS.map(function(){return "---";}).join("|")+"|\n"+
+    rows.map(function(r){return "| "+rowValues(r).map(function(v){
+      return String(v==null?"":v).replace(/\|/g,"\\|");}).join(" | ")+" |";}).join("\n");
+}
+function download(filename,text,mime){
+  var blob=new Blob([text],{type:mime||"text/plain;charset=utf-8"});
+  var url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},400);
+  toast("Downloaded "+filename);
+}
+function stamp(){return new Date().toISOString().slice(0,10);}
+function copyText(text,msg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){toast(msg||"Copied.");},function(){showRaw(text);});
+  }else showRaw(text);
+}
+function showRaw(text){
+  modal("Copy this","Clipboard access was refused, so here it is to select and copy by hand.",
+    '<textarea readonly style="min-height:230px;">'+esc(text)+'</textarea>',[{label:"Done",primary:true}]);
+}
+
+$("btnExport").onclick=function(){
+  var rows=selectedRows(),n=rows.length;
+  modal("Export the ledger",n+" row"+(n===1?"":"s")+" — your selection if you made one, otherwise everything the filters show.",
+    '<div class="msplit">'+
+      '<button class="btn-ghost" data-x="csv">Spreadsheet (.csv)</button>'+
+      '<button class="btn-ghost" data-x="md">Markdown table</button>'+
+      '<button class="btn-ghost" data-x="json">JSON backup</button>'+
+      '<button class="btn-ghost" data-x="clip">Copy to clipboard</button>'+
+    '</div>',[{label:"Close"}]);
+  Array.prototype.forEach.call($("modal").querySelectorAll("[data-x]"),function(b){
+    b.onclick=function(){
+      var k=b.getAttribute("data-x");
+      if(k==="csv")download("saved-posts-"+stamp()+".csv",toCSV(rows),"text/csv;charset=utf-8");
+      else if(k==="md")download("saved-posts-"+stamp()+".md",toMarkdown(rows),"text/markdown;charset=utf-8");
+      else if(k==="json")download("saved-posts-"+stamp()+".json",JSON.stringify({rows:rows,rules:state.rules},null,2),"application/json");
+      else copyText(toMarkdown(rows),"Ledger copied as a Markdown table.");
+      closeModal();
+    };
+  });
+};
+
+/* ── fill-descriptions round trip ── */
+$("btnFill").onclick=function(){
+  var missing=state.rows.filter(function(r){return !r.description&&r.source!=="example";});
+  var batch=missing.slice(0,40);
+  var prompt="Open each Instagram link below and give me one line per post: the post code, a short subject "+
+    "(4 words or fewer), then a one-sentence description of what the post actually contains. "+
+    "Tab-separated, no header, nothing else. If a post is private or gone, write UNAVAILABLE as the subject.\n\n"+
+    batch.map(function(r){return (r.code||"?")+"\t"+r.url;}).join("\n");
+  modal("Fill descriptions",
+    "Captions are not in the export and cannot be fetched from this page — Instagram blocks it. Copy the request, "+
+    "run it in an AI session with web access, paste the answer back. <b>"+missing.length+"</b> row"+
+    (missing.length===1?"":"s")+" still need a description"+
+    (missing.length>batch.length?"; the first "+batch.length+" are queued here.":"."),
+    '<button class="btn-primary" id="fillCopy" style="margin-bottom:16px;">Copy the request</button>'+
+    '<div class="f"><label for="fillIn">Paste the answer back — code, tab, subject, tab, description</label>'+
+    '<textarea id="fillIn" placeholder="C1a2b3c4d5e&#9;Cold email teardown&#9;Six subject lines rewritten side by side."></textarea></div>',
+    [{label:"Merge answers",primary:true,act:mergeFill},{label:"Cancel"}]);
+  $("fillCopy").onclick=function(){copyText(prompt,"Request copied. Paste it into an AI session with web access.");};
+};
+function mergeFill(){
+  var text=($("fillIn")||{}).value||"",byCode={},hits=0;
+  state.rows.forEach(function(r){if(r.code)byCode[r.code.toLowerCase()]=r;});
+  text.split(/\r?\n/).forEach(function(line){
+    if(!line.trim())return;
+    var parts=line.split(/\t|\s*\|\s*/);
+    if(parts.length<2)return;
+    var code=parts[0].trim().replace(/^https?:\S*\/(?:p|reel|reels|tv)\//,"").replace(/\/$/,"");
+    var row=byCode[code.toLowerCase()];
+    if(!row)return;
+    var subj=(parts[1]||"").trim(),desc=(parts[2]||"").trim();
+    if(/^unavailable$/i.test(subj)){if(!row.subject)row.subject="[unavailable]";hits++;return;}
+    if(subj)row.subject=subj;
+    if(desc)row.description=desc;
+    hits++;
+  });
+  render();save();
+  toast(hits?hits+" row"+(hits===1?"":"s")+" updated.":"No post codes in that paste matched the ledger.");
+}
+
+/* ── events ── */
+function pickFiles(){
+  var inp=document.createElement("input");
+  inp.type="file";inp.multiple=true;inp.accept=".zip,.json,.html";
+  inp.onchange=function(){if(inp.files&&inp.files.length)readFiles(inp.files);};
+  inp.click();
+}
+var drop=$("drop");
+drop.onclick=pickFiles;
+drop.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pickFiles();}};
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("hot");});});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("hot");});});
+drop.addEventListener("drop",function(e){if(e.dataTransfer&&e.dataTransfer.files.length)readFiles(e.dataTransfer.files);});
+window.addEventListener("dragover",function(e){e.preventDefault();});
+window.addEventListener("drop",function(e){e.preventDefault();});
+
+$("q").addEventListener("input",function(){ui.q=this.value;render();});
+$("fCat").addEventListener("change",function(){ui.cat=this.value;render();});
+$("fAcct").addEventListener("change",function(){ui.acct=this.value;render();});
+$("fSrc").addEventListener("change",function(){ui.src=this.value;render();});
+document.querySelector("thead").addEventListener("click",function(e){
+  var th=e.target.closest("th[data-sort]");
+  if(!th)return;
+  var k=th.getAttribute("data-sort");
+  if(ui.sort===k)ui.dir=-ui.dir;else{ui.sort=k;ui.dir=(k==="savedAt")?-1:1;}
+  Array.prototype.forEach.call(document.querySelectorAll("th[data-sort] .arrow"),function(a){a.remove();});
+  var arrow=document.createElement("span");
+  arrow.className="arrow";arrow.textContent=ui.dir>0?"↑":"↓";
+  th.appendChild(arrow);
+  render();
+});
+$("allCheck").addEventListener("change",function(){
+  var on=this.checked;
+  visibleRows().forEach(function(r){ui.sel[r.id]=on;});
+  render();
+});
+$("rows").addEventListener("input",function(e){
+  var el=e.target,f=el.getAttribute&&el.getAttribute("data-f");
+  if(!f)return;
+  var id=el.closest("tr").getAttribute("data-id");
+  var row=state.rows.filter(function(r){return r.id===id;})[0];
+  if(!row)return;
+  row[f]=el.value;
+  el.classList.toggle("blank",!el.value);
+  if(el.tagName==="TEXTAREA"){el.style.height="auto";el.style.height=Math.min(el.scrollHeight+2,150)+"px";}
+  renderStats();save();
+});
+$("rows").addEventListener("change",function(e){
+  if(e.target.getAttribute("data-act")!=="sel")return;
+  var tr=e.target.closest("tr");
+  ui.sel[tr.getAttribute("data-id")]=e.target.checked;
+  tr.classList.toggle("sel",e.target.checked);
+  updateSelCount();
+});
+$("btnBulkCat").onclick=function(){
+  var rows=selectedRows();
+  if(!rows.length){toast("Nothing to tag.");return;}
+  modal("Set category","Applies to "+rows.length+" row"+(rows.length===1?"":"s")+" — your selection, or everything showing.",
+    '<div class="f"><label for="bulkCat">Category</label><input id="bulkCat" list="catList" placeholder="e.g. Consulting"></div>',
+    [{label:"Apply",primary:true,act:function(){
+      var v=(($("bulkCat")||{}).value||"").trim();
+      if(!v)return;
+      rows.forEach(function(r){r.category=v;});
+      render();save();toast(rows.length+" tagged "+v+".");
+    }},{label:"Cancel"}]);
+  setTimeout(function(){var el=$("bulkCat");if(el)el.focus();},40);
+};
+$("btnAddRule").onclick=function(){
+  modal("New auto-tag rule","Runs on every import and fills only the fields that are still blank.",
+    '<div class="f"><label for="rField">Look at</label><select id="rField">'+
+      '<option value="account">Account handle</option><option value="url">Link</option><option value="collection">Collection name</option></select></div>'+
+    '<div class="f"><label for="rContains">Contains this text</label><input id="rContains" placeholder="e.g. opsdaily"></div>'+
+    '<div class="msplit"><div class="f"><label for="rCat">Set category to</label><input id="rCat" list="catList" placeholder="e.g. Automation"></div>'+
+    '<div class="f"><label for="rSubj">Set subject to (optional)</label><input id="rSubj"></div></div>',
+    [{label:"Add rule",primary:true,act:function(){
+      var c=(($("rContains")||{}).value||"").trim();
+      if(!c){toast("Give the rule some text to match.");return;}
+      state.rules.push({id:"r"+Date.now(),field:(($("rField")||{}).value||"account"),contains:c,
+        category:(($("rCat")||{}).value||"").trim(),subject:(($("rSubj")||{}).value||"").trim()});
+      render();save();toast("Rule added. Run it on all rows to backfill.");
+    }},{label:"Cancel"}]);
+};
+$("btnRunRules").onclick=function(){
+  var n=applyRules(state.rows,false);
+  render();save();
+  toast(n?n+" blank field"+(n===1?"":"s")+" filled.":"Nothing left for the rules to fill.");
+};
+$("ruleList").addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest('[data-act="delrule"]');
+  if(!b)return;
+  var id=b.closest(".rule").getAttribute("data-id");
+  state.rules=state.rules.filter(function(r){return r.id!==id;});
+  render();save();
+});
+$("btnClear").onclick=function(){
+  modal("Clear the ledger?","Every row goes, and every subject and description you have written with them. Rules are kept.",
+    '<p style="font-size:13.5px;color:var(--slate);">Export first if you want a copy.</p>',
+    [{label:"Clear it",primary:true,act:function(){
+      state.rows=[];state.demo=false;ui.sel={};render();save();toast("Ledger cleared.");
+    }},{label:"Keep it"}]);
+};
+window.addEventListener("resize",autosize);
+
+/* ── boot ── */
+var cached=load();
+if(cached){
+  state.rows=cached.rows;
+  state.rules=(cached.rules&&cached.rules.length)?cached.rules:seedRules();
+  state.demo=!!cached.demo;
+}else{
+  state.rows=demoRows();state.rules=seedRules();state.demo=true;
+}
+render();
+})();
+</script>
+</body>
+</html>
