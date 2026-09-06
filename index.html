@@ -1,422 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Stack Consolidation Consulting | The Clear Stack</title>
-<meta name="description" content="The Clear Stack audits fragmented AI and SaaS stacks at companies of 50 to 500 people, cuts redundant tools, and connects the rest with Make.com.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="The Clear Stack">
-<meta property="og:locale" content="en_US">
-<meta property="og:title" content="AI Stack Consolidation Consulting | The Clear Stack">
-<meta property="og:description" content="The Clear Stack audits fragmented AI and SaaS stacks at companies of 50 to 500 people, cuts redundant tools, and connects the rest with Make.com.">
-<meta property="og:url" content="https://theclearstack.com/">
-<meta property="og:image" content="https://theclearstack.com/og-cover.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Clear Stack, AI clarity for mid-market companies">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AI Stack Consolidation Consulting | The Clear Stack">
-<meta name="twitter:description" content="The Clear Stack audits fragmented AI and SaaS stacks at companies of 50 to 500 people, cuts redundant tools, and connects the rest with Make.com.">
-<meta name="twitter:image" content="https://theclearstack.com/og-cover.png">
-<link rel="canonical" href="https://theclearstack.com/">
+  <meta charset="UTF-8">
+  <title>Interactive Digital Synthesis Disintegration</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0d0e15;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      font-family: sans-serif;
+    }
 
-<script type="application/ld+json">
-{"@context":"https://schema.org","@graph":[
-{"@type":"Organization","@id":"https://theclearstack.com/#organization","name":"The Clear Stack","url":"https://theclearstack.com/","logo":"https://theclearstack.com/logo.svg","description":"AI consolidation consulting for mid-market companies (50–500 employees). We audit fragmented AI and SaaS stacks, eliminate redundancy, and build Make.com automation that connects what remains.","founder":{"@id":"https://theclearstack.com/about#brian-burge"},"slogan":"AI clarity for mid-market companies","areaServed":{"@type":"Country","name":"United States"}},
-{"@type":"Person","@id":"https://theclearstack.com/about#brian-burge","name":"Brian Burge","jobTitle":"Founder","url":"https://theclearstack.com/about","worksFor":{"@id":"https://theclearstack.com/#organization"}},
-{"@type":"WebSite","@id":"https://theclearstack.com/#website","url":"https://theclearstack.com/","name":"The Clear Stack","publisher":{"@id":"https://theclearstack.com/#organization"},"inLanguage":"en-US"},
-{"@type":"WebPage","@id":"https://theclearstack.com/#webpage","url":"https://theclearstack.com/","name":"AI Stack Consolidation Consulting","description":"The Clear Stack audits fragmented AI and SaaS stacks at companies of 50 to 500 people, cuts redundant tools, and connects the rest with Make.com.","isPartOf":{"@id":"https://theclearstack.com/#website"},"about":{"@id":"https://theclearstack.com/#organization"},"primaryImageOfPage":"https://theclearstack.com/og-cover.png","inLanguage":"en-US"},
-{"@type":"Service","@id":"https://theclearstack.com/#service","name":"AI Consolidation Consulting","serviceType":"AI and SaaS stack consolidation and automation consulting","provider":{"@id":"https://theclearstack.com/#organization"},"areaServed":{"@type":"Country","name":"United States"},"description":"We audit your AI and SaaS stack, eliminate redundant tools, and build Make.com automation that connects what remains. A 90-day path to a consolidated, connected stack.","offers":[{"@type":"Offer","@id":"https://theclearstack.com/#offer-audit","name":"The Clear Stack Audit","price":"1500","priceCurrency":"USD","description":"Two-week stack audit: every tool mapped and priced, savings roadmap included. Fee credited in full toward implementation."}]}
-]}
-</script>
+    .container {
+      position: relative;
+      text-align: center;
+    }
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<style>
-/* ============================================================
-   1. TOKENS
-   ============================================================ */
-:root{
-  --ink:         #0A0A0A;
-  --ink-2:       #3D3D3D;
-  --ink-3:       #5C5C5C;
-  --ink-4:       #737373;
-  --rule:        #DAD7D2;
-  --paper:       #FBFAF8;
-  --surface:     #F2EFEA;
-  --logo-accent: #E07B2A;
-  --font-logo: 'Cormorant Garamond', Georgia, serif;
-  --font-mono: 'DM Mono', monospace;
-  --font: "Helvetica Neue", Helvetica, "Inter", "Segoe UI", Arial, sans-serif;
-  --fs-h1:    clamp(2.25rem, 8.5vw, 7.5rem);
-  --fs-lede:  clamp(1.0625rem, 1.6vw, 1.3125rem);
-  --fs-body:  1rem;
-  --fs-small: .8125rem;
-  --fs-label: .6875rem;
-  --lh-display: .88;
-  --lh-body:    1.65;
-  --ls-display: -.035em;
-  --ls-label:   .08em;
-  --s1:4px; --s2:8px;  --s3:12px;  --s4:16px;  --s5:24px;  --s6:32px;
-  --s7:48px; --s8:64px; --s9:96px; --s10:128px;
-  --margin: 20px;
-  --nav-h: 64px;
-  --maxw: 1440px;
-  --measure: 68ch;
-  --radius: 0;
-  --hair: 1px;
-  --dur: 150ms;
-  --ease: cubic-bezier(.2,0,0,1);
-}
-@media (min-width:768px){ :root{ --margin:32px; } }
-@media (min-width:1024px){ :root{ --margin:48px; } }
-@media (min-width:1440px){ :root{ --margin:64px; } }
-
-/* ============================================================
-   2. RESET AND BASE
-   ============================================================ */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{
-  scroll-behavior:smooth;
-  scroll-padding-top:calc(var(--nav-h) + var(--s5));
-  -webkit-text-size-adjust:100%;
-}
-body{
-  font-family:var(--font);
-  font-size:var(--fs-body);
-  line-height:var(--lh-body);
-  background:var(--paper);
-  color:var(--ink);
-  padding-top:var(--nav-h);
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-  position: relative;
-}
-img,svg{display:block;max-width:100%;}
-ul,ol{list-style:none;}
-a{color:inherit;}
-button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
-
-/* ============================================================
-   3. TYPOGRAPHY
-   ============================================================ */
-h1{
-  font-size:var(--fs-h1); font-weight:800;
-  line-height:var(--lh-display); letter-spacing:var(--ls-display);
-  color:var(--ink);
-  overflow-wrap:anywhere; hyphens:none;
-}
-p{color:var(--ink-2);max-width:var(--measure);}
-strong,.u-em{font-weight:800;color:var(--ink);}
-.lede{font-size:var(--fs-lede);line-height:1.55;letter-spacing:-.005em;color:var(--ink-2);}
-.small{font-size:var(--fs-small);line-height:1.5;color:var(--ink-3);}
-h1 br{display:none;}
-@media (min-width:768px){ h1 br{display:inline;} }
-
-/* ============================================================
-   4. LAYOUT & SKIP LINK
-   ============================================================ */
-.wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--margin);}
-
-.skip{
-  position:absolute;left:var(--margin);top:calc(var(--s2) * -12);
-  z-index:2100;background:var(--ink);color:var(--paper);
-  padding:var(--s3) var(--s5);font-size:var(--fs-small);font-weight:700;
-  text-decoration:none;
-}
-.skip:focus{top:var(--s2);}
-:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
-
-/* ============================================================
-   5. NAVIGATION
-   ============================================================ */
-#nav{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  height:var(--nav-h);
-  display:flex;align-items:center;justify-content:space-between;
-  gap:var(--s5);
-  padding-inline:var(--margin);
-  background:var(--paper);
-  border-bottom:var(--hair) solid var(--rule);
-}
-#nav.scrolled{border-bottom-color:var(--ink-4);}
-.nav-logo{display:flex;align-items:center;gap:var(--s3);text-decoration:none;flex-shrink:0;}
-.logo-wm{display:flex;flex-direction:column;line-height:1;gap:var(--s1);}
-.logo-name{
-  font-family:var(--font-logo);font-size:19px;font-weight:600;
-  color:var(--ink);letter-spacing:.01em;
-}
-.logo-name .logo-the{font-weight:600;}
-.logo-name .logo-clear{font-weight:700;color:var(--logo-accent);}
-.logo-tag{
-  font-family:var(--font);font-size:6.5px;letter-spacing:.14em;
-  color:var(--ink-3);text-transform:uppercase;
-}
-.nav-links{display:flex;align-items:center;gap:var(--s6);}
-.nav-links a{
-  font-size:var(--fs-label);letter-spacing:var(--ls-label);
-  text-transform:uppercase;color:var(--ink-3);text-decoration:none;
-  padding-block:var(--s2);
-  border-bottom:var(--hair) solid transparent;
-  transition:color var(--dur) var(--ease),border-color var(--dur) var(--ease);
-}
-.nav-links a:hover{color:var(--ink);border-bottom-color:var(--ink);}
-.nav-links a[aria-current="page"]{color:var(--ink);font-weight:500;border-bottom-color:var(--ink);}
-.nav-links a.nav-cta{color:var(--ink);font-weight:700;border-bottom-color:var(--ink);}
-.burger{
-  display:none;width:44px;height:44px;
-  align-items:center;justify-content:center;flex-direction:column;gap:5px;
-  margin-right:calc(var(--s3) * -1);
-}
-.burger span{display:block;width:22px;height:var(--hair);background:var(--ink);}
-#drawer{
-  display:none;position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;
-  z-index:999;background:var(--paper);
-  padding:var(--s6) var(--margin);
-  overflow-y:auto;
-}
-#drawer.open{display:block;}
-#drawer a{
-  display:block;padding:var(--s4) 0;min-height:56px;
-  font-size:1.25rem;font-weight:500;color:var(--ink);text-decoration:none;
-  border-bottom:var(--hair) solid var(--rule);
-}
-#drawer .d-cta{font-weight:800;}
-body.nav-lock{overflow:hidden;}
-@media (max-width:899px){
-  .js .nav-links{display:none;}
-  .js .burger{display:flex;}
-  .nav-links{
-    gap:var(--s5);overflow-x:auto;overscroll-behavior-x:contain;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch;
-  }
-  .nav-links::-webkit-scrollbar{display:none;}
-  .nav-links a{white-space:nowrap;}
-}
-
-/* ============================================================
-   6. HERO SECTION & INTERACTIVE CANVAS
-   ============================================================ */
-#hero{padding-top:var(--s8);padding-bottom:var(--s9);}
-@media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
-.hero-lower{display:grid;gap:var(--s7);margin-top:var(--s7);}
-@media (min-width:1024px){
-  .hero-lower{grid-template-columns:minmax(0,1fr) 420px;align-items:center;gap:var(--s8);}
-}
-.hero-answer{
-  border-left:2px solid var(--ink);
-  padding-left:var(--s5);
-  max-width:60ch;
-  color:var(--ink);
-}
-.hero-act{
-  display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5);
-  margin-top:var(--s7);
-}
-
-/* Interactive Canvas Container */
-.particle-container {
-  width: 100%;
-  max-width: 420px;
-  aspect-ratio: 4 / 3;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#synthesisCanvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-
-/* ============================================================
-   7. BUTTONS & MOTION
-   ============================================================ */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-height:48px;padding:var(--s4) var(--s6);
-  font-size:var(--fs-small);font-weight:500;
-  letter-spacing:var(--ls-label);text-transform:uppercase;
-  text-decoration:none;border-radius:var(--radius);
-  border:var(--hair) solid var(--ink);
-  transition:background-color var(--dur) var(--ease),color var(--dur) var(--ease);
-}
-.btn-primary{background:var(--ink);color:var(--paper);}
-.btn-primary:hover{background:var(--paper);color:var(--ink);}
-
-@media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto;}
-  *,*::before,*::after{
-    animation-duration:.01ms!important;animation-iteration-count:1!important;
-    transition-duration:.01ms!important;
-  }
-}
-</style>
+    canvas {
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0, 255, 200, 0.2);
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
-<a class="skip" href="#main">Skip to main content</a>
-
-<nav id="nav" aria-label="Primary">
-  <a href="/" class="nav-logo" aria-label="The Clear Stack, home">
-    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="bidx" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2550A8"/>
-          <stop offset="100%" stop-color="#193C82"/>
-        </linearGradient>
-        <linearGradient id="midx" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/>
-          <stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/>
-        </linearGradient>
-        <linearGradient id="tidx" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/>
-        </linearGradient>
-      </defs>
-      <polygon points="4,50 32,36 60,50 32,64" fill="url(#bidx)"/>
-      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
-      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
-      <polygon points="4,36 32,22 60,36 32,50" fill="url(#midx)"/>
-      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
-      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
-      <polygon points="4,22 32,8 60,22 32,36" fill="url(#tidx)"/>
-      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
-      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
-    </svg>
-    <span class="logo-wm">
-      <span class="logo-name"><span class="logo-the">the</span> <span class="logo-clear">clear</span> stack</span>
-      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
-    </span>
-  </a>
-  <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Open menu"><span></span><span></span><span></span></button>
-  <ul class="nav-links">
-    <li><a href="/" aria-current="page">What We Do</a></li>
-    <li><a href="/method">How It Works</a></li>
-    <li><a href="/usecases">Use Cases</a></li>
-    <li><a href="/about">Founder</a></li>
-    <li><a href="/lab/">Lab</a></li>
-    <li><a href="/contact" class="nav-cta">Work With Us</a></li>
-  </ul>
-</nav>
-<div class="drawer" id="drawer" hidden>
-  <ul>
-    <li><a href="/">What We Do</a></li>
-    <li><a href="/method">How It Works</a></li>
-    <li><a href="/usecases">Use Cases</a></li>
-    <li><a href="/about">Founder</a></li>
-    <li><a href="/lab/">Lab</a></li>
-    <li><a href="/contact" class="d-cta">Work With Us</a></li>
-  </ul>
+<div class="container">
+  <canvas id="synthesisCanvas"></canvas>
 </div>
 
-<main id="main">
-
-  <section id="hero" class="wrap">
-    <h1>Your AI stack <br>should work <br><span class="u-em">for you.</span> <br>Not against you.</h1>
-
-    <div class="hero-lower">
-      <div>
-        <p class="lede hero-answer">The Clear Stack is an AI consolidation consultancy for mid-market companies of 50 to 500 employees. Mid-market companies are drowning in disconnected, redundant AI tools. The Clear Stack audits the mess, cuts the waste, connects what matters, and hands you a stack that actually runs. Engagements start with a $1,500 stack audit, credited in full toward implementation.</p>
-        <div class="hero-act">
-          <a href="/contact" class="btn btn-primary">Start With a Stack Audit</a>
-          <span class="small">$1,500 &nbsp;&middot;&nbsp; credited in full toward implementation</span>
-        </div>
-      </div>
-      <div>
-        <div class="particle-container">
-          <canvas id="synthesisCanvas"></canvas>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</main>
-
 <script>
-(function(){
-  'use strict';
-  document.documentElement.classList.add('js');
-
-  /* Nav Scroll Effect */
-  var nav = document.getElementById('nav');
-  window.addEventListener('scroll', function(){
-    nav.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
-
-  /* Mobile Drawer */
-  var burger = document.getElementById('burger');
-  var drawer = document.getElementById('drawer');
-  function setDrawer(open){
-    drawer.classList.toggle('open', open);
-    drawer.hidden = !open;
-    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    document.body.classList.toggle('nav-lock', open);
-    if (open) {
-      var first = drawer.querySelector('a');
-      if (first) first.focus();
-    } else {
-      burger.focus();
-    }
-  }
-  burger.addEventListener('click', function(){
-    setDrawer(!drawer.classList.contains('open'));
-  });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && drawer.classList.contains('open')) setDrawer(false);
-  });
-  drawer.addEventListener('click', function(e){
-    if (e.target.tagName === 'A') setDrawer(false);
-  });
-  window.addEventListener('resize', function(){
-    if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
-  });
-
-  /* ============================================================
-     Interactive Particle Synthesis Canvas Logic
-     ============================================================ */
   const canvas = document.getElementById('synthesisCanvas');
   const ctx = canvas.getContext('2d');
 
-  const PARTICLE_SPACING = 3; 
-  const MOUSE_RADIUS = 100;   
-  const RETURN_SPEED = 0.08;  
+  // Configuration
+  const PARTICLE_SPACING = 3; // Adjust space between particles (smaller = more particles)
+  const MOUSE_RADIUS = 120;   // Area of effect around the mouse cursor
+  const RETURN_SPEED = 0.08;  // How quickly particles snap back (0.01 - 0.1)
+  const EASE_FACTOR = 0.1;
 
   let particles = [];
   let mouse = { x: null, y: null, active: false };
 
+  // Load the Image
   const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = "1.JPG"; // Using your primary image file
+  img.crossOrigin = "Anonymous"; // Allows canvas data extraction for external URLs
+  img.src = "YOUR_IMAGE_URL_HERE.jpg"; // Replace with your image path
 
   img.onload = () => {
+    // Set canvas dimensions matching the image
     canvas.width = img.width;
     canvas.height = img.height;
 
+    // Draw temporary image to read pixel data
     ctx.drawImage(img, 0, 0);
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Sample pixels to create ~1,000s of particles
     for (let y = 0; y < canvas.height; y += PARTICLE_SPACING) {
       for (let x = 0; x < canvas.width; x += PARTICLE_SPACING) {
         const index = (y * canvas.width + x) * 4;
         const alpha = imgData.data[index + 3];
 
+        // Skip fully transparent pixels
         if (alpha > 128) {
           const red = imgData.data[index];
           const green = imgData.data[index + 1];
           const blue = imgData.data[index + 2];
+          
           particles.push(new Particle(x, y, `rgb(${red},${green},${blue})`));
         }
       }
@@ -425,6 +82,7 @@ body.nav-lock{overflow:hidden;}
     animate();
   };
 
+  // Particle Class
   class Particle {
     constructor(x, y, color) {
       this.originX = x;
@@ -446,11 +104,13 @@ body.nav-lock{overflow:hidden;}
 
     update() {
       if (mouse.active) {
+        // Calculate distance between mouse and particle
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < MOUSE_RADIUS) {
+          // Push particles away from the cursor
           const angle = Math.atan2(dy, dx);
           const force = (MOUSE_RADIUS - distance) / MOUSE_RADIUS;
           const pushX = Math.cos(angle) * force * 15;
@@ -461,6 +121,7 @@ body.nav-lock{overflow:hidden;}
         }
       }
 
+      // Physics movement & return logic
       this.vx *= this.friction;
       this.vy *= this.friction;
 
@@ -469,48 +130,30 @@ body.nav-lock{overflow:hidden;}
     }
   }
 
+  // Animation Loop
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     for (let i = 0; i < particles.length; i++) {
       particles[i].update();
       particles[i].draw();
     }
+    
     requestAnimationFrame(animate);
   }
 
-  function updateMousePos(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    mouse.x = (clientX - rect.left) * scaleX;
-    mouse.y = (clientY - rect.top) * scaleY;
-    mouse.active = true;
-  }
-
+  // Track Mouse Interaction
   canvas.addEventListener('mousemove', (e) => {
-    updateMousePos(e.clientX, e.clientY);
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+    mouse.active = true;
   });
 
   canvas.addEventListener('mouseleave', () => {
     mouse.active = false;
   });
-
-  canvas.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 0) {
-      updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  canvas.addEventListener('touchmove', (e) => {
-    if (e.touches.length > 0) {
-      updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  canvas.addEventListener('touchend', () => {
-    mouse.active = false;
-  });
-})();
 </script>
+
 </body>
 </html>
