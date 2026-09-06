@@ -230,7 +230,8 @@ body.nav-lock{overflow:hidden;}
   aspect-ratio: 4 / 3;
   overflow: hidden;
   cursor: pointer;
-  perspective: 1000px;
+  background-color: var(--surface);
+  border-radius: 4px;
 }
 
 .brain-layer {
@@ -365,8 +366,17 @@ body.nav-lock{overflow:hidden;}
       <div>
         <!-- Mechanical Assembly & Disassembly Viewport -->
         <div class="brain-assembly-container" id="brainContainer">
-          <img class="brain-layer brain-assembled" src="./1.JPG" alt="Assembled Mechanical AI Brain">
-          <img class="brain-layer brain-exploded" src="./2.JPG" alt="Exploded Mechanical Brain Components">
+          <picture class="brain-layer brain-assembled">
+            <source srcset="1.JPG" type="image/jpeg">
+            <source srcset="1.jpg" type="image/jpeg">
+            <img src="1.JPG" alt="Assembled Mechanical AI Brain" onerror="this.onerror=null; this.src='1.jpg';">
+          </picture>
+          
+          <picture class="brain-layer brain-exploded">
+            <source srcset="2.JPG" type="image/jpeg">
+            <source srcset="2.jpg" type="image/jpeg">
+            <img src="2.JPG" alt="Exploded Mechanical Brain Components" onerror="this.onerror=null; this.src='2.jpg';">
+          </picture>
         </div>
       </div>
     </div>
