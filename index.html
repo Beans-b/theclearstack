@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & CANVAS / MEDIA GRID
+   6. HERO SECTION & HOVER EMBEDDED MEDIA
    ============================================================ */
 #hero{
   position: relative;
@@ -215,7 +215,7 @@ body.nav-lock{overflow:hidden;}
 }
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
 
-/* Particle/Node Canvas Background */
+/* Particle Canvas Background */
 #bgCanvas {
   position: absolute;
   top: 0;
@@ -253,26 +253,27 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Embedded Media Viewport */
-.media-container {
+/* Embedded Media Styles */
+.media-wrapper {
   position: relative;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border: var(--hair) solid var(--rule);
-  background: var(--surface);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
-.media-container video,
-.media-container img {
+.hover-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  mix-blend-mode: multiply; /* Blends light background into the canvas naturally */
+  border: none;
+  outline: none;
 }
 
 /* ============================================================
@@ -373,13 +374,11 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Right Column Media Component -->
+      <!-- Right Column Media Component (MP4 with Hover-Only Playback) -->
       <div>
-        <div class="media-container">
-          <video autoplay loop muted playsinline aria-label="3D Mechanical AI Brain disassembly animation">
+        <div class="media-wrapper" id="mediaWrapper">
+          <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain disassembly animation">
             <source src="davinci_deconstruction_animation_into_individual_mechanica.mp4" type="video/mp4">
-            <source src="mechanical-brain.mp4" type="video/mp4">
-            <img src="./1.JPG" alt="Assembled Mechanical AI Brain">
           </video>
         </div>
       </div>
@@ -428,7 +427,26 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Mouse-Controlled Interactive Canvas Animation */
+  /* Hover Playback Logic */
+  var mediaWrapper = document.getElementById('mediaWrapper');
+  var video = document.getElementById('brainVideo');
+
+  if (mediaWrapper && video) {
+    // Force initial frame preview
+    video.addEventListener('loadeddata', function() {
+      video.currentTime = 0;
+    });
+
+    mediaWrapper.addEventListener('mouseenter', function() {
+      video.play().catch(function(e){ console.log("Play interrupted:", e); });
+    });
+
+    mediaWrapper.addEventListener('mouseleave', function() {
+      video.pause();
+    });
+  }
+
+  /* Interactive Background Particle Canvas */
   var canvas = document.getElementById('bgCanvas');
   var heroSection = document.getElementById('hero');
   if (canvas && heroSection) {
