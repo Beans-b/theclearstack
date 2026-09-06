@@ -266,7 +266,7 @@ body.nav-lock{overflow:hidden;}
   cursor: pointer;
 }
 
-/* The multiply blend mode strips away light/grey backgrounds from the video */
+/* Blend mode strips away light/grey background colors from the MP4 */
 .hover-video {
   width: 100%;
   height: 100%;
@@ -375,11 +375,11 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
 
-      <!-- Video element with background blending -->
+      <!-- Updated Media Block pointing to renamed file with cache-buster -->
       <div>
         <div class="media-wrapper" id="mediaWrapper">
           <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain animation">
-            <source src="davinci_deconstruction_animation_into_individual_mechanica_2.mp4" type="video/mp4">
+            <source src="mechanical-brain.mp4?v=2" type="video/mp4">
           </video>
         </div>
       </div>
@@ -433,7 +433,7 @@ body.nav-lock{overflow:hidden;}
   var video = document.getElementById('brainVideo');
 
   if (mediaWrapper && video) {
-    // Pre-render the first frame so it acts as a static graphic on load
+    // Force pre-render of initial frame on load
     video.addEventListener('loadeddata', function() {
       video.currentTime = 0;
     });
