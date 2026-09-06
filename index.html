@@ -267,17 +267,17 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* 
-  FIX FOR GREY BACKGROUND:
-  Multiply removes white/light colors. Contrast & brightness filters 
-  push the light-grey background to pure white so multiply erases it completely.
+  UPDATED FIX FOR LIGHT GRAY BOX:
+  Using mix-blend-mode: darken combined with higher contrast/brightness 
+  forces off-white backgrounds to blend seamlessly into the site paper background.
 */
 .hover-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  mix-blend-mode: multiply;
-  filter: contrast(125%) brightness(108%);
+  mix-blend-mode: darken;
+  filter: contrast(130%) brightness(105%);
   border: none;
   outline: none;
 }
@@ -384,8 +384,7 @@ body.nav-lock{overflow:hidden;}
       <div>
         <div class="media-wrapper" id="mediaWrapper">
           <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain animation">
-            <source src="mechanical-brain.mp4?v=3" type="video/mp4">
-            <source src="mechanical-brain?v=3" type="video/mp4">
+            <source src="mechanical-brain?v=4" type="video/mp4">
           </video>
         </div>
       </div>
