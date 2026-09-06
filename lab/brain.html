@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Locker — The Clear Stack Lab</title>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta name="description" content="The Locker — drop your Instagram data export and get a working ledger of every saved post: subject, description, category, account and the original link, exported to CSV or Markdown in one click." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://theclearstack.com/lab/locker">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The Clear Stack" />
+  <meta property="og:title" content="The Locker — The Clear Stack Lab" />
+  <meta property="og:description" content="Drop your Instagram export. Get a ledger of every saved post, tagged and exportable. Nothing leaves your browser." />
+  <meta property="og:url" content="https://theclearstack.com/lab/locker" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="The Locker — The Clear Stack Lab" />
+  <meta name="twitter:description" content="Drop your Instagram export. Get a ledger of every saved post, tagged and exportable." />
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","@id":"https://theclearstack.com/lab/locker#app","name":"The Locker","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://theclearstack.com/lab/locker","description":"Turns an Instagram data export into a working ledger of saved posts with subject, description, category and original link. Runs entirely in the browser.","publisher":{"@id":"https://theclearstack.com/#organization"},"isPartOf":{"@id":"https://theclearstack.com/#website"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://theclearstack.com/"},{"@type":"ListItem","position":2,"name":"The Lab","item":"https://theclearstack.com/lab/"},{"@type":"ListItem","position":3,"name":"The Locker","item":"https://theclearstack.com/lab/locker"}]}
+]}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --navy:#0B1F4A; --navy2:#07152F; --orange:#E07B2A;
+      --white:#FFFFFF; --cream:#F7F4EF; --light:#F4F5F7;
+      --charcoal:#1A1A1A; --gray:#5A6478; --slate:#334155;
+      --live:#4A9E6B;
+      --border:rgba(11,31,74,0.10); --border2:rgba(11,31,74,0.18);
+      --shadow:0 2px 24px rgba(11,31,74,0.08); --shadow2:0 8px 48px rgba(11,31,74,0.13);
+      --radius:4px;
+      --font-head:'Cormorant Garamond',serif; --font-body:'Outfit',sans-serif; --font-mono:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;scrollbar-gutter:stable;overflow-y:scroll;}
+    body{background:var(--light);color:var(--charcoal);font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    button{font-family:var(--font-body);cursor:pointer;}
+    :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+    /* NAV */
+    nav{background:var(--navy);height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100;}
+    .nav-inner{max-width:1480px;margin:0 auto;width:100%;padding:0 40px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-logo{display:flex;align-items:center;gap:11px;}
+    .logo-wm{display:flex;flex-direction:column;line-height:1;gap:4px;}
+    .logo-name{font-family:var(--font-head);font-size:19px;font-weight:600;color:#F7F4EF;letter-spacing:.01em;}
+    .logo-name .logo-the{font-weight:600;color:#F7F4EF;}
+    .logo-name em{font-style:normal;font-weight:700;color:var(--orange);}
+    .logo-tag{font-family:var(--font-mono);font-size:6.5px;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+    .nav-links a{font-size:13px;font-weight:500;color:rgba(247,244,239,.6);letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:rgba(247,244,239,.95);}
+    .nav-links a.active{border-bottom:1px solid var(--orange);padding-bottom:2px;}
+    .nav-cta{background:var(--orange)!important;color:#fff!important;padding:9px 22px;border-radius:3px;font-size:13px!important;font-weight:600!important;transition:background .2s;}
+    .nav-cta:hover{background:#C96A1A!important;}
+    .burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px;}
+    .burger span{display:block;width:22px;height:2px;background:rgba(247,244,239,.7);border-radius:2px;}
+    .drawer{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:#07152F;z-index:999;padding:32px 24px;}
+    .drawer.open{display:block;}
+    .drawer ul{list-style:none;}
+    .drawer a{display:block;padding:18px 0;font-size:18px;font-weight:500;color:rgba(247,244,239,.75);border-bottom:1px solid rgba(255,255,255,.07);}
+    /* BREADCRUMB + SHELL */
+    .crumb{max-width:1180px;margin:0 auto;padding:20px 40px 0;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--gray);text-transform:uppercase;}
+    .crumb a:hover{color:var(--orange);}
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 40px 80px;}
+    .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:8px;}
+    h1{font-family:var(--font-head);font-size:44px;font-weight:600;color:var(--navy);letter-spacing:-.01em;line-height:1.05;}
+    .sub{color:var(--gray);font-size:16px;max-width:640px;margin-top:10px;}
+    .badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:3px;white-space:nowrap;}
+    .badge.local{background:rgba(74,158,107,.12);color:#2f7a4f;border:1px solid rgba(74,158,107,.35);}
+    
+    /* BRAIN IMAGE BANNER */
+    .brain-banner-card {
+      margin-top: 20px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .brain-banner-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* CARD */
+    .card{background:rgba(255,255,255,0.92);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px;margin-top:24px;backdrop-filter:blur(4px);}
+    .card > h2{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);
+      border-left:2px solid var(--orange);padding-left:9px;margin-bottom:16px;font-weight:500;}
+    .btn-primary{background:var(--orange);color:#fff;border:none;border-radius:3px;padding:13px 26px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:background .2s;display:inline-flex;align-items:center;gap:9px;}
+    .btn-primary:hover{background:#C96A1A;}
+    .btn-primary:disabled{opacity:.5;cursor:default;}
+    .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border2);border-radius:3px;padding:12px 20px;font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;transition:.2s;}
+    .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
+    .btn-sm{padding:8px 13px;font-size:11px;}
+    .hint{font-family:var(--font-mono);font-size:11px;color:var(--gray);margin-top:10px;letter-spacing:.03em;}
+    /* TABS */
+    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:22px;flex-wrap:wrap;}
+    .tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px;margin-bottom:-1px;
+      font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);transition:.15s;}
+    .tab:hover{color:var(--navy);}
+    .tab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--orange);font-weight:500;}
+    /* STEP 1 */
+    .stepgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+    .pane[hidden]{display:none;}
+    @media(max-width:860px){.stepgrid{grid-template-columns:1fr;}}
+    .steps{counter-reset:s;list-style:none;display:flex;flex-direction:column;gap:9px;}
+    .steps li{counter-increment:s;position:relative;padding-left:28px;font-size:13.5px;color:var(--slate);line-height:1.5;}
+    .steps li::before{content:counter(s);position:absolute;left:0;top:2px;width:19px;height:19px;border-radius:3px;
+      background:var(--cream);border:1px solid var(--border2);color:var(--gray);font-family:var(--font-mono);font-size:10px;
+      display:grid;place-items:center;}
+    .steps b{color:var(--navy);font-weight:600;}
+    .lock-note{background:var(--cream);border:1px dashed var(--border2);border-radius:4px;padding:14px 16px;color:var(--slate);font-size:13.5px;margin-top:16px;}
+    .lock-note b{color:var(--navy);}
+    /* DROPZONE */
+    .drop{border:1.5px dashed var(--border2);border-radius:4px;background:var(--cream);padding:30px 20px;text-align:center;cursor:pointer;transition:.18s;}
+    .drop:hover,.drop.hot{border-color:var(--orange);background:rgba(224,123,42,.06);}
+    .drop b{display:block;font-family:var(--font-head);font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+    .drop small{display:block;color:var(--gray);font-size:13px;max-width:380px;margin:0 auto;}
+    .drop .codes{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--gray);margin-top:11px;letter-spacing:.04em;}
+    /* STATS */
+    .stats{display:flex;flex-wrap:wrap;gap:0;margin-top:24px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+    .stat{flex:1 1 130px;padding:16px 20px;border-right:1px solid var(--border);}
+    .stat:last-child{border-right:0;}
+    .stat b{display:block;font-family:var(--font-mono);font-size:24px;font-weight:400;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.2;}
+    .stat span{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
+    /* TOOLBAR */
+    .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:24px;padding:14px 16px;background:rgba(255,255,255,0.92);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(4px);}
+    .toolbar input[type=search],.toolbar select{background:var(--light);border:1px solid var(--border2);border-radius:4px;padding:9px 12px;font-size:14px;font-family:var(--font-body);outline:none;color:var(--charcoal);}
+    .toolbar input[type=search]{flex:1 1 220px;min-width:160px;}
+    .selcount{font-family:var(--font-mono);font-size:11px;color:var(--gray);letter-spacing:.05em;margin-left:auto;}
+    /* TABLE */
+    .tablewrap{margin-top:16px;overflow-x:auto;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(4px);}
+    table{border-collapse:collapse;width:100%;min-width:860px;}
+    thead th{background:var(--cream);text-align:left;font-family:var(--font-mono);font-size:10px;
+      letter-spacing:.1em;text-transform:uppercase;color:var(--gray);font-weight:500;padding:11px 12px;
+      border-bottom:1px solid var(--border2);white-space:nowrap;cursor:pointer;user-select:none;}
+    thead th.nosort{cursor:default;}
+    thead th .arrow{color:var(--orange);margin-left:4px;}
+    tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+    tbody tr:hover{background:var(--cream);}
+    tbody tr.sel{background:rgba(224,123,42,.07);}
+    tbody tr:last-child td{border-bottom:0;}
+    td.c-move{width:30px;padding:9px 0 9px 10px;}
+    td.c-check{width:30px;padding-top:13px;}
+    td.c-subj{width:230px;} td.c-desc{width:360px;} td.c-cat{width:130px;} td.c-src{width:110px;}
+    .srccell{display:flex;flex-direction:column;gap:3px;font-family:var(--font-mono);font-size:10.5px;color:var(--gray);line-height:1.35;}
+    .srccell b{font-weight:500;color:var(--slate);}
+    .linkcell{font-family:var(--font-mono);font-size:11px;color:var(--orange);word-break:break-all;line-height:1.4;display:block;max-width:280px;}
+    .linkcell:hover{text-decoration:underline;}
+    .cellin{width:100%;border:1px solid transparent;background:transparent;border-radius:3px;padding:5px 7px;
+      font-size:14px;font-family:var(--font-body);color:var(--charcoal);outline:none;}
+    .cellin:hover{border-color:var(--border);}
+    .cellin:focus{border-color:var(--orange);background:var(--white);}
+    textarea.cellin{resize:vertical;min-height:32px;line-height:1.45;overflow:auto;}
+    textarea.cellin.subj{font-weight:500;color:var(--navy);}
+    .cellin.blank{background:repeating-linear-gradient(135deg,transparent,transparent 7px,rgba(224,123,42,.07) 7px,rgba(224,123,42,.07) 14px);}
+    .acct{font-family:var(--font-mono);font-size:12.5px;color:var(--navy);white-space:nowrap;}
+    .when{font-family:var(--font-mono);font-size:11.5px;color:var(--gray);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    .src{display:inline-block;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap;}
+    .src.saved{background:rgba(37,80,168,.12);color:#2550A8;}
+    .src.liked{background:rgba(90,100,120,.12);color:var(--gray);}
+    .src.collection{background:rgba(74,158,107,.14);color:#2f7a4f;}
+    .src.example{background:rgba(224,123,42,.14);color:#b5641f;}
+    .src.favorite{background:rgba(224,123,42,.14);color:#b5641f;}
+    .src.playlist{background:rgba(37,80,168,.12);color:#2550A8;}
+    .plat{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--slate);white-space:nowrap;
+      border-left:2px solid var(--border2);padding-left:7px;display:inline-block;}
+    .plat.instagram{border-left-color:#C13584;}
+    .plat.tiktok{border-left-color:#25F4EE;}
+    .plat.youtube{border-left-color:#FF0000;}
+    .notice{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:rgba(247,244,239,0.92);border:1px dashed var(--border2);
+      border-radius:4px;padding:13px 16px;margin-top:24px;font-size:13.5px;color:var(--slate);backdrop-filter:blur(4px);}
+    .notice b{color:var(--navy);}
+    footer{background:var(--navy2);color:rgba(247,244,239,.6);padding:34px 40px;text-align:center;font-size:12px;font-family:var(--font-mono);letter-spacing:.05em;}
+    footer a:hover{color:var(--orange);}
+    @media(max-width:760px){
+      .nav-links{display:none;} .burger{display:flex;}
+      .wrap{padding:22px 20px 60px;} .crumb{padding:16px 20px 0;} h1{font-size:34px;}
+      thead th{top:0;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Interactive 3D Mouse-Driven Brain Container Background -->
+<div id="brain-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.65;"></div>
+
+<nav>
+  <div class="nav-inner">
+  <a href="/" class="nav-logo">
+    <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="btls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2550A8"/><stop offset="100%" stop-color="#193C82"/></linearGradient>
+        <linearGradient id="mtls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3A6ACC" stop-opacity="0.9"/><stop offset="100%" stop-color="#2550A8" stop-opacity="0.75"/></linearGradient>
+        <linearGradient id="ttls" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7AB0E8" stop-opacity="0.55"/><stop offset="100%" stop-color="#4A7FCC" stop-opacity="0.15"/></linearGradient>
+      </defs>
+      <polygon points="4,50 32,36 60,50 32,64" fill="url(#btls)"/>
+      <polygon points="4,50 4,57 32,71 32,64" fill="#0B2560"/>
+      <polygon points="60,50 60,57 32,71 32,64" fill="#153070"/>
+      <polygon points="4,36 32,22 60,36 32,50" fill="url(#mtls)"/>
+      <polygon points="4,36 4,43 32,57 32,50" fill="#1A3880" opacity="0.55"/>
+      <polygon points="60,36 60,43 32,57 32,50" fill="#2248A0" opacity="0.45"/>
+      <polygon points="4,22 32,8 60,22 32,36" fill="url(#ttls)"/>
+      <polygon points="4,22 4,29 32,43 32,36" fill="#4A7FCC" opacity="0.2"/>
+      <polygon points="60,22 60,29 32,43 32,36" fill="#5A8FD8" opacity="0.15"/>
+    </svg>
+    <div class="logo-wm">
+      <span class="logo-name"><span class="logo-the">the</span> <em>clear</em> stack</span>
+      <span class="logo-tag">AI CLARITY. BUILT TO SCALE.</span>
+    </div>
+  </a>
+  <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a href="/">What We Do</a></li>
+    <li><a href="/method">How It Works</a></li>
+    <li><a href="/usecases">Use Cases</a></li>
+    <li><a href="/about">Founder</a></li>
+    <li><a href="/lab/" class="active">Lab</a></li>
+  </ul>
+  <a href="/contact" class="nav-cta">Work With Us</a>
+  </div>
+</nav>
+
+<div class="crumb"><a href="/">Home</a> / <a href="/lab/">The Lab</a> / The Locker</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <h1>The Locker</h1>
+      <p class="sub">Everything you have ever bookmarked on Instagram, TikTok and YouTube, stowed in one ledger.</p>
+    </div>
+    <span class="badge local">Runs in your browser</span>
+  </div>
+
+  <!-- Embedded Showcase Image Card -->
+  <div class="brain-banner-card">
+    <img src="Gemini_Generated_Image_8n7trd8n7trd8n7t.jpg" alt="Mind Unified - Neural Syntheses, Assemblies, and Sculptures of Thought" />
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <h2>Step 1 — Request the export</h2>
+    <div class="stepgrid">
+      <div>
+        <a class="btn-primary" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Open Instagram export &rarr;</a>
+        <p class="hint">accountscenter.instagram.com/info_and_permissions/dyi</p>
+      </div>
+      <ol class="steps">
+        <li>Sign in if prompted, then choose <b>Download or transfer information</b></li>
+        <li>Choose <b>Download to device</b>, date range <b>All time</b>, and set format to <b>JSON</b></li>
+        <li>Drop the downloaded zip file below.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <h2>Step 2 — Drop the file</h2>
+    <div class="drop" id="drop">
+      <b>Drop the export here</b>
+      <small>The whole <code>.zip</code> file from Instagram, TikTok, or YouTube.</small>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 The Clear Stack · <a href="https://theclearstack.com">theclearstack.com</a></footer>
+
+<!-- Interactive Mouse-Driven 3D Brain Script -->
+<script>
+(function() {
+  const container = document.getElementById('brain-container');
+  if (!container || typeof THREE === 'undefined') return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  const brainGroup = new THREE.Group();
+
+  // Mouse Tracking Target Variables
+  let targetRotationX = 0;
+  let targetRotationY = 0;
+  let mouseX = 0;
+  let mouseY = 0;
+
+  const windowHalfX = window.innerWidth / 2;
+  const windowHalfY = window.innerHeight / 2;
+
+  // Track Mouse Movement across the entire window
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX - windowHalfX);
+    mouseY = (event.clientY - windowHalfY);
+
+    // Map mouse position to rotation targets
+    targetRotationY = (mouseX / windowHalfX) * (Math.PI / 2);
+    targetRotationX = (mouseY / windowHalfY) * (Math.PI / 4);
+  });
+
+  // Construct Brain Geometry Points
+  function createBrainPoints() {
+    const points = [];
+    const count = 3800;
+
+    for (let i = 0; i < count; i++) {
+      let u = Math.random() * Math.PI * 2;
+      let v = Math.random() * Math.PI - (Math.PI / 2);
+      
+      let x = 2.0 * Math.cos(v) * Math.cos(u);
+      let y = 1.6 * Math.sin(v);
+      let z = 2.4 * Math.cos(v) * Math.sin(u);
+
+      const hemisphereGap = 0.28;
+      if (x > 0) x += hemisphereGap;
+      else x -= hemisphereGap;
+
+      const foldFrequency = 6.5;
+      const foldDepth = 0.18 * Math.sin(x * foldFrequency) * Math.cos(y * foldFrequency) * Math.sin(z * foldFrequency);
+      
+      x += foldDepth;
+      y += foldDepth;
+      z += foldDepth;
+
+      if (y < -0.6 && z < -0.4) {
+        y -= 0.3;
+        z -= 0.2;
+      }
+
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    return points;
+  }
+
+  // 1. Synapses Node System
+  const brainPoints = createBrainPoints();
+  const geometry = new THREE.BufferGeometry().setFromPoints(brainPoints);
+
+  const particleMaterial = new THREE.PointsMaterial({
+    color: 0xE07B2A,
+    size: 0.045,
+    transparent: true,
+    opacity: 0.85
+  });
+
+  const particleSystem = new THREE.Points(geometry, particleMaterial);
+  brainGroup.add(particleSystem);
+
+  // 2. Wireframe Cortex Overlay
+  const wireframeMaterial = new THREE.MeshBasicMaterial({
+    color: 0x0B1F4A,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.15
+  });
+
+  const brainMeshGeometry = new THREE.IcosahedronGeometry(2.1, 4);
+  const pos = brainMeshGeometry.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let vx = pos.getX(i);
+    let vy = pos.getY(i);
+    let vz = pos.getZ(i);
+
+    vx *= 1.15;
+    vy *= 0.8;
+    vz *= 1.25;
+
+    const wrinkle = 0.12 * Math.sin(vx * 7.0) * Math.cos(vy * 7.0);
+    pos.setXYZ(i, vx + wrinkle, vy + wrinkle, vz + wrinkle);
+  }
+  brainMeshGeometry.computeVertexNormals();
+
+  const wireframeMesh = new THREE.Mesh(brainMeshGeometry, wireframeMaterial);
+  brainGroup.add(wireframeMesh);
+
+  scene.add(brainGroup);
+  camera.position.set(0, 0, 5.5);
+
+  // Render Loop with Linear Interpolation for Smooth Mouse Direction Movement
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Smooth transition toward mouse targets
+    brainGroup.rotation.y += (targetRotationY - brainGroup.rotation.y) * 0.05;
+    brainGroup.rotation.x += (targetRotationX - brainGroup.rotation.x) * 0.05;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+</script>
+</body>
+</html>
