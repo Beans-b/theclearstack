@@ -35,11 +35,10 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WYQ7R625ZT"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WYQ7R625ZT');</script>
 
-<!-- Fonts & Three.js Library -->
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
 /* ============================================================
@@ -204,13 +203,13 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & INTERACTIVE BRAIN
+   6. HERO SECTION & MECHANICAL BRAIN ASSEMBLY ANIMATION
    ============================================================ */
 #hero{padding-top:var(--s8);padding-bottom:var(--s9);}
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
 .hero-lower{display:grid;gap:var(--s7);margin-top:var(--s7);}
 @media (min-width:1024px){
-  .hero-lower{grid-template-columns:minmax(0,1fr) 380px;align-items:center;gap:var(--s8);}
+  .hero-lower{grid-template-columns:minmax(0,1fr) 420px;align-items:center;gap:var(--s8);}
 }
 .hero-answer{
   border-left:2px solid var(--ink);
@@ -223,46 +222,48 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Interactive Digital Synthesis 3D Brain Viewport */
-.brain-viewport {
+/* Mechanical Assembly Interactive Viewport */
+.brain-assembly-container {
   position: relative;
   width: 100%;
-  max-width: 380px;
-  height: 320px;
-  border-radius: 8px;
+  max-width: 420px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: radial-gradient(circle at center, #071c26 0%, #040d12 100%);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-  cursor: grab;
-  user-select: none;
+  cursor: pointer;
+  perspective: 1000px;
 }
 
-.brain-viewport:active {
-  cursor: grabbing;
-}
-
-.brain-canvas-container {
+.brain-layer {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
-.brain-overlay-title {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  z-index: 2;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: #25F4EE;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(37, 244, 238, 0.6);
-  background: rgba(4, 13, 18, 0.75);
-  padding: 5px 12px;
-  border-radius: 4px;
-  border: 1px solid rgba(37, 244, 238, 0.3);
-  backdrop-filter: blur(6px);
-  pointer-events: none;
+.brain-assembled {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.brain-exploded {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+/* Hover and Touch Active States */
+.brain-assembly-container:hover .brain-assembled,
+.brain-assembly-container.is-active .brain-assembled {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.brain-assembly-container:hover .brain-exploded,
+.brain-assembly-container.is-active .brain-exploded {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* ============================================================
@@ -362,10 +363,10 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
       <div>
-        <!-- Interactive 3D Digital Synthesis Brain Viewport -->
-        <div class="brain-viewport" id="brainViewport">
-          <div class="brain-canvas-container" id="canvasContainer"></div>
-          <div class="brain-overlay-title">The Digital Synthesis</div>
+        <!-- Mechanical Assembly & Disassembly Viewport -->
+        <div class="brain-assembly-container" id="brainContainer">
+          <img class="brain-layer brain-assembled" src="1.JPG" alt="Assembled Mechanical AI Brain">
+          <img class="brain-layer brain-exploded" src="2.JPG" alt="Exploded Mechanical Brain Components">
         </div>
       </div>
     </div>
@@ -413,149 +414,12 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Real-time Interactive 3D Brain Neural Mesh (Three.js) */
-  var container = document.getElementById('canvasContainer');
-  var viewport = document.getElementById('brainViewport');
-
-  if (container && viewport && typeof THREE !== 'undefined') {
-    var width = container.clientWidth;
-    var height = container.clientHeight;
-
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    var brainGroup = new THREE.Group();
-    scene.add(brainGroup);
-
-    // Generate Volumetric Brain Point Mesh
-    var particleCount = 2800;
-    var positions = [];
-    var colors = [];
-    var color1 = new THREE.Color(0x25F4EE); // Digital Green/Cyan
-    var color2 = new THREE.Color(0x2550A8); // Stack Deep Blue
-
-    for (var i = 0; i < particleCount; i++) {
-      var u = Math.random() * Math.PI * 2;
-      var v = Math.random() * Math.PI - (Math.PI / 2);
-
-      // Dual Hemisphere Anatomical Shape
-      var rx = 1.6 * Math.cos(v) * Math.cos(u);
-      var ry = 1.25 * Math.sin(v);
-      var rz = 1.85 * Math.cos(v) * Math.sin(u);
-
-      // Separate Left & Right Hemispheres
-      rx += (rx > 0 ? 0.22 : -0.22);
-
-      // Neural Sulci & Gyri Folding Noise
-      var fold = 0.16 * Math.sin(rx * 7) * Math.cos(ry * 7) * Math.sin(rz * 7);
-
-      var px = rx + fold;
-      var py = ry + fold;
-      var pz = rz + fold;
-
-      positions.push(px, py, pz);
-
-      // Gradient Color blend across coordinates
-      var mixedColor = color1.clone().lerp(color2, (py + 1.2) / 2.4);
-      colors.push(mixedColor.r, mixedColor.g, mixedColor.b);
-    }
-
-    var geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-    var material = new THREE.PointsMaterial({
-      size: 0.04,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.85
-    });
-
-    var particleSystem = new THREE.Points(geometry, material);
-    brainGroup.add(particleSystem);
-
-    camera.position.z = 4.2;
-
-    // Interactive Drag & Parallax Physics
-    var isDragging = false;
-    var previousMousePosition = { x: 0, y: 0 };
-    var targetRotationX = 0;
-    var targetRotationY = 0;
-
-    viewport.addEventListener('mousedown', function(e) {
-      isDragging = true;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
-    });
-
-    window.addEventListener('mouseup', function() {
-      isDragging = false;
-    });
-
-    viewport.addEventListener('mousemove', function(e) {
-      if (isDragging) {
-        var deltaX = e.clientX - previousMousePosition.x;
-        var deltaY = e.clientY - previousMousePosition.y;
-
-        targetRotationY += deltaX * 0.01;
-        targetRotationX += deltaY * 0.01;
-
-        previousMousePosition = { x: e.clientX, y: e.clientY };
-      }
-    });
-
-    // Touch Support
-    viewport.addEventListener('touchstart', function(e) {
-      if (e.touches.length === 1) {
-        isDragging = true;
-        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      }
-    });
-
-    window.addEventListener('touchend', function() {
-      isDragging = false;
-    });
-
-    viewport.addEventListener('touchmove', function(e) {
-      if (isDragging && e.touches.length === 1) {
-        var deltaX = e.touches[0].clientX - previousMousePosition.x;
-        var deltaY = e.touches[0].clientY - previousMousePosition.y;
-
-        targetRotationY += deltaX * 0.01;
-        targetRotationX += deltaY * 0.01;
-
-        previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      }
-    });
-
-    // Resize Handler
-    window.addEventListener('resize', function() {
-      width = container.clientWidth;
-      height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    });
-
-    // Render & Animation Loop
-    function render() {
-      requestAnimationFrame(render);
-
-      if (!isDragging) {
-        targetRotationY += 0.003; // Smooth Ambient Rotation
-      }
-
-      brainGroup.rotation.y += (targetRotationY - brainGroup.rotation.y) * 0.08;
-      brainGroup.rotation.x += (targetRotationX - brainGroup.rotation.x) * 0.08;
-
-      renderer.render(scene, camera);
-    }
-
-    render();
+  /* Touch Toggle Support for Mobile */
+  var brainContainer = document.getElementById('brainContainer');
+  if (brainContainer) {
+    brainContainer.addEventListener('touchstart', function(e) {
+      this.classList.toggle('is-active');
+    }, { passive: true });
   }
 })();
 </script>
