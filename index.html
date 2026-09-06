@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & ANIMATED CANVAS BACKGROUND
+   6. HERO SECTION & INTERACTIVE MOUSE-CONTROLLED CANVAS
    ============================================================ */
 #hero{
   position: relative;
@@ -215,7 +215,7 @@ body.nav-lock{overflow:hidden;}
 }
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
 
-/* Particle/Node Canvas Animation Background */
+/* Particle/Node Canvas Background */
 #bgCanvas {
   position: absolute;
   top: 0;
@@ -224,7 +224,7 @@ body.nav-lock{overflow:hidden;}
   height: 100%;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 .hero-lower{
@@ -390,37 +390,70 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Background Animation Loop */
+  /* Mouse-Controlled Interactive Canvas Animation */
   var canvas = document.getElementById('bgCanvas');
-  if (canvas) {
+  var heroSection = document.getElementById('hero');
+  if (canvas && heroSection) {
     var ctx = canvas.getContext('2d');
     var width, height;
     var particles = [];
+    var mouse = { x: -1000, y: -1000, active: false };
+
+    // Palette of vibrant colors
+    var colors = [
+      { r: 224, g: 123, b: 42 },   // Orange
+      { r: 58,  g: 106, b: 204 },  // Blue
+      { r: 122, g: 176, b: 232 },  // Light Blue
+      { r: 155, g: 89,  b: 182 },  // Purple
+      { r: 46,  g: 204, b: 113 }   // Emerald
+    ];
 
     function resize() {
-      width = canvas.width = canvas.offsetWidth;
-      height = canvas.height = canvas.offsetHeight;
+      width = canvas.width = heroSection.offsetWidth;
+      height = canvas.height = heroSection.offsetHeight;
     }
 
     function Particle() {
       this.x = Math.random() * width;
       this.y = Math.random() * height;
-      this.vx = (Math.random() - 0.5) * 0.6;
-      this.vy = (Math.random() - 0.5) * 0.6;
-      this.radius = Math.random() * 1.8 + 1;
+      this.baseVx = (Math.random() - 0.5) * 0.8;
+      this.baseVy = (Math.random() - 0.5) * 0.8;
+      this.vx = this.baseVx;
+      this.vy = this.baseVy;
+      this.radius = Math.random() * 2 + 1.2;
+      this.color = colors[Math.floor(Math.random() * colors.length)];
     }
 
     Particle.prototype.update = function() {
+      // Mouse interaction: push/pull particles near mouse
+      if (mouse.active) {
+        var dx = mouse.x - this.x;
+        var dy = mouse.y - this.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var maxDist = 160;
+
+        if (dist < maxDist) {
+          var force = (1 - dist / maxDist) * 1.5;
+          this.vx += (dx / dist) * force * 0.15;
+          this.vy += (dy / dist) * force * 0.15;
+        }
+      }
+
+      // Smooth dampening towards base speed
+      this.vx += (this.baseVx - this.vx) * 0.05;
+      this.vy += (this.baseVy - this.vy) * 0.05;
+
       this.x += this.vx;
       this.y += this.vy;
-      if (this.x < 0 || this.x > width) this.vx *= -1;
-      if (this.y < 0 || this.y > height) this.vy *= -1;
+
+      if (this.x < 0 || this.x > width) this.baseVx *= -1;
+      if (this.y < 0 || this.y > height) this.baseVy *= -1;
     };
 
     function initParticles() {
       resize();
       particles = [];
-      var count = Math.floor((width * height) / 12000);
+      var count = Math.floor((width * height) / 9000);
       for (var i = 0; i < count; i++) {
         particles.push(new Particle());
       }
@@ -428,31 +461,58 @@ body.nav-lock{overflow:hidden;}
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
+
       for (var i = 0; i < particles.length; i++) {
         var p = particles[i];
         p.update();
+
+        // Check proximity to mouse to increase particle glow
+        var distToMouse = Math.sqrt(Math.pow(mouse.x - p.x, 2) + Math.pow(mouse.y - p.y, 2));
+        var mouseAlpha = (mouse.active && distToMouse < 180) ? 0.9 : 0.5;
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(224, 123, 42, 0.45)';
+        ctx.fillStyle = 'rgba(' + p.color.r + ',' + p.color.g + ',' + p.color.b + ',' + mouseAlpha + ')';
         ctx.fill();
 
+        // Connect nearby particles with gradient lines
         for (var j = i + 1; j < particles.length; j++) {
           var p2 = particles[j];
           var dx = p.x - p2.x;
           var dy = p.y - p2.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 110) {
+
+          if (dist < 120) {
+            var alpha = (1 - dist / 120) * 0.35;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = 'rgba(58, 106, 204, ' + (1 - dist / 110) * 0.25 + ')';
-            ctx.lineWidth = 0.8;
+            
+            // Blend colors between connected nodes
+            var midR = Math.round((p.color.r + p2.color.r) / 2);
+            var midG = Math.round((p.color.g + p2.color.g) / 2);
+            var midB = Math.round((p.color.b + p2.color.b) / 2);
+            
+            ctx.strokeStyle = 'rgba(' + midR + ',' + midG + ',' + midB + ',' + alpha + ')';
+            ctx.lineWidth = 1;
             ctx.stroke();
           }
         }
       }
       requestAnimationFrame(animate);
     }
+
+    // Mouse events
+    heroSection.addEventListener('mousemove', function(e) {
+      var rect = heroSection.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+      mouse.active = true;
+    });
+
+    heroSection.addEventListener('mouseleave', function() {
+      mouse.active = false;
+    });
 
     window.addEventListener('resize', resize);
     initParticles();
