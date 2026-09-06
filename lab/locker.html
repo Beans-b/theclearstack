@@ -87,8 +87,15 @@
     .btn-ghost:hover{border-color:var(--orange);color:var(--orange);}
     .btn-sm{padding:8px 13px;font-size:11px;}
     .hint{font-family:var(--font-mono);font-size:11px;color:var(--gray);margin-top:10px;letter-spacing:.03em;}
+    /* TABS */
+    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:22px;flex-wrap:wrap;}
+    .tab{background:none;border:none;border-bottom:2px solid transparent;padding:9px 16px;margin-bottom:-1px;
+      font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);transition:.15s;}
+    .tab:hover{color:var(--navy);}
+    .tab[aria-selected="true"]{color:var(--navy);border-bottom-color:var(--orange);font-weight:500;}
     /* STEP 1 */
     .stepgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+    .pane[hidden]{display:none;}
     @media(max-width:860px){.stepgrid{grid-template-columns:1fr;}}
     .steps{counter-reset:s;list-style:none;display:flex;flex-direction:column;gap:9px;}
     .steps li{counter-increment:s;position:relative;padding-left:28px;font-size:13.5px;color:var(--slate);line-height:1.5;}
@@ -142,6 +149,13 @@
     .src.liked{background:rgba(90,100,120,.12);color:var(--gray);}
     .src.collection{background:rgba(74,158,107,.14);color:#2f7a4f;}
     .src.example{background:rgba(224,123,42,.14);color:#b5641f;}
+    .src.favorite{background:rgba(224,123,42,.14);color:#b5641f;}
+    .src.playlist{background:rgba(37,80,168,.12);color:#2550A8;}
+    .plat{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--slate);white-space:nowrap;
+      border-left:2px solid var(--border2);padding-left:7px;display:inline-block;}
+    .plat.instagram{border-left-color:#C13584;}
+    .plat.tiktok{border-left-color:#25F4EE;}
+    .plat.youtube{border-left-color:#FF0000;}
     .link{font-family:var(--font-mono);font-size:11.5px;color:var(--orange);white-space:nowrap;}
     .link:hover{text-decoration:underline;}
     .blankstate{padding:44px 20px;text-align:center;color:var(--gray);font-size:14px;}
@@ -235,7 +249,7 @@
   <div class="hero">
     <div>
       <h1>The Locker</h1>
-      <p class="sub">Everything you have ever bookmarked on Instagram, stowed in one ledger. Request the export, drop the file, and get subject, description, category, account and the original link for every saved post — tagged automatically and exported in one click.</p>
+      <p class="sub">Everything you have ever bookmarked on Instagram, TikTok and YouTube, stowed in one ledger. Request the export, drop the file, and get subject, description, category and the original link for every saved post — three platforms merged into one table, tagged automatically and exported in one click.</p>
     </div>
     <span class="badge local">Runs in your browser</span>
   </div>
@@ -243,25 +257,82 @@
   <!-- STEP 1 -->
   <div class="card">
     <h2>Step 1 — Request the export</h2>
-    <div class="stepgrid">
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="tab" role="tab" data-p="ig" aria-selected="true">Instagram</button>
+      <button class="tab" role="tab" data-p="tt" aria-selected="false">TikTok</button>
+      <button class="tab" role="tab" data-p="yt" aria-selected="false">YouTube</button>
+    </div>
+
+    <div class="stepgrid pane" data-pane="ig">
       <div>
-        <a class="btn-primary" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Open the export request &rarr;</a>
-        <p class="hint">Opens Instagram Accounts Center in a new tab. You stay signed in to Instagram; nothing is shared with this page.</p>
-        <div class="lock-note">
-          <b>Why this is not fully automatic.</b> Instagram has never exposed saved posts through any API, and the export
-          download link only works inside your own logged-in session. Any tool that claims one-click retrieval is driving
-          your logged-in browser, which breaks Meta's terms and puts the account at risk. This button removes every step
-          that can be removed; the rest of the automation happens once the file is in hand.
+        <a class="btn-primary" href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank" rel="noopener noreferrer">Open Instagram export &rarr;</a>
+        <p class="hint">accountscenter.instagram.com/info_and_permissions/dyi</p>
+        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
+          <b>Not under Your Activity.</b> The export lives in <b>Accounts Center</b>, a different area of settings. If you
+          land on a page listing profile changes — phone number, bio, privacy — you are in Your Activity &rarr; Account
+          history and the export is not there. Go back to Settings and open Accounts Center at the top.
         </div>
+        <p class="hint">Gives you: permalink, date saved, and <b>the full caption</b>. Ready in about an hour.</p>
       </div>
       <ol class="steps">
         <li>Sign in if prompted, then choose <b>Download or transfer information</b></li>
-        <li>Pick your Instagram account &rarr; <b>Some of your information</b></li>
-        <li>Under Your Instagram activity, tick <b>Saved posts</b> (add Likes and Collections if you want them logged too)</li>
-        <li>Choose <b>Download to device</b>, date range <b>All time</b>, format <b>JSON</b></li>
-        <li>Submit, then watch for Meta's email — usually under an hour</li>
+        <li>Pick your Instagram account, then <b>Some of your information</b> — not All available information, which pulls every photo you have ever posted</li>
+        <li>Scroll to the <b>Your Instagram activity</b> group and tick <b>Saved posts</b>. It sits inside that group, not at the top level, and is easy to scroll past. Add Likes and Collections if you want them logged too.</li>
+        <li>Choose <b>Download to device</b>, date range <b>All time</b>, and switch format to <b>JSON</b> — it defaults to HTML on some accounts, and HTML carries no dates or account names</li>
+        <li>Submit, then watch for Meta's email</li>
         <li>Come back here and drop the zip below. No need to unzip it.</li>
       </ol>
+    </div>
+
+    <div class="stepgrid pane" data-pane="tt" hidden>
+      <div>
+        <a class="btn-primary" href="https://www.tiktok.com/setting/download-your-data" target="_blank" rel="noopener noreferrer">Open TikTok export &rarr;</a>
+        <p class="hint">tiktok.com/setting/download-your-data</p>
+        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
+          <b>Watch the clock on this one.</b> The file takes one to four days to build, and TikTok's own terms allow up to
+          thirty. Once it is ready the download link <b>expires after four days</b>. Miss that window and you start the
+          request over.
+        </div>
+        <p class="hint">Looking for bookmarks? TikTok calls them <b>Favorites</b>. There is no category by any other name.</p>
+        <p class="hint">Gives you: link and date only — no account name, no caption.</p>
+      </div>
+      <ol class="steps">
+        <li>Open the <b>Request data</b> tab. In the app the path is Profile &rarr; <b>☰</b> &rarr; Settings and privacy &rarr; Account &rarr; Download your data.</li>
+        <li>Hit <b>Deselect all</b>, then tick <b>Likes and Favorites</b> — TikTok has no category called bookmarks or saved, and this is the one that holds them</li>
+        <li>Leave <b>Your Activity</b> unticked despite the name. That is watch history, search history, ad interests and Off-TikTok activity — a large file with nothing for the ledger in it.</li>
+        <li>Scroll down past the category list and set file format to <b>JSON</b>. This matters more than on Instagram — the TXT export carries a fraction of the data and cannot be parsed.</li>
+        <li><b>Request data</b>, then check the <b>Download data</b> tab over the next few days</li>
+        <li>Drop the zip below. Favorite Videos and Like List are both picked up.</li>
+      </ol>
+    </div>
+
+    <div class="stepgrid pane" data-pane="yt" hidden>
+      <div>
+        <a class="btn-primary" href="https://takeout.google.com/settings/takeout" target="_blank" rel="noopener noreferrer">Open Google Takeout &rarr;</a>
+        <p class="hint">takeout.google.com/settings/takeout</p>
+        <div class="lock-note" style="border-style:solid;border-color:rgba(224,123,42,.4);background:rgba(224,123,42,.06);">
+          <b>Watch Later does not export.</b> Google treats it as a system playlist and leaves it out of Takeout, and
+          there is no resource for it in the portability schema either. The workaround is to open Watch Later, add the
+          videos to an ordinary playlist, and export that. Liked videos have the same problem.
+        </div>
+        <p class="hint">Gives you: video ID and the date added, per playlist. The playlist name becomes the subject.</p>
+      </div>
+      <ol class="steps">
+        <li>Click <b>Deselect all</b> at the top — Takeout ticks every Google product by default</li>
+        <li>Scroll to <b>YouTube and YouTube Music</b> and tick it</li>
+        <li>Open <b>All YouTube data included</b> and reduce it to <b>playlists</b> — leave out history and videos unless you want a very large file</li>
+        <li>Next step &rarr; delivery by download link, one-off export, <b>.zip</b></li>
+        <li>Create export, then wait for the email. Large accounts can take hours.</li>
+        <li>Drop the zip below. Each playlist CSV becomes a group of rows.</li>
+      </ol>
+    </div>
+
+    <div class="lock-note" style="margin-top:20px;">
+      <b>Why none of these is fully automatic.</b> None of the three platforms exposes your saves, favorites or playlists
+      to an API that another app can read on your behalf. The export download link only works inside your own logged-in
+      session. Any tool claiming one-click retrieval is driving your logged-in browser, which breaks the platform's terms
+      and puts the account at risk. These buttons remove every step that can be removed; the automation starts once the
+      file is in hand.
     </div>
   </div>
 
@@ -270,8 +341,8 @@
     <h2>Step 2 — Drop the file</h2>
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop your Instagram export here or click to choose files">
       <b>Drop the export here</b>
-      <small>The whole <code>.zip</code>, or the loose JSON files if you have already unzipped it. Everything is parsed on your own machine — no upload, no server, no account needed.</small>
-      <span class="codes">saved_posts.json · liked_posts.json · saved_collections.json</span>
+      <small>The whole <code>.zip</code> from any of the three, or the loose files if you have already unzipped it. Drop more than one and they merge into a single ledger. Everything is parsed on your own machine — no upload, no server, no account needed.</small>
+      <span class="codes">saved_posts.json · liked_posts.json · user_data.json · playlists .csv</span>
     </div>
     <p class="hint" id="parseHint">Re-import any time. New posts are added, and every subject and description you have written is kept.</p>
   </div>
@@ -282,6 +353,7 @@
 
   <div class="toolbar">
     <input type="search" id="q" placeholder="Search subject, description, account, link…" aria-label="Search the ledger">
+    <select id="fPlat" aria-label="Filter by platform"><option value="">All platforms</option></select>
     <select id="fCat" aria-label="Filter by category"><option value="">All categories</option></select>
     <select id="fAcct" aria-label="Filter by account"><option value="">All accounts</option></select>
     <select id="fSrc" aria-label="Filter by source"><option value="">All sources</option></select>
@@ -299,6 +371,7 @@
           <th data-sort="subject">Subject</th>
           <th data-sort="description">Description</th>
           <th data-sort="category">Category</th>
+          <th data-sort="platform">Platform</th>
           <th data-sort="account">Account</th>
           <th data-sort="savedAt">Saved</th>
           <th data-sort="source">Source</th>
@@ -325,9 +398,11 @@
   </div>
 
   <div class="notice">
-    <span><b>Captions are not in the export.</b> Meta ships the link, the account and the date you saved it — nothing else.
-    Subject and description come from your rules, your own typing, or the Fill descriptions round trip, which hands the
-    links to an AI session with web access and merges the answers back by post code.</span>
+    <span><b>What each export actually carries.</b> Instagram now ships the full caption alongside the link and the date,
+    so its rows arrive already written — first line as the subject, whole caption as the description. TikTok ships a link
+    and a date, nothing else. YouTube ships a video ID and the date you added it. For those two, subject and description
+    come from your rules, your own typing, or the Fill descriptions round trip, which hands the links to an AI session
+    with web access and merges the answers back by post ID.</span>
   </div>
 </div>
 
@@ -346,7 +421,7 @@ document.getElementById('burger').onclick=function(){document.getElementById('dr
 
 var LS="tcs.locker.v1";
 var state={rows:[],rules:[],demo:true};
-var ui={q:"",cat:"",acct:"",src:"",sort:"savedAt",dir:-1,sel:{}};
+var ui={q:"",cat:"",acct:"",src:"",plat:"",sort:"savedAt",dir:-1,sel:{}};
 
 /* ── helpers ── */
 function $(id){return document.getElementById(id);}
@@ -358,25 +433,43 @@ function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");
 /* Meta writes UTF-8 bytes as latin-1 in its JSON exports; this puts them back. */
 function fixText(s){if(typeof s!=="string"||!/[Â-ô]/.test(s))return s||"";
   try{return decodeURIComponent(escape(s));}catch(e){return s;}}
-function codeOf(url){var m=/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(url||"");return m?m[1]:null;}
+function codeOf(url){
+  url=url||"";
+  var m=/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(url);
+  if(m)return m[1];
+  m=/tiktok(?:v)?\.com\/(?:.*\/)?(?:video|share\/video)\/(\d+)/.exec(url);
+  if(m)return m[1];
+  m=/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{6,})/.exec(url);
+  if(m)return m[1];
+  return null;
+}
+function platformOf(url){
+  url=String(url||"").toLowerCase();
+  if(url.indexOf("tiktok")>-1)return "tiktok";
+  if(url.indexOf("youtu")>-1)return "youtube";
+  if(url.indexOf("instagram")>-1)return "instagram";
+  return "other";
+}
 function fmtDate(ms){if(!ms)return "—";var d=new Date(ms);if(isNaN(d.getTime()))return "—";
   return d.toLocaleDateString("en-US",{year:"numeric",month:"short",day:"2-digit"});}
 function srcLabel(k){k=String(k||"").toLowerCase();
+  if(k.indexOf("favorite")>-1||k.indexOf("favourite")>-1)return "favorite";
   if(k.indexOf("like")>-1)return "liked";
+  if(k.indexOf("playlist")>-1)return "playlist";
   if(k.indexOf("collection")>-1)return "collection";
   return "saved";}
 
 /* ── example rows ── */
 function demoRows(){
   var day=86400000,now=Date.now();
-  var d=[["Cold email teardown","Six subject lines rewritten side by side with the reply rate each one pulled.","Outreach","@example.saas.notes",4],
-    ["Retainer pricing model","Why the poster moved off hourly billing and what it did to margin over two quarters.","Consulting","@example.solofounder",11],
-    ["Make.com error handling","Break-and-resume pattern for scenarios that touch a flaky API.","Automation","@example.opsdaily",17],
-    ["Santa Barbara tide pools","Low tide windows and the three spots worth the drive north.","Local","@example.sbcoast",26],
-    ["Discovery call script","Eleven questions, in order, for a first call with a mid-market buyer.","Sales","@example.b2bplaybook",39],
-    ["Kettlebell complex","Five moves, three rounds, no rest between the moves.","Fitness","@example.strengthlab",52]];
+  var d=[["Cold email teardown","Six subject lines rewritten side by side with the reply rate each one pulled.","Outreach","@example.saas.notes",4,"instagram"],
+    ["Retainer pricing model","Why the poster moved off hourly billing and what it did to margin over two quarters.","Consulting","@example.solofounder",11,"instagram"],
+    ["Make.com error handling","Break-and-resume pattern for scenarios that touch a flaky API.","Automation","@example.opsdaily",17,"tiktok"],
+    ["Santa Barbara tide pools","Low tide windows and the three spots worth the drive north.","Local","@example.sbcoast",26,"instagram"],
+    ["Discovery call script","Eleven questions, in order, for a first call with a mid-market buyer.","Sales","",39,"youtube"],
+    ["Kettlebell complex","Five moves, three rounds, no rest between the moves.","Fitness","",52,"youtube"]];
   return d.map(function(r,i){return{
-    id:"demo"+i,code:"EXAMPLE"+i,account:r[3],
+    id:"demo"+i,code:"EXAMPLE"+i,account:r[3],platform:r[5],
     url:"https://www.instagram.com/p/EXAMPLE"+i+"/",
     savedAt:now-r[4]*day,source:"example",collection:"",
     subject:r[0],description:r[1],category:r[2]};});
@@ -433,6 +526,123 @@ function extract(json,topHint){
   })(json,null);
   return found;
 }
+/* ── Meta 2026 label_values format ────────────────────────────────
+   Meta changed the export shape in 2026. The file is now a bare array
+   with no wrapper key, each entry {timestamp, media, fbid, label_values},
+   and label_values carries URL, Caption and Title. Captions ARE included
+   in this format — the older saved_saved_media shape had no caption at
+   all. Source has to come from the filename now, since the wrapper key
+   that used to name it is gone. */
+function extractLabelValues(json,fileName){
+  if(!Array.isArray(json))return [];
+  var src=/lik/i.test(fileName)?"liked":/collection/i.test(fileName)?"collection":"saved";
+  var out=[];
+  json.forEach(function(e){
+    if(!e||!Array.isArray(e.label_values))return;
+    var url="",caption="",title="";
+    e.label_values.forEach(function(lv){
+      if(!lv)return;
+      var label=String(lv.label||"").toLowerCase();
+      var val=fixText(lv.value||"");
+      if(label==="url"&&!url)url=lv.href||val;
+      else if(label==="caption"&&!caption)caption=val;
+      else if(label==="title"&&!title)title=val;
+      else if(!url&&lv.href&&/instagram\.com/i.test(lv.href))url=lv.href;
+    });
+    if(!url)return;
+    out.push({account:"",url:url,ts:e.timestamp||null,key:src,extra:"",
+      caption:caption,title:title});
+  });
+  return out;
+}
+
+/* ── TikTok JSON ──────────────────────────────────────────────────
+   TikTok's export nests differently from Meta's: Activity → Favorite
+   Videos → FavoriteVideoList, each entry a flat {Date, Link}. We walk
+   for any object carrying a Link plus a Date and take the nearest
+   enclosing key as the source, so Favorite Videos and Like List both
+   land without hardcoding either path. */
+function extractTikTok(json){
+  var found=[];
+  (function scan(node,topKey){
+    if(!node||typeof node!=="object")return;
+    if(Array.isArray(node)){for(var i=0;i<node.length;i++)scan(node[i],topKey);return;}
+    var link=node.Link||node.link||node.VideoLink||node.url;
+    if(typeof link==="string"&&/tiktok/i.test(link)){
+      var d=node.Date||node.date||node.Time||node.timestamp;
+      var ms=null;
+      if(typeof d==="number")ms=d>1e12?d:d*1000;
+      else if(typeof d==="string"){
+        var p=Date.parse(d.replace(" ","T")+(/[Z+]/.test(d)?"":"Z"));
+        if(!isNaN(p))ms=p;
+      }
+      found.push({account:"",url:link.trim(),ts:ms?ms/1000:null,key:topKey||"favorite",extra:""});
+      return;
+    }
+    /* Keep the OUTERMOST meaningful key: "Like List" wraps a child called
+       ItemFavoriteList, so letting the child win would file likes as favorites. */
+    for(var key in node){
+      var next=topKey||(/favorite|favourite|like|saved|playlist|collection/i.test(key)?key:null);
+      scan(node[key],next);
+    }
+  })(json,null);
+  return found;
+}
+
+/* ── YouTube Takeout CSV ──────────────────────────────────────────
+   Takeout writes one CSV per playlist. Column names vary by locale and
+   vintage, so we find the video-id column by header match and fall back
+   to the first column of 11-character ids. The filename becomes the
+   subject, which is the playlist name. */
+function parseCSV(text){
+  var rows=[],row=[],cell="",q=false;
+  for(var i=0;i<text.length;i++){
+    var c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=c;
+    }else if(c==='"')q=true;
+    else if(c===","){row.push(cell);cell="";}
+    else if(c==="\n"){row.push(cell);cell="";rows.push(row);row=[];}
+    else if(c!=="\r")cell+=c;
+  }
+  if(cell.length||row.length){row.push(cell);rows.push(row);}
+  return rows.filter(function(r){return r.length>1||String(r[0]||"").trim();});
+}
+function extractYouTubeCSV(text,fileName){
+  var rows=parseCSV(text);
+  if(rows.length<2)return [];
+  var head=rows[0].map(function(h){return String(h||"").trim().toLowerCase();});
+  var idCol=-1,dateCol=-1;
+  head.forEach(function(h,i){
+    if(idCol<0&&/video id|videoid/.test(h))idCol=i;
+    if(dateCol<0&&/time|date/.test(h))dateCol=i;
+  });
+  if(idCol<0){
+    for(var c=0;c<head.length;c++){
+      var hits=0;
+      for(var r=1;r<Math.min(rows.length,6);r++){
+        if(/^[A-Za-z0-9_-]{11}$/.test(String((rows[r]||[])[c]||"").trim()))hits++;
+      }
+      if(hits>=Math.min(rows.length-1,3)){idCol=c;break;}
+    }
+  }
+  if(idCol<0)return [];
+  var playlist=fileName.split("/").pop().replace(/\.csv$/i,"").replace(/-videos$/i,"").trim();
+  var out=[];
+  for(var n=1;n<rows.length;n++){
+    var id=String((rows[n]||[])[idCol]||"").trim();
+    if(!/^[A-Za-z0-9_-]{6,}$/.test(id))continue;
+    var ts=null;
+    if(dateCol>-1){
+      var p=Date.parse(String((rows[n]||[])[dateCol]||"").trim());
+      if(!isNaN(p))ts=p/1000;
+    }
+    out.push({account:"",url:"https://www.youtube.com/watch?v="+id,ts:ts,key:"playlist",extra:playlist});
+  }
+  return out;
+}
+
 function extractHTML(text){
   var out=[],seen={},doc=new DOMParser().parseFromString(text,"text/html");
   Array.prototype.forEach.call(doc.querySelectorAll('a[href*="instagram.com/"]'),function(a){
@@ -441,6 +651,23 @@ function extractHTML(text){
     seen[href]=1;out.push({account:"",url:href,ts:null,key:"saved",extra:""});
   });
   return out;
+}
+
+/* ── one file in, rows out — picks the parser by shape, not by name ── */
+function parseOne(text,fileName){
+  var name=String(fileName||"").toLowerCase();
+  if(/\.csv$/.test(name))return extractYouTubeCSV(text,fileName);
+  if(/\.html?$/.test(name))return extractHTML(text);
+  var json;
+  try{json=JSON.parse(text);}catch(e){return [];}
+  var modern=extractLabelValues(json,fileName);
+  if(modern.length)return modern;
+  var meta=extract(json,fileName);
+  var tik=extractTikTok(json);
+  return meta.concat(tik);
+}
+function makeParser(fileName){
+  return function(text){ try{ return parseOne(text,fileName); }catch(e){ return []; } };
 }
 
 /* ── zip reading, no library ──────────────────────────────────────── */
@@ -463,15 +690,15 @@ function readZip(file){
           lho=dv.getUint32(p+42,true),
           name=dec.decode(u8.subarray(p+46,p+46+nameLen));
       p+=46+nameLen+extraLen+cmtLen;
-      if(!/\.json$/i.test(name))continue;
-      if(!/saved|liked|likes|collection|bookmark/i.test(name))continue;
+      var isJson=/\.json$/i.test(name),isCsv=/\.csv$/i.test(name);
+      if(!isJson&&!isCsv)continue;
+      if(isJson&&!/saved|liked|likes|collection|bookmark|user_data|favorite|activity/i.test(name))continue;
+      if(isCsv&&!/playlist|youtube/i.test(name))continue;
       if(lho===0xFFFFFFFF)throw new Error("zip64");
       var lNameLen=dv.getUint16(lho+26,true),lExtraLen=dv.getUint16(lho+28,true),
           dataAt=lho+30+lNameLen+lExtraLen,
           slice=u8.subarray(dataAt,dataAt+csize);
-      jobs.push(inflate(slice,method).then(function(txt){
-        try{return extract(JSON.parse(txt),name);}catch(e){return [];}
-      }));
+      jobs.push(inflate(slice,method).then(makeParser(name)));
     }
     if(!jobs.length)throw new Error("no-json");
     return Promise.all(jobs).then(function(lists){return [].concat.apply([],lists);});
@@ -493,7 +720,7 @@ function ingest(found){
   state.rows.forEach(function(r){index[r.id]=r;});
   var added=0,merged=0,fresh=[];
   found.forEach(function(f){
-    var code=codeOf(f.url),src=srcLabel(f.key),id=(code||f.url)+"|"+src;
+    var code=codeOf(f.url),src=srcLabel(f.key),plat=platformOf(f.url),id=(code||f.url)+"|"+src;
     var savedAt=f.ts?(f.ts>1e12?f.ts:f.ts*1000):null;
     if(index[id]){
       var ex=index[id];
@@ -501,12 +728,22 @@ function ingest(found){
       if(!ex.account&&f.account)ex.account=f.account;
       merged++;return;
     }
-    var row={id:id,code:code||"",
+    var row={id:id,code:code||"",platform:plat,
       account:f.account?(f.account.charAt(0)==="@"?f.account:"@"+f.account):"",
       url:f.url,savedAt:savedAt,source:src,
-      collection:src==="collection"?f.extra:"",
+      collection:(src==="collection"||src==="playlist")?f.extra:"",
       subject:"",description:"",category:""};
     if(row.collection)row.subject=row.collection;
+    /* The 2026 export carries the caption. Use it: first line as the
+       subject, the rest as the description, so a fresh import is already
+       readable instead of 123 blank rows. */
+    if(f.caption){
+      var cap=f.caption.replace(/\s+$/,"");
+      var firstLine=cap.split(/\n/)[0].replace(/[#@]\S+/g,"").trim();
+      if(!row.subject)row.subject=(firstLine||cap).slice(0,70);
+      row.description=cap;
+    }
+    if(f.title&&!row.subject)row.subject=f.title.slice(0,70);
     index[id]=row;fresh.push(row);added++;
   });
   if(state.demo&&fresh.length){state.rows=[];state.demo=false;}
@@ -530,9 +767,10 @@ function readFiles(files){
         });
     }
     return file.text().then(function(txt){
-      if(/\.html?$/.test(name))return {found:extractHTML(txt)};
-      try{return {found:extract(JSON.parse(txt),name)};}
-      catch(e){return {err:file.name+" is not readable JSON. Pick JSON, not HTML, in the export settings."};}
+      var rows=parseOne(txt,file.name||name);
+      if(!rows.length&&/\.json$/.test(name)&&txt.trim().charAt(0)!=="{"&&txt.trim().charAt(0)!=="[")
+        return {err:file.name+" is not readable JSON. Pick JSON, not TXT or HTML, in the export settings."};
+      return {found:rows};
     });
   });
   Promise.all(jobs).then(function(results){
@@ -550,6 +788,7 @@ function readFiles(files){
 function visibleRows(){
   var q=ui.q.trim().toLowerCase();
   var out=state.rows.filter(function(r){
+    if(ui.plat&&r.platform!==ui.plat)return false;
     if(ui.cat&&r.category!==ui.cat)return false;
     if(ui.acct&&r.account!==ui.acct)return false;
     if(ui.src&&r.source!==ui.src)return false;
@@ -581,7 +820,7 @@ function render(){
   renderStats();renderBanner();renderFilters();renderRules();
   var rows=visibleRows(),tb=$("rows");
   if(!state.rows.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="blankstate"><b>The ledger is empty</b>'+
+    tb.innerHTML='<tr><td colspan="9"><div class="blankstate"><b>The ledger is empty</b>'+
       'Request your export above and drop it in, or load a few example rows to see the shape of it.'+
       '<br><br><button class="btn-ghost btn-sm" id="btnDemo">Load example rows</button></div></td></tr>';
     var bd=$("btnDemo");
@@ -589,7 +828,7 @@ function render(){
     updateSelCount();return;
   }
   if(!rows.length){
-    tb.innerHTML='<tr><td colspan="8"><div class="blankstate"><b>Nothing matches</b>'+
+    tb.innerHTML='<tr><td colspan="9"><div class="blankstate"><b>Nothing matches</b>'+
       'Clear the search or the filters to see the rest of the ledger.</div></td></tr>';
     updateSelCount();return;
   }
@@ -601,6 +840,7 @@ function render(){
       '<td class="c-subj"><input class="cellin'+(r.subject?"":" blank")+'" data-f="subject" value="'+esc(r.subject)+'" placeholder="Subject"></td>'+
       '<td class="c-desc"><textarea class="cellin'+(r.description?"":" blank")+'" data-f="description" rows="1" placeholder="What it is, why you kept it">'+esc(r.description)+'</textarea></td>'+
       '<td class="c-cat"><input class="cellin" data-f="category" list="catList" value="'+esc(r.category)+'" placeholder="Category"></td>'+
+      '<td><span class="plat '+esc(r.platform||"other")+'">'+esc(r.platform||"—")+'</span></td>'+
       '<td><span class="acct">'+esc(r.account||"—")+'</span></td>'+
       '<td><span class="when">'+fmtDate(r.savedAt)+'</span></td>'+
       '<td><span class="src '+esc(r.source)+'">'+esc(r.source)+'</span>'+
@@ -635,15 +875,17 @@ function renderBanner(){
   }else b.innerHTML="";
 }
 function renderFilters(){
-  var cats={},accts={},srcs={};
+  var cats={},accts={},srcs={},plats={};
   state.rows.forEach(function(r){
     if(r.category)cats[r.category]=(cats[r.category]||0)+1;
     if(r.account)accts[r.account]=(accts[r.account]||0)+1;
+    if(r.platform)plats[r.platform]=(plats[r.platform]||0)+1;
     srcs[r.source]=(srcs[r.source]||0)+1;});
   function fill(sel,map,keep,label){
     sel.innerHTML='<option value="">'+label+'</option>'+Object.keys(map).sort().map(function(k){
       return '<option value="'+esc(k)+'"'+(k===keep?" selected":"")+'>'+esc(k)+" ("+map[k]+")</option>";}).join("");
   }
+  fill($("fPlat"),plats,ui.plat,"All platforms");
   fill($("fCat"),cats,ui.cat,"All categories");
   fill($("fAcct"),accts,ui.acct,"All accounts");
   fill($("fSrc"),srcs,ui.src,"All sources");
@@ -681,9 +923,9 @@ $("overlay").addEventListener("click",function(e){if(e.target===this)closeModal(
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
 
 /* ── output ── */
-var COLS=["Subject","Description","Category","Account","Source","Collection","Saved date","Original link","Post code"];
+var COLS=["Subject","Description","Category","Platform","Account","Source","Collection","Saved date","Original link","Post ID"];
 function rowValues(r){
-  return [r.subject,r.description,r.category,r.account,r.source,r.collection,
+  return [r.subject,r.description,r.category,r.platform||"",r.account,r.source,r.collection,
     r.savedAt?new Date(r.savedAt).toISOString().slice(0,10):"",r.url,r.code];
 }
 function toCSV(rows){
@@ -748,8 +990,9 @@ $("btnFill").onclick=function(){
     "Tab-separated, no header, nothing else. If a post is private or gone, write UNAVAILABLE as the subject.\n\n"+
     batch.map(function(r){return (r.code||"?")+"\t"+r.url;}).join("\n");
   modal("Fill descriptions",
-    "Captions are not in the export and cannot be fetched from this page — Instagram blocks it. Copy the request, "+
-    "run it in an AI session with web access, paste the answer back. <b>"+missing.length+"</b> row"+
+    "Instagram rows arrive with their captions already filled in. This is for the rest — TikTok and YouTube ship a link "+
+    "and a date and nothing else, and the page cannot fetch the missing text itself. Copy the request, run it in an AI "+
+    "session with web access, paste the answer back. <b>"+missing.length+"</b> row"+
     (missing.length===1?"":"s")+" still need a description"+
     (missing.length>batch.length?"; the first "+batch.length+" are queued here.":"."),
     '<button class="btn-primary" id="fillCopy" style="margin-bottom:16px;">Copy the request</button>'+
@@ -779,6 +1022,15 @@ function mergeFill(){
 }
 
 /* ── events ── */
+$("tabs").addEventListener("click",function(e){
+  var t=e.target.closest("[data-p]");
+  if(!t)return;
+  var p=t.getAttribute("data-p");
+  Array.prototype.forEach.call($("tabs").querySelectorAll(".tab"),function(b){
+    b.setAttribute("aria-selected",String(b.getAttribute("data-p")===p));});
+  Array.prototype.forEach.call(document.querySelectorAll(".pane"),function(pane){
+    pane.hidden=pane.getAttribute("data-pane")!==p;});
+});
 function pickFiles(){
   var inp=document.createElement("input");
   inp.type="file";inp.multiple=true;inp.accept=".zip,.json,.html";
@@ -795,6 +1047,7 @@ window.addEventListener("dragover",function(e){e.preventDefault();});
 window.addEventListener("drop",function(e){e.preventDefault();});
 
 $("q").addEventListener("input",function(){ui.q=this.value;render();});
+$("fPlat").addEventListener("change",function(){ui.plat=this.value;render();});
 $("fCat").addEventListener("change",function(){ui.cat=this.value;render();});
 $("fAcct").addEventListener("change",function(){ui.acct=this.value;render();});
 $("fSrc").addEventListener("change",function(){ui.src=this.value;render();});
