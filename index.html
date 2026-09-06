@@ -203,7 +203,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & PIECE ANIMATED CANVAS
+   6. HERO SECTION & MECHANICAL BRAIN ASSEMBLY ANIMATION
    ============================================================ */
 #hero{padding-top:var(--s8);padding-bottom:var(--s9);}
 @media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s10);} }
@@ -222,72 +222,49 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Vector Piece Canvas Viewport */
+/* Mechanical Assembly Interactive Viewport */
 .brain-assembly-container {
   position: relative;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--surface);
-  border: var(--hair) solid var(--rule);
-  padding: var(--s5);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  cursor: pointer;
+  background-color: var(--surface);
+  border-radius: 4px;
 }
 
-.brain-viewport {
+.brain-layer {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
-.brain-piece {
-  transform-origin: center center;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+.brain-assembled {
+  opacity: 1;
+  transform: scale(1);
 }
 
-.brain-node {
-  animation: pulseNode 3s infinite alternate ease-in-out;
+.brain-exploded {
+  opacity: 0;
+  transform: scale(1.1);
 }
 
-@keyframes pulseNode {
-  0% { transform: scale(1); opacity: 0.7; }
-  100% { transform: scale(1.3); opacity: 1; }
+/* Hover and Touch Active States */
+.brain-assembly-container:hover .brain-assembled,
+.brain-assembly-container.is-active .brain-assembled {
+  opacity: 0;
+  transform: scale(0.92);
 }
 
-.brain-connector {
-  stroke-dasharray: 6;
-  animation: dashMove 20s linear infinite;
-}
-
-@keyframes dashMove {
-  to { stroke-dashoffset: -100; }
-}
-
-/* Hover effect: exploded pieces converge */
-.brain-assembly-container:hover .p-left {
-  transform: translate(12px, 8px) rotate(-3deg);
-}
-.brain-assembly-container:hover .p-right {
-  transform: translate(-12px, -8px) rotate(3deg);
-}
-.brain-assembly-container:hover .p-center {
-  transform: scale(1.05);
-}
-
-/* Dynamic Tag Overlay */
-.brain-tag {
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  color: var(--ink-3);
-  text-transform: uppercase;
-  border-top: var(--hair) solid var(--rule);
-  padding-top: var(--s2);
-  margin-top: var(--s3);
-  display: flex;
-  justify-content: space-between;
+.brain-assembly-container:hover .brain-exploded,
+.brain-assembly-container.is-active .brain-exploded {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* ============================================================
@@ -387,44 +364,19 @@ body.nav-lock{overflow:hidden;}
         </div>
       </div>
       <div>
-        <!-- Multi-Piece Dynamic Animated Canvas Container -->
-        <div class="brain-assembly-container">
-          <svg class="brain-viewport" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Grid Lines Background -->
-            <path d="M0 50H400 M0 100H400 M0 150H400 M0 200H400 M0 250H400" stroke="#DAD7D2" stroke-width="0.5" stroke-dasharray="2 4"/>
-            <path d="M50 0V300 M100 0V300 M150 0V300 M200 0V300 M250 0V300 M300 0V300 M350 0V300" stroke="#DAD7D2" stroke-width="0.5" stroke-dasharray="2 4"/>
-
-            <!-- Connectors -->
-            <path class="brain-connector" d="M80 150 L160 80 L240 220 L320 150" stroke="#2550A8" stroke-width="1.5" stroke-dasharray="4"/>
-            <path class="brain-connector" d="M120 220 L200 150 L280 80" stroke="#E07B2A" stroke-width="1.5" stroke-dasharray="4"/>
-
-            <!-- Left Hemispheric Piece -->
-            <g class="brain-piece p-left">
-              <polygon points="60,110 140,70 180,130 100,170" fill="#2550A8" fill-opacity="0.15" stroke="#2550A8" stroke-width="1.5"/>
-              <circle cx="60" cy="110" r="4" fill="#2550A8" class="brain-node"/>
-              <circle cx="140" cy="70" r="4" fill="#2550A8" class="brain-node"/>
-              <circle cx="100" cy="170" r="4" fill="#2550A8" class="brain-node"/>
-            </g>
-
-            <!-- Right Hemispheric Piece -->
-            <g class="brain-piece p-right">
-              <polygon points="220,130 300,90 340,150 260,190" fill="#E07B2A" fill-opacity="0.15" stroke="#E07B2A" stroke-width="1.5"/>
-              <circle cx="300" cy="90" r="4" fill="#E07B2A" class="brain-node"/>
-              <circle cx="340" cy="150" r="4" fill="#E07B2A" class="brain-node"/>
-              <circle cx="260" cy="190" r="4" fill="#E07B2A" class="brain-node"/>
-            </g>
-
-            <!-- Center Synthesis Piece -->
-            <g class="brain-piece p-center">
-              <polygon points="150,180 250,120 280,180 180,240" fill="#0A0A0A" fill-opacity="0.08" stroke="#0A0A0A" stroke-width="2"/>
-              <circle cx="200" cy="150" r="6" fill="#0A0A0A" class="brain-node"/>
-            </g>
-          </svg>
-
-          <div class="brain-tag">
-            <span>SYSTEM ASSEMBLY</span>
-            <span>MODEL 0.94</span>
-          </div>
+        <!-- Mechanical Assembly & Disassembly Viewport -->
+        <div class="brain-assembly-container" id="brainContainer">
+          <picture class="brain-layer brain-assembled">
+            <source srcset="1.JPG" type="image/jpeg">
+            <source srcset="1.jpg" type="image/jpeg">
+            <img src="1.JPG" alt="Assembled Mechanical AI Brain" onerror="this.onerror=null; this.src='1.jpg';">
+          </picture>
+          
+          <picture class="brain-layer brain-exploded">
+            <source srcset="2.JPG" type="image/jpeg">
+            <source srcset="2.jpg" type="image/jpeg">
+            <img src="2.JPG" alt="Exploded Mechanical Brain Components" onerror="this.onerror=null; this.src='2.jpg';">
+          </picture>
         </div>
       </div>
     </div>
@@ -471,6 +423,14 @@ body.nav-lock{overflow:hidden;}
   window.addEventListener('resize', function(){
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
+
+  /* Touch Toggle Support for Mobile */
+  var brainContainer = document.getElementById('brainContainer');
+  if (brainContainer) {
+    brainContainer.addEventListener('touchstart', function(e) {
+      this.classList.toggle('is-active');
+    }, { passive: true });
+  }
 })();
 </script>
 </body>
