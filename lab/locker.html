@@ -365,7 +365,7 @@
   <div class="toolbar">
     <input type="search" id="q" placeholder="Search subject, description, account, link…" aria-label="Search the ledger">
     <select id="fPlat" aria-label="Filter by platform"><option value="">All platforms</option></select>
-    <select id="fCat" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="fCat" aria-label="Filter by subject matter"><option value="">All subjects</option></select>
     <select id="fAcct" aria-label="Filter by account"><option value="">All accounts</option></select>
     <select id="fSrc" aria-label="Filter by source"><option value="">All sources</option></select>
     <select id="fSort" aria-label="Sort order">
@@ -374,7 +374,9 @@
       <option value="subject|1">Subject A–Z</option>
       <option value="order|1">Manual order</option>
     </select>
-    <button class="btn-ghost btn-sm" id="btnBulkCat">Set category</button>
+    <button class="btn-ghost btn-sm" id="btnAutoTag">Tag subjects</button>
+    <button class="btn-ghost btn-sm" id="btnManageCats">Rename subjects</button>
+    <button class="btn-ghost btn-sm" id="btnBulkCat">Set on selection</button>
     <button class="btn-ghost btn-sm" id="btnFill">Fill descriptions</button>
     <button class="btn-primary btn-sm" id="btnExport">Export</button>
     <span class="selcount" id="selCount">0 selected</span>
@@ -388,7 +390,7 @@
           <th class="nosort"><input type="checkbox" id="allCheck" aria-label="Select all visible rows"></th>
           <th data-sort="subject">Subject</th>
           <th data-sort="description">Description</th>
-          <th data-sort="category">Category</th>
+          <th data-sort="category">Subject matter</th>
           <th data-sort="source">Source</th>
           <th class="nosort">Link</th>
         </tr>
@@ -399,9 +401,9 @@
 
   <!-- RULES -->
   <div class="card">
-    <h2>Auto-tag rules</h2>
+    <h2>Subject matter rules</h2>
     <p style="font-size:13.5px;color:var(--slate);margin-bottom:14px;max-width:680px;">
-      Each rule matches text in an account handle, a link or a collection name, and fills in the subject and category
+      Each rule matches text in the caption, an account handle, a link or a collection name, and fills in the subject matter
       wherever they are still blank. Rules run on every import, so once they are set the next export tags itself.
     </p>
     <div id="ruleList"></div>
@@ -496,16 +498,38 @@ function load(){try{var raw=localStorage.getItem(LS);if(!raw)return null;
   var p=JSON.parse(raw);return (p&&Array.isArray(p.rows))?p:null;}catch(e){return null;}}
 
 /* ── rules ── */
+/* Starter topics. These match against the caption, which is where the subject
+   matter actually lives — the URL only ever tells you it was a reel. */
 function seedRules(){return[
-  {id:"r1",field:"account",contains:"recipe",subject:"",category:"Cooking"},
-  {id:"r2",field:"account",contains:"fitness",subject:"",category:"Fitness"},
-  {id:"r3",field:"url",contains:"/reel/",subject:"",category:"Video"}];}
+  {id:"t1",field:"description",contains:"bjj",subject:"",category:"BJJ"},
+  {id:"t2",field:"description",contains:"jiujitsu",subject:"",category:"BJJ"},
+  {id:"t3",field:"description",contains:"jiu-jitsu",subject:"",category:"BJJ"},
+  {id:"t4",field:"description",contains:"grappling",subject:"",category:"BJJ"},
+  {id:"t5",field:"description",contains:"wrestling",subject:"",category:"Wrestling"},
+  {id:"t6",field:"description",contains:"surf",subject:"",category:"Surf"},
+  {id:"t7",field:"description",contains:"skate",subject:"",category:"Skate"},
+  {id:"t8",field:"description",contains:"recipe",subject:"",category:"Cooking"}];}
+function ruleHay(row,field){
+  if(field==="url")return row.url;
+  if(field==="collection")return row.collection;
+  if(field==="description")return (row.description||"")+" "+(row.subject||"");
+  return row.account;
+}
+/* Hashtags are the closest thing these captions have to a topic label. */
+function hashtagsOf(row){
+  var m=String(row.description||"").match(/#[\p{L}\p{N}_]+/gu);
+  return m?m.map(function(h){return h.slice(1).toLowerCase();}):[];
+}
+function titleCase(s){
+  if(s.length<=4)return s.toUpperCase();
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
 function applyRules(rows,force){
   var n=0;
   rows.forEach(function(row){
     state.rules.forEach(function(rule){
       if(!rule.contains)return;
-      var hay=String(rule.field==="url"?row.url:rule.field==="collection"?row.collection:row.account).toLowerCase();
+      var hay=String(ruleHay(row,rule.field)).toLowerCase();
       if(hay.indexOf(rule.contains.toLowerCase())===-1)return;
       if(rule.category&&(force||!row.category)){row.category=rule.category;n++;}
       if(rule.subject&&(force||!row.subject)){row.subject=rule.subject;n++;}
@@ -804,7 +828,8 @@ function visibleRows(){
   var q=ui.q.trim().toLowerCase();
   var out=state.rows.filter(function(r){
     if(ui.plat&&r.platform!==ui.plat)return false;
-    if(ui.cat&&r.category!==ui.cat)return false;
+    if(ui.cat==="__untagged__"){ if(r.category)return false; }
+    else if(ui.cat&&r.category!==ui.cat)return false;
     if(ui.acct&&r.account!==ui.acct)return false;
     if(ui.src&&r.source!==ui.src)return false;
     if(q){
@@ -859,7 +884,7 @@ function render(){
       '<td class="c-check"><input type="checkbox" data-act="sel" '+(on?"checked":"")+' aria-label="Select row"></td>'+
       '<td class="c-subj"><textarea class="cellin subj'+(r.subject?"":" blank")+'" data-f="subject" rows="1" placeholder="Subject">'+esc(r.subject)+'</textarea></td>'+
       '<td class="c-desc"><textarea class="cellin'+(r.description?"":" blank")+'" data-f="description" rows="1" placeholder="What it is, why you kept it">'+esc(r.description)+'</textarea></td>'+
-      '<td class="c-cat"><input class="cellin" data-f="category" list="catList" value="'+esc(r.category)+'" placeholder="Category"></td>'+
+      '<td class="c-cat"><input class="cellin" data-f="category" list="catList" value="'+esc(r.category)+'" placeholder="Subject matter"></td>'+
       '<td class="c-src"><div class="srccell"><b>'+esc(r.platform||"—")+'</b><span>'+esc(r.source)+
         (r.account?" · "+esc(r.account):"")+'</span>'+
         (r.collection?'<span>'+esc(r.collection)+'</span>':'')+'</div></td>'+
@@ -882,7 +907,7 @@ function renderStats(){
     '<div class="stat"><b>'+total+'</b><span>Entries</span></div>'+
     '<div class="stat"><b>'+described+'</b><span>Described</span></div>'+
     '<div class="stat"><b>'+(total-described)+'</b><span>To write</span></div>'+
-    '<div class="stat"><b>'+Object.keys(cats).length+'</b><span>Categories</span></div>'+
+    '<div class="stat"><b>'+Object.keys(cats).length+'</b><span>Subjects</span></div>'+
     '<div class="stat"><b>'+Object.keys(accts).length+'</b><span>Accounts</span></div>';
 }
 function renderBanner(){
@@ -910,7 +935,14 @@ function renderFilters(){
       return '<option value="'+esc(k)+'"'+(k===keep?" selected":"")+'>'+esc(k)+" ("+map[k]+")</option>";}).join("");
   }
   fill($("fPlat"),plats,ui.plat,"All platforms");
-  fill($("fCat"),cats,ui.cat,"All categories");
+  fill($("fCat"),cats,ui.cat,"All subjects");
+  /* Untagged rows are the ones that need work, so make them selectable as a group. */
+  var untagged=state.rows.filter(function(r){return !r.category;}).length;
+  if(untagged){
+    var sel=$("fCat");
+    sel.insertAdjacentHTML("beforeend",
+      '<option value="__untagged__"'+(ui.cat==="__untagged__"?" selected":"")+'>Untagged ('+untagged+')</option>');
+  }
   fill($("fAcct"),accts,ui.acct,"All accounts");
   fill($("fSrc"),srcs,ui.src,"All sources");
   $("catList").innerHTML=Object.keys(cats).sort().map(function(k){return '<option value="'+esc(k)+'">';}).join("");
@@ -1003,6 +1035,88 @@ $("btnExport").onclick=function(){
       closeModal();
     };
   });
+};
+
+/* ── tag from hashtags ────────────────────────────────────────────
+   Ranks every hashtag across the whole library, then gives each row the
+   highest-ranking tag it carries. Ranking globally is what makes topics
+   cluster: a post tagged #bjj #armbar lands under BJJ with the rest,
+   instead of minting a category of one. */
+function hashtagRanking(){
+  var counts={};
+  state.rows.forEach(function(r){
+    var seen={};
+    hashtagsOf(r).forEach(function(h){
+      if(seen[h])return;
+      seen[h]=1; counts[h]=(counts[h]||0)+1;
+    });
+  });
+  return Object.keys(counts).map(function(h){return {tag:h,n:counts[h]};})
+    .sort(function(a,b){return b.n-a.n||a.tag.localeCompare(b.tag);});
+}
+function tagFromHashtags(minCount,overwrite){
+  var rank=hashtagRanking().filter(function(x){return x.n>=minCount;});
+  var pos={}; rank.forEach(function(x,i){pos[x.tag]=i;});
+  var n=0;
+  state.rows.forEach(function(r){
+    if(r.category&&!overwrite)return;
+    var best=null,bestPos=1e9;
+    hashtagsOf(r).forEach(function(h){
+      if(pos[h]!==undefined&&pos[h]<bestPos){bestPos=pos[h];best=h;}
+    });
+    if(best){r.category=titleCase(best);n++;}
+  });
+  return n;
+}
+$("btnAutoTag").onclick=function(){
+  var rank=hashtagRanking().slice(0,12);
+  var blank=state.rows.filter(function(r){return !r.category;}).length;
+  modal("Tag by subject matter",
+    "Runs your rules first, then fills what is left from hashtags. A tag is only used if it appears on at least "+
+    "the minimum number of posts, so topics group together instead of every post inventing its own.",
+    '<p style="font-size:13px;color:var(--slate);margin-bottom:6px;">Most common hashtags in your ledger:</p>'+
+    '<p style="font-family:var(--font-mono);font-size:11.5px;color:var(--gray);line-height:1.9;margin-bottom:16px;">'+
+      (rank.length?rank.map(function(x){return "#"+esc(x.tag)+" ("+x.n+")";}).join(" &nbsp; "):"No hashtags found in these captions.")+'</p>'+
+    '<div class="msplit"><div class="f"><label for="minC">Minimum posts per tag</label>'+
+      '<input id="minC" type="number" min="1" max="99" value="3"></div>'+
+      '<div class="f"><label for="ovw">Existing subject matter</label>'+
+      '<select id="ovw"><option value="0">Keep what is already set</option><option value="1">Overwrite everything</option></select></div></div>'+
+    '<p class="hint">'+blank+' row'+(blank===1?"":"s")+' currently have none.</p>',
+    [{label:"Tag them",primary:true,act:function(){
+      var mc=parseInt(($("minC")||{}).value,10)||3;
+      var ow=(($("ovw")||{}).value==="1");
+      var a=applyRules(state.rows,ow);
+      var b=tagFromHashtags(mc,ow);
+      render();save();
+      toast(b+" tagged from hashtags"+(a?", "+a+" from rules":"")+".");
+    }},{label:"Cancel"}]);
+};
+
+/* ── rename and merge subject matter ── */
+$("btnManageCats").onclick=function(){
+  var counts={};
+  state.rows.forEach(function(r){ if(r.category)counts[r.category]=(counts[r.category]||0)+1; });
+  var keys=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]||a.localeCompare(b);});
+  if(!keys.length){ toast("Nothing tagged yet — run Tag by subject matter first."); return; }
+  modal("Subject matter","Rename one to fix it everywhere. Rename two to the same name and they merge. Empty a name to untag those rows.",
+    '<div id="catRows">'+keys.map(function(k){
+      return '<div style="display:flex;gap:10px;align-items:center;margin-bottom:9px;">'+
+        '<input data-orig="'+esc(k)+'" value="'+esc(k)+'" style="flex:1;">'+
+        '<span style="font-family:var(--font-mono);font-size:11px;color:var(--gray);white-space:nowrap;min-width:58px;">'+counts[k]+' rows</span></div>';
+    }).join("")+'</div>',
+    [{label:"Apply",primary:true,act:function(){
+      var map={},changed=0;
+      Array.prototype.forEach.call(document.querySelectorAll("#catRows input"),function(inp){
+        map[inp.getAttribute("data-orig")]=inp.value.trim();
+      });
+      state.rows.forEach(function(r){
+        if(r.category&&map[r.category]!==undefined&&map[r.category]!==r.category){
+          r.category=map[r.category]; changed++;
+        }
+      });
+      render();save();
+      toast(changed?changed+" row"+(changed===1?"":"s")+" retagged.":"No changes.");
+    }},{label:"Cancel"}]);
 };
 
 /* ── fill-descriptions round trip ── */
@@ -1148,8 +1262,8 @@ $("rows").addEventListener("change",function(e){
 $("btnBulkCat").onclick=function(){
   var rows=selectedRows();
   if(!rows.length){toast("Nothing to tag.");return;}
-  modal("Set category","Applies to "+rows.length+" row"+(rows.length===1?"":"s")+" — your selection, or everything showing.",
-    '<div class="f"><label for="bulkCat">Category</label><input id="bulkCat" list="catList" placeholder="e.g. Consulting"></div>',
+  modal("Set subject matter","Applies to "+rows.length+" row"+(rows.length===1?"":"s")+" — your selection, or everything showing.",
+    '<div class="f"><label for="bulkCat">Subject matter</label><input id="bulkCat" list="catList" placeholder="e.g. BJJ"></div>',
     [{label:"Apply",primary:true,act:function(){
       var v=(($("bulkCat")||{}).value||"").trim();
       if(!v)return;
@@ -1161,9 +1275,9 @@ $("btnBulkCat").onclick=function(){
 $("btnAddRule").onclick=function(){
   modal("New auto-tag rule","Runs on every import and fills only the fields that are still blank.",
     '<div class="f"><label for="rField">Look at</label><select id="rField">'+
-      '<option value="account">Account handle</option><option value="url">Link</option><option value="collection">Collection name</option></select></div>'+
-    '<div class="f"><label for="rContains">Contains this text</label><input id="rContains" placeholder="e.g. opsdaily"></div>'+
-    '<div class="msplit"><div class="f"><label for="rCat">Set category to</label><input id="rCat" list="catList" placeholder="e.g. Automation"></div>'+
+      '<option value="description">Caption text</option><option value="account">Account handle</option><option value="url">Link</option><option value="collection">Collection name</option></select></div>'+
+    '<div class="f"><label for="rContains">Contains this text</label><input id="rContains" placeholder="e.g. bjj"></div>'+
+    '<div class="msplit"><div class="f"><label for="rCat">Set subject matter to</label><input id="rCat" list="catList" placeholder="e.g. BJJ"></div>'+
     '<div class="f"><label for="rSubj">Set subject to (optional)</label><input id="rSubj"></div></div>',
     [{label:"Add rule",primary:true,act:function(){
       var c=(($("rContains")||{}).value||"").trim();
