@@ -214,7 +214,7 @@
 <body>
 
 <!-- Interactive 3D Brain Container Background -->
-<div id="brain-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.5;"></div>
+<div id="brain-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.65;"></div>
 
 <nav>
   <div class="nav-inner">
@@ -451,59 +451,120 @@ function $(id){return document.getElementById(id);}
 })();
 </script>
 
-<!-- 3D Particle Brain Renderer Script -->
+<!-- Detailed 3D Procedural Brain Mesh Script -->
 <script>
 (function() {
   const container = document.getElementById('brain-container');
   if (!container || typeof THREE === 'undefined') return;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(renderer.domElement);
 
-  const particleCount = 2200;
-  const geometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(particleCount * 3);
+  // Group to contain all anatomical brain parts
+  const brainGroup = new THREE.Group();
 
-  for (let i = 0; i < particleCount * 3; i += 3) {
-    const u = Math.random();
-    const v = Math.random();
-    const theta = u * 2.0 * Math.PI;
-    const phi = Math.acos(2.0 * v - 1.0);
-    const r = 2.5 + Math.random() * 0.4;
+  // Mathematical Brain Formula to construct Left & Right Hemispheres + Cerebellum
+  function createBrainPoints() {
+    const points = [];
+    const count = 3500;
 
-    positions[i] = r * Math.sin(phi) * Math.cos(theta);
-    positions[i + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.72; // Organic brain structure ratio
-    positions[i + 2] = r * Math.cos(phi);
+    for (let i = 0; i < count; i++) {
+      let u = Math.random() * Math.PI * 2;
+      let v = Math.random() * Math.PI - (Math.PI / 2);
+      
+      // Ellipsoid scaling for human brain proportions
+      let x = 2.0 * Math.cos(v) * Math.cos(u);
+      let y = 1.6 * Math.sin(v);
+      let z = 2.4 * Math.cos(v) * Math.sin(u);
+
+      // Create Longitudinal Fissure (separate into left and right hemispheres)
+      const hemisphereGap = 0.28;
+      if (x > 0) x += hemisphereGap;
+      else x -= hemisphereGap;
+
+      // Add Brain Gyri / Sulci (Cortical Folding Wrinkles)
+      const foldFrequency = 6.5;
+      const foldDepth = 0.18 * Math.sin(x * foldFrequency) * Math.cos(y * foldFrequency) * Math.sin(z * foldFrequency);
+      
+      x += foldDepth;
+      y += foldDepth;
+      z += foldDepth;
+
+      // Cerebellum & Brainstem offset positioning at the bottom back
+      if (y < -0.6 && z < -0.4) {
+        y -= 0.3;
+        z -= 0.2;
+      }
+
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    return points;
   }
 
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  // 1. Brain Point Cloud (Synapse/Neuron Nodes)
+  const brainPoints = createBrainPoints();
+  const geometry = new THREE.BufferGeometry().setFromPoints(brainPoints);
 
-  const material = new THREE.PointsMaterial({
-    color: 0xE07B2A, // Brand orange accent
-    size: 0.025,
+  const particleMaterial = new THREE.PointsMaterial({
+    color: 0xE07B2A, // Brand accent orange
+    size: 0.045,
     transparent: true,
-    opacity: 0.7
+    opacity: 0.85
   });
 
-  const particleSystem = new THREE.Points(geometry, material);
-  scene.add(particleSystem);
+  const particleSystem = new THREE.Points(geometry, particleMaterial);
+  brainGroup.add(particleSystem);
 
-  camera.position.z = 4.8;
+  // 2. Outer Wireframe Contour for Visual Depth
+  const wireframeMaterial = new THREE.MeshBasicMaterial({
+    color: 0x0B1F4A, // Deep Navy
+    wireframe: true,
+    transparent: true,
+    opacity: 0.12
+  });
 
+  const brainMeshGeometry = new THREE.IcosahedronGeometry(2.1, 4);
+  // Deform sphere shape into brain silhouette
+  const pos = brainMeshGeometry.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let vx = pos.getX(i);
+    let vy = pos.getY(i);
+    let vz = pos.getZ(i);
+
+    vx *= (vx > 0 ? 1.15 : 1.15);
+    vy *= 0.8;
+    vz *= 1.25;
+
+    // Apply folding distortion
+    const wrinkle = 0.12 * Math.sin(vx * 7.0) * Math.cos(vy * 7.0);
+    pos.setXYZ(i, vx + wrinkle, vy + wrinkle, vz + wrinkle);
+  }
+  brainMeshGeometry.computeVertexNormals();
+
+  const wireframeMesh = new THREE.Mesh(brainMeshGeometry, wireframeMaterial);
+  brainGroup.add(wireframeMesh);
+
+  scene.add(brainGroup);
+  camera.position.set(0, 0, 5.5);
+
+  // Gentle floating and continuous rotation animation
   function animate() {
     requestAnimationFrame(animate);
-    particleSystem.rotation.y += 0.0018;
-    particleSystem.rotation.x += 0.0008;
+    
+    brainGroup.rotation.y += 0.0025;
+    brainGroup.rotation.x = Math.sin(Date.now() * 0.0008) * 0.12;
+
     renderer.render(scene, camera);
   }
 
   animate();
 
+  // Responsive Resizing
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
