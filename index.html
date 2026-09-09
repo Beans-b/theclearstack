@@ -42,7 +42,7 @@
 
 <style>
 /* ============================================================
-   1. TOKENS
+    1. TOKENS
    ============================================================ */
 :root{
   --ink:        #0A0A0A;
@@ -81,7 +81,7 @@
 @media (min-width:1440px){ :root{ --margin:64px; } }
 
 /* ============================================================
-   2. RESET AND BASE
+    2. RESET AND BASE
    ============================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{
@@ -106,7 +106,7 @@ a{color:inherit;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
 
 /* ============================================================
-   3. TYPOGRAPHY
+    3. TYPOGRAPHY
    ============================================================ */
 h1{
   font-size:var(--fs-h1); font-weight:800;
@@ -124,7 +124,7 @@ h1 br{display:none;}
 @media (min-width:768px){ h1 br{display:inline;} }
 
 /* ============================================================
-   4. LAYOUT & SKIP LINK
+    4. LAYOUT & SKIP LINK
    ============================================================ */
 .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:var(--margin);}
 
@@ -138,7 +138,7 @@ h1 br{display:none;}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
 
 /* ============================================================
-   5. NAVIGATION
+    5. NAVIGATION
    ============================================================ */
 #nav{
   position:fixed;top:0;left:0;right:0;z-index:1000;
@@ -205,7 +205,7 @@ body.nav-lock{overflow:hidden;}
 }
 
 /* ============================================================
-   6. HERO SECTION & HOVER EMBEDDED MEDIA
+    6. HERO SECTION & VIDEO CONTAINER
    ============================================================ */
 #hero{
   position: relative;
@@ -253,37 +253,30 @@ body.nav-lock{overflow:hidden;}
   margin-top:var(--s7);
 }
 
-/* Embedded Media Container */
+/* Video Wrapper Container */
 .media-wrapper {
   position: relative;
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1 / 1;
-  background: transparent;
+  background: #EFECE6;
+  border: 1px solid var(--rule);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   cursor: pointer;
 }
 
-/* 
-  FIX FOR GREY BACKGROUND:
-  Multiply removes white/light colors. Contrast & brightness filters 
-  push the light-grey background to pure white so multiply erases it completely.
-*/
 .hover-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  mix-blend-mode: multiply;
-  filter: contrast(125%) brightness(108%);
-  border: none;
-  outline: none;
 }
 
 /* ============================================================
-   7. BUTTONS & MOTION
+    7. BUTTONS & MOTION
    ============================================================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -373,19 +366,18 @@ body.nav-lock{overflow:hidden;}
 
     <div class="hero-lower">
       <div>
-        <p class="lede hero-answer">The Clear Stack is an AI consolidation consultancy for mid-market companies of 50 to 500 employees. Mid-market companies are drowning in disconnected, redundant AI tools. The Clear Stack audits the mess, cuts the waste, connects what matters, and hands you a stack that actually runs. Engagements start with a $1,500 stack audit, credited in full toward implementation.</p>
+        <p class="lede hero-answer">The Clear Stack is an AI consolidation consultancy for mid market companies. Some companies are drowning in disconnected utilizing redundant AI tools. The Clear Stack audits the work flows, cuts the waste, connects what matters, and hands you a stack that actually runs. Engagements start with a $1,500 stack audit, credited in full toward implementation.</p>
         <div class="hero-act">
           <a href="/contact" class="btn btn-primary">Start With a Stack Audit</a>
           <span class="small">$1,500 &nbsp;&middot;&nbsp; credited in full toward implementation</span>
         </div>
       </div>
 
-      <!-- Media Block pointing to your video file with cache buster -->
+      <!-- Restored Video Element Container -->
       <div>
         <div class="media-wrapper" id="mediaWrapper">
           <video class="hover-video" id="brainVideo" loop muted playsinline preload="auto" aria-label="3D Mechanical AI Brain animation">
-            <source src="mechanical-brain.mp4?v=3" type="video/mp4">
-            <source src="mechanical-brain?v=3" type="video/mp4">
+            <source src="mechanical-brain.mp4?v=4" type="video/mp4">
           </video>
         </div>
       </div>
@@ -434,15 +426,11 @@ body.nav-lock{overflow:hidden;}
     if (window.innerWidth >= 900 && drawer.classList.contains('open')) setDrawer(false);
   });
 
-  /* Hover Playback Logic */
+  /* Hover Video Playback Logic */
   var mediaWrapper = document.getElementById('mediaWrapper');
   var video = document.getElementById('brainVideo');
 
   if (mediaWrapper && video) {
-    video.addEventListener('loadeddata', function() {
-      video.currentTime = 0;
-    });
-
     mediaWrapper.addEventListener('mouseenter', function() {
       video.play().catch(function(e){ console.log("Playback interrupted:", e); });
     });
@@ -558,11 +546,15 @@ body.nav-lock{overflow:hidden;}
       requestAnimationFrame(animate);
     }
 
-    heroSection.addEventListener('mousemove', function(e) {
+    window.addEventListener('mousemove', function(e) {
       var rect = heroSection.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-      mouse.active = true;
+      if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+        mouse.active = true;
+      } else {
+        mouse.active = false;
+      }
     });
 
     heroSection.addEventListener('mouseleave', function() {
