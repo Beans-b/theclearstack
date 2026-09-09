@@ -18,5 +18,4 @@
 
 ## About
 
-- [Founder](https://theclearstack.com/about): Who runs The Clear Stack and why.
 - [Privacy & Data Handling](https://theclearstack.com/privacy): How visitor and client data is collected, used, and protected.
