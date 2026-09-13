@@ -212,22 +212,15 @@ body.nav-lock{overflow:hidden;}
     6. HERO
    ============================================================ */
 #hero{
-  padding-top:var(--s8);
-  padding-bottom:var(--s7);
+  padding-top:var(--s7);
+  padding-bottom:var(--s6);
 }
-@media (min-width:1024px){ #hero{padding-top:var(--s9);padding-bottom:var(--s8);} }
-.eyebrow{
-  font-family:var(--font-mono);
-  font-size:var(--fs-label);
-  letter-spacing:.18em;text-transform:uppercase;
-  color:var(--ink-4);
-  margin-bottom:var(--s5);
-}
-.hero-answer{
-  border-left:2px solid var(--ink);
-  padding-left:var(--s5);
-  max-width:60ch;
-  margin-top:var(--s6);
+#hero h1{
+  font-size:clamp(1.5rem,3vw,2rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+  margin-bottom:var(--s2);
 }
 
 /* ============================================================
@@ -401,11 +394,10 @@ body.nav-lock{overflow:hidden;}
 
 <main id="main">
 
-  <!-- HERO -->
+  <!-- PAGE HEAD -->
   <section id="hero" class="wrap">
-    <div class="eyebrow">The Lab</div>
-    <h1>Free tools, <br>built <span class="u-em">in the open.</span></h1>
-    <p class="lede hero-answer">Every tool here runs on the same AI infrastructure we install for clients. Try them. See what is possible.</p>
+    <h1>The Lab</h1>
+    <p class="small">Every tool here runs on the same AI infrastructure we install for clients.</p>
   </section>
 
   <!-- TOOL INDEX -->
