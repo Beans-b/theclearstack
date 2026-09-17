@@ -17,43 +17,69 @@
     --font-head:'Cormorant Garamond',serif; --font-body:'Outfit',sans-serif; --font-mono:'DM Mono',monospace;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{overflow-x:hidden;}
   body{background:var(--light);color:var(--charcoal);font-family:var(--font-body);font-size:15px;line-height:1.55;}
   header{background:var(--navy);color:var(--cream);padding:18px 16px;}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 16px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px;}
   header .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0;}
   h1{font-family:var(--font-head);font-weight:600;font-size:28px;letter-spacing:.01em;}
   h1 em{font-style:normal;color:var(--orange);}
   .sub{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;}
   .banner{background:#FFF4E5;border-bottom:1px solid #F0D9B5;color:#5C3B00;padding:10px 16px;font-size:14px;}
-  main{padding:24px 0 48px;}
-  .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;}
-  .card h2{font-family:var(--font-head);font-size:24px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .banner .wrap{padding:0;}
+  main{padding:24px 16px 48px;}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;min-width:0;}
+  .card h2{font-family:var(--font-head);font-size:26px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .pill{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;border:1px solid currentColor;}
-  .pill.running{color:var(--good);} .pill.paused,.pill.stale{color:var(--warn);}
-  .pill.stopped,.pill.error{color:var(--bad);} .pill.none{color:var(--gray);}
-  .meta{color:var(--gray);font-size:13px;margin:4px 0 16px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin-bottom:16px;}
-  .stat{background:var(--cream);border-radius:var(--radius);padding:12px;}
+  .pill.running,.pill.paper{color:var(--good);} .pill.paused,.pill.stale{color:var(--warn);}
+  .pill.stopped,.pill.error,.pill.live{color:var(--bad);} .pill.none,.pill.unknown{color:var(--gray);}
+  .pill.live{background:#FDECEA;font-weight:500;}
+  .meta{color:var(--gray);font-size:13px;margin:6px 0 4px;overflow-wrap:anywhere;}
+  .meta b{color:var(--charcoal);font-weight:500;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+  .grid.now{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+  .stat{background:var(--cream);border-radius:var(--radius);padding:10px 12px;min-width:0;}
   .stat .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);}
-  .stat .v{font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .stat .v{font-size:21px;font-weight:500;font-variant-numeric:tabular-nums;margin-top:2px;overflow-wrap:anywhere;}
+  .grid.now .v{font-size:18px;}
   .v.pos{color:var(--good);} .v.neg{color:var(--bad);}
-  h3{font-size:13px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--gray);margin:18px 0 8px;}
-  .table{width:100%;overflow-x:auto;}
+  h3{font-size:12px;font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--navy);margin:22px 0 8px;}
+  h4{font-size:13px;font-weight:600;color:var(--gray);margin:12px 0 4px;}
+  .warnline{margin-top:10px;background:#FFF4E5;border-left:3px solid var(--warn);color:#5C3B00;padding:8px 10px;font-size:14px;border-radius:0 var(--radius) var(--radius) 0;overflow-wrap:anywhere;}
+  .warnline.bad{background:#FDECEA;border-color:var(--bad);color:#6B1510;}
+  .account{color:var(--gray);font-size:13px;margin-top:10px;overflow-wrap:anywhere;}
+  ul.notes{list-style:none;}
+  ul.notes li{padding:6px 0 6px 14px;border-bottom:1px solid var(--border);position:relative;font-size:14px;overflow-wrap:anywhere;}
+  ul.notes li::before{content:"";position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%;background:var(--orange);}
+  .table{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--radius);}
   table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.wide{min-width:880px;}
+  table.mid{min-width:560px;}
   th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
-  th{font-weight:500;color:var(--gray);white-space:nowrap;}
+  tr:last-child td{border-bottom:0;}
+  th{font-weight:500;color:var(--gray);white-space:nowrap;background:var(--light);}
   td.num{font-variant-numeric:tabular-nums;white-space:nowrap;}
-  td.mkt{font-family:var(--font-mono);font-size:12px;word-break:break-all;}
+  td.mkt{font-family:var(--font-mono);font-size:12px;word-break:break-all;min-width:120px;}
+  td.why{min-width:240px;}
+  td.why .shadow{color:var(--gray);margin-top:4px;}
   .empty{color:var(--gray);font-size:14px;}
-  .verdict-enter{color:var(--good);font-weight:600;} .verdict-hold{color:var(--gray);} .verdict-blocked{color:var(--bad);font-weight:600;}
+  .d-enter{color:var(--good);font-weight:600;} .d-hold{color:var(--gray);} .d-blocked{color:var(--bad);font-weight:600;}
+  .tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:99px;border:1px solid var(--warn);color:var(--warn);margin-left:6px;}
+  .legend{color:var(--gray);font-size:12px;margin-top:6px;}
   form{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-  input[type=password]{font:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);min-width:0;flex:1 1 220px;}
+  input[type=password]{font:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);min-width:0;flex:1 1 200px;}
   button{font:inherit;font-weight:600;background:var(--orange);color:#fff;border:0;border-radius:var(--radius);padding:10px 18px;cursor:pointer;}
   button.link{background:none;color:var(--gray);font-weight:400;padding:0;text-decoration:underline;}
   .err{color:var(--bad);font-size:14px;margin-top:8px;min-height:1.2em;}
-  footer{color:var(--gray);font-size:12px;padding:0 0 32px;}
+  .sr{position:absolute;left:-9999px;}
+  footer{color:var(--gray);font-size:12px;padding:0 16px 32px;}
   :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
   [hidden]{display:none!important;}
+  @media (max-width:480px){
+    .card{padding:16px 14px;}
+    .card h2{font-size:23px;}
+    .stat .v{font-size:18px;}
+  }
 </style>
 </head>
 <body>
@@ -73,7 +99,7 @@
     <h2>Sign in</h2>
     <p class="meta">Enter the viewer password you were given.</p>
     <form id="login-form">
-      <label for="pw" class="sub" style="color:var(--gray);position:absolute;left:-9999px">Password</label>
+      <label for="pw" class="sr">Password</label>
       <input id="pw" type="password" autocomplete="current-password" required>
       <button type="submit">View status</button>
     </form>
@@ -81,45 +107,23 @@
   </section>
 
   <div id="dash" hidden>
-    <p class="meta"><span id="refreshed"></span> &middot; <button class="link" id="logout" type="button">Sign out</button></p>
+    <p class="meta" style="margin-bottom:14px"><span id="refreshed"></span> &middot; <button class="link" id="logout" type="button">Sign out</button></p>
     <div id="apps"></div>
   </div>
 </main>
 
-<footer class="wrap">Updates about every five minutes while the bot is running. Times are shown in your local time zone.</footer>
-
-<template id="app-tpl">
-  <section class="card">
-    <h2><span data-f="title"></span><span class="pill" data-f="status"></span></h2>
-    <p class="meta" data-f="meta"></p>
-    <div data-f="body">
-      <div class="grid">
-        <div class="stat"><div class="k">Starting balance</div><div class="v" data-f="start"></div></div>
-        <div class="stat"><div class="k">Realised result</div><div class="v" data-f="realised"></div></div>
-        <div class="stat"><div class="k">Open position value change</div><div class="v" data-f="unrealised"></div></div>
-        <div class="stat"><div class="k">Running costs</div><div class="v" data-f="costs"></div></div>
-        <div class="stat"><div class="k">Days running</div><div class="v" data-f="days"></div></div>
-        <div class="stat"><div class="k">Fills today</div><div class="v" data-f="fills"></div></div>
-        <div class="stat" data-f="rules-box"><div class="k">Rules baseline result</div><div class="v" data-f="rules"></div></div>
-        <div class="stat" data-f="search-box"><div class="k">Web searches this run</div><div class="v" data-f="searches"></div></div>
-      </div>
-      <h3>Open positions</h3>
-      <div class="table"><table><thead><tr><th>Market</th><th>Contracts</th><th>Avg price</th></tr></thead>
-        <tbody data-f="positions"></tbody></table></div>
-      <h3>Recent decisions</h3>
-      <div class="table"><table><thead><tr><th>When</th><th>Market</th><th>Decision</th><th>Why</th></tr></thead>
-        <tbody data-f="decisions"></tbody></table></div>
-    </div>
-  </section>
-</template>
+<footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.</footer>
 
 <script>
 (function () {
   'use strict';
+  // Every value from the API is untrusted: render with textContent and createElement only.
   var KEY = 'bells_session';
   var STALE_MS = 15 * 60 * 1000;
+  var POLL_MS = 30 * 1000;
+  var DASH = '—';
   var NAMES = { agent: 'Agent', park: 'Park' };
-  var timer = null;
+  var STATUSES = { running: 1, paused: 1, stopped: 1, error: 1 };
 
   function store(v) {
     try { if (v === null) sessionStorage.removeItem(KEY); else sessionStorage.setItem(KEY, v); } catch (e) {}
@@ -128,112 +132,274 @@
   var token = load();
 
   function $(id) { return document.getElementById(id); }
-  function show(loggedIn) {
-    $('login').hidden = loggedIn;
-    $('dash').hidden = !loggedIn;
+  function show(loggedIn) { $('login').hidden = loggedIn; $('dash').hidden = !loggedIn; }
+
+  // ── safe DOM helpers ───────────────────────────────────────────────
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
   }
-  function money(v) {
-    if (typeof v !== 'number' || !isFinite(v)) return '—';
-    var s = (v !== 0 && Math.abs(v) < 0.01) ? v.toFixed(4) : v.toFixed(2);
-    return (v < 0 ? '−$' + s.slice(1) : '$' + s);
+  function add(parent, child) { parent.appendChild(child); return child; }
+  function obj(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+  function arr(v) { return Array.isArray(v) ? v : []; }
+  function isNum(v) { return typeof v === 'number' && isFinite(v); }
+  function str(v) { return v === null || v === undefined || v === '' ? DASH : String(v); }
+  function int(v) { return isNum(v) ? String(Math.round(v * 100) / 100) : DASH; }
+  function money(v, dp) {
+    if (!isNum(v)) return DASH;
+    var d = dp != null ? dp : (v !== 0 && Math.abs(v) < 0.01 ? 4 : 2);
+    var s = Math.abs(v).toFixed(d);
+    return (v < 0 ? '−$' : '$') + s;
   }
-  function signed(el, v) {
-    el.textContent = money(v);
-    el.classList.toggle('pos', typeof v === 'number' && v > 0);
-    el.classList.toggle('neg', typeof v === 'number' && v < 0);
-  }
+  function pct(v) { return isNum(v) ? Math.round(v * 100) + '%' : DASH; }
+  function price(v) { return isNum(v) ? v.toFixed(2) : DASH; }
   function when(iso) {
-    var d = iso ? new Date(iso) : null;
-    return d && !isNaN(d) ? d.toLocaleString() : '—';
+    if (!iso) return DASH;
+    var d = new Date(iso);
+    return isNaN(d) ? DASH : d.toLocaleString();
   }
-  function cell(tr, text, cls) {
-    var td = document.createElement('td');
-    td.textContent = text == null ? '—' : String(text);
-    if (cls) td.className = cls;
-    tr.appendChild(td);
-    return td;
+  function whenShort(iso) {
+    if (!iso) return DASH;
+    var d = new Date(iso);
+    if (isNaN(d)) return DASH;
+    return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
+  function stat(grid, label, value, signedVal) {
+    var box = add(grid, el('div', 'stat'));
+    add(box, el('div', 'k', label));
+    var v = add(box, el('div', 'v', value));
+    if (isNum(signedVal)) {
+      if (signedVal > 0) v.classList.add('pos');
+      if (signedVal < 0) v.classList.add('neg');
+    }
+    return box;
+  }
+  function table(parent, heads, cls) {
+    var wrap = add(parent, el('div', 'table'));
+    var t = add(wrap, el('table', cls || ''));
+    var tr = add(add(t, el('thead')), el('tr'));
+    heads.forEach(function (h) { add(tr, el('th', '', h)); });
+    return add(t, el('tbody'));
+  }
+  function cell(tr, text, cls) { return add(tr, el('td', cls || '', text === undefined ? DASH : text)); }
   function emptyRow(tbody, cols, text) {
-    var tr = document.createElement('tr');
-    var td = cell(tr, text, 'empty');
+    var td = cell(add(tbody, el('tr')), text, 'empty');
     td.colSpan = cols;
-    tbody.appendChild(tr);
+  }
+
+  // ── decision labels ────────────────────────────────────────────────
+  function decisionLabel(d) {
+    var v = d.verdict == null ? '' : String(d.verdict);
+    if (d.kind === 'exit') {
+      var acts = { hold: 'Hold position', sell: 'Offer to sell', exit_now: 'Sell now' };
+      var label = acts[d.action] || (d.action ? String(d.action) : DASH);
+      if (v && v !== 'accepted') label += ' (' + v + ')';
+      var cls = v && v !== 'accepted' ? 'd-blocked' : d.action === 'hold' ? 'd-hold' : 'd-enter';
+      return { text: label, cls: cls };
+    }
+    if (v === 'enter') return { text: 'Buy: bid placed', cls: 'd-enter' };
+    if (v === 'hold') return { text: 'Pass', cls: 'd-hold' };
+    if (v === 'blocked') return { text: 'Blocked for review', cls: 'd-blocked' };
+    return { text: v || DASH, cls: 'd-hold' };
+  }
+  function kindLabel(k) {
+    return k === 'entry' ? 'Buy check' : k === 'exit' ? 'Exit review' : str(k);
+  }
+
+  // ── card sections ──────────────────────────────────────────────────
+  function renderHeader(card, s, app) {
+    var h = add(card, el('h2'));
+    add(h, el('span', '', NAMES[app]));
+    var ts = s.received_at || s.published_at || s.generated_at;
+    var age = ts ? Date.now() - new Date(ts).getTime() : NaN;
+    var status = STATUSES[s.status] ? s.status : 'unknown';
+    var stale = isFinite(age) && age > STALE_MS;
+    if (stale && status === 'running') status = 'stale';
+    add(h, el('span', 'pill ' + status, status === 'stale' ? 'no recent update' : status));
+    var mode = s.mode === 'paper' ? 'paper' : s.mode === 'live' ? 'live' : 'unknown';
+    add(h, el('span', 'pill ' + mode, mode === 'unknown' ? 'mode unknown' : mode));
+
+    var meta = add(card, el('p', 'meta'));
+    meta.appendChild(document.createTextNode('Last update '));
+    add(meta, el('b', '', when(ts)));
+    if (stale && status !== 'stale') meta.appendChild(document.createTextNode(' (no recent update)'));
+    meta.appendChild(document.createTextNode(' · Strategy '));
+    add(meta, el('b', '', str(s.strategy)));
+    meta.appendChild(document.createTextNode(' · Risk state '));
+    add(meta, el('b', '', str(s.risk_state)));
+  }
+
+  function renderNow(card, s) {
+    var now = obj(s.now);
+    add(card, el('h3', '', 'Right now'));
+    var g = add(card, el('div', 'grid now'));
+    stat(g, 'Tick', int(now.tick));
+    stat(g, 'Candidates', int(now.candidates));
+    stat(g, 'Orders wanted', int(now.orders_wanted));
+    stat(g, 'Placed / cancelled', int(now.placed) + ' / ' + int(now.cancelled));
+    stat(g, 'Fills', int(now.fills));
+    if (now.paused === true) add(card, el('div', 'warnline', 'Paused this tick.'));
+    if (now.skipped) add(card, el('div', 'warnline', 'Skipped: ' + String(now.skipped)));
+    if (now.error) add(card, el('div', 'warnline bad', 'Error: ' + String(now.error)));
+  }
+
+  function renderSurvival(card, s) {
+    var sv = obj(s.survival), res = obj(s.results), cap = obj(s.capital), odds = obj(s.odds);
+    add(card, el('h3', '', 'Staying alive'));
+    var g = add(card, el('div', 'grid'));
+    stat(g, 'Model spend today', money(sv.model_spend_today_usd));
+    stat(g, 'Model budget left today', money(sv.model_budget_left_today_usd));
+    stat(g, 'Runway (days)', isNum(sv.runway_days) ? String(Math.round(sv.runway_days * 10) / 10) : DASH);
+    stat(g, 'Survival buffer', money(sv.survival_buffer_usd), sv.survival_buffer_usd);
+    stat(g, 'Running costs to date', money(res.running_costs_usd));
+    stat(g, 'Realised result', money(res.realised_pnl_usd), res.realised_pnl_usd);
+    stat(g, 'Rules baseline result', money(res.rules_baseline_realised_usd), res.rules_baseline_realised_usd);
+    stat(g, 'Web searches', int(res.web_searches));
+    var oddsText = odds.enabled === false ? 'no key' : int(odds.credits_remaining);
+    stat(g, 'Odds credits left', oddsText);
+
+    var bits = [
+      'Starting balance ' + money(cap.starting_usd),
+      'Deployed ' + money(cap.deployed_usd),
+      'Open position change ' + money(res.unrealised_pnl_usd),
+      'Fees ' + money(res.fees_usd),
+      'Net survival ' + money(sv.net_survival_usd),
+      'Days running ' + int(res.days_live),
+      'Today ' + int(res.today_fills) + ' fills, net ' + money(res.today_net_usd),
+      'Model calls ' + int(res.model_calls)
+    ];
+    add(card, el('p', 'account', bits.join(' · ')));
+  }
+
+  function renderNotes(card, s) {
+    var notes = arr(s.notes).filter(function (n) { return n !== null && n !== undefined && n !== ''; });
+    if (!notes.length) return;
+    add(card, el('h3', '', 'What it is thinking'));
+    var ul = add(card, el('ul', 'notes'));
+    notes.slice(0, 12).forEach(function (n) { add(ul, el('li', '', String(n))); });
+  }
+
+  function renderDecisions(card, s) {
+    add(card, el('h3', '', 'Decisions'));
+    var tb = table(card, ['Time', 'Market', 'Type', 'Decision', 'Fair / books / market', 'Researched', 'Cost', 'Reason'], 'wide');
+    var list = arr(s.recent_decisions).map(obj).slice();
+    list.sort(function (a, b) {
+      var ta = new Date(a.at).getTime(), tb2 = new Date(b.at).getTime();
+      if (isNaN(ta) || isNaN(tb2)) return 0;
+      return tb2 - ta;
+    });
+    // If timestamps were missing, the sort is a no-op; assume the feed is oldest first.
+    if (list.some(function (d) { return isNaN(new Date(d.at).getTime()); })) list = arr(s.recent_decisions).map(obj).slice().reverse();
+    list.forEach(function (d) {
+      var tr = add(tb, el('tr'));
+      cell(tr, whenShort(d.at), 'num');
+      cell(tr, str(d.market), 'mkt');
+      cell(tr, kindLabel(d.kind), 'num');
+      var lab = decisionLabel(d);
+      cell(tr, lab.text, lab.cls);
+      var odds = cell(tr, '', 'num');
+      add(odds, el('div', '', 'Fair ' + pct(d.fair_value)));
+      add(odds, el('div', '', 'Books ' + pct(d.books_prob)));
+      add(odds, el('div', '', 'Bid ' + price(d.best_bid) + ' / Ask ' + price(d.best_ask)));
+      cell(tr, d.researched === true ? 'yes' : d.researched === false ? 'no' : DASH, 'num');
+      cell(tr, money(d.cost_usd, 4), 'num');
+      var why = cell(tr, '', 'why');
+      var w = d.why == null ? '' : String(d.why);
+      var r = d.reason == null ? '' : String(d.reason);
+      var text = w && r && r !== w ? w + ' ' + DASH + ' ' + r : (w || r || DASH);
+      add(why, el('div', '', text));
+      if (d.shadow !== null && d.shadow !== undefined && d.shadow !== '') {
+        add(why, el('div', 'shadow', 'Rules baseline: ' + String(d.shadow)));
+      }
+    });
+    if (!list.length) emptyRow(tb, 8, 'No decisions yet.');
+    add(card, el('p', 'legend',
+      'Fair: the agent’s own estimate of the chance the outcome happens. ' +
+      'Books: the sportsbooks’ consensus, when available. ' +
+      'Market: the best bid and ask on the exchange.'));
+  }
+
+  function renderPlans(card, s) {
+    var plans = obj(s.plans);
+    var entries = arr(plans.entries).map(obj), exits = arr(plans.exits).map(obj), blocked = arr(plans.blocked).map(obj);
+    add(card, el('h3', '', 'Open plans'));
+    if (!entries.length && !exits.length && !blocked.length) {
+      add(card, el('p', 'empty', 'No open plans.'));
+      return;
+    }
+    if (entries.length) {
+      add(card, el('h4', '', 'Planned buys'));
+      var tb = table(card, ['Market', 'Max price', 'Size', 'Confidence', 'Reason'], 'mid');
+      entries.forEach(function (e) {
+        var tr = add(tb, el('tr'));
+        cell(tr, str(e.market), 'mkt');
+        cell(tr, price(e.max_price), 'num');
+        cell(tr, pct(e.size_fraction), 'num');
+        cell(tr, pct(e.confidence), 'num');
+        cell(tr, str(e.reason), 'why');
+      });
+    }
+    if (exits.length) {
+      add(card, el('h4', '', 'Planned exits'));
+      var tx = table(card, ['Market', 'Action', 'Limit price', 'Reason'], 'mid');
+      var acts = { hold: 'Hold position', sell: 'Offer to sell', exit_now: 'Sell now' };
+      exits.forEach(function (x) {
+        var tr = add(tx, el('tr'));
+        cell(tr, str(x.market), 'mkt');
+        var a = cell(tr, acts[x.action] || str(x.action), 'num');
+        if (x.fallback) add(a, el('span', 'tag', 'fallback'));
+        cell(tr, price(x.limit_price), 'num');
+        cell(tr, str(x.reason), 'why');
+      });
+    }
+    if (blocked.length) {
+      add(card, el('h4', '', 'Blocked markets'));
+      var tbl = table(card, ['Market', 'Reason'], '');
+      blocked.forEach(function (b) {
+        var tr = add(tbl, el('tr'));
+        cell(tr, str(b.market), 'mkt');
+        cell(tr, str(b.reason), 'why');
+      });
+    }
+  }
+
+  function renderPositions(card, s) {
+    add(card, el('h3', '', 'Positions'));
+    var tb = table(card, ['Market', 'Contracts', 'Avg price'], '');
+    arr(s.positions).map(obj).forEach(function (p) {
+      var tr = add(tb, el('tr'));
+      cell(tr, str(p.market), 'mkt');
+      cell(tr, int(p.contracts), 'num');
+      cell(tr, price(p.avg_price), 'num');
+    });
+    if (!tb.children.length) emptyRow(tb, 3, 'No open positions.');
+  }
+
+  function renderApp(root, app, s) {
+    var card = add(root, el('section', 'card'));
+    if (!s || typeof s !== 'object') {
+      var h = add(card, el('h2'));
+      add(h, el('span', '', NAMES[app]));
+      add(h, el('span', 'pill none', app === 'park' ? 'shelved' : 'no data yet'));
+      add(card, el('p', 'meta', app === 'park'
+        ? 'The rewards app is on hold until there is enough capital for it to matter.'
+        : 'Nothing has been published yet.'));
+      return;
+    }
+    // One section failing should not blank the whole card.
+    [renderHeader, renderNow, renderSurvival, renderNotes, renderDecisions, renderPlans, renderPositions]
+      .forEach(function (fn) {
+        try { fn(card, s, app); } catch (e) { /* skip this section */ }
+      });
   }
 
   function render(data) {
     var root = $('apps');
     root.textContent = '';
-    ['agent', 'park'].forEach(function (app) {
-      var s = data ? data[app] : null;
-      var node = $('app-tpl').content.cloneNode(true);
-      var f = function (n) { return node.querySelector('[data-f="' + n + '"]'); };
-      f('title').textContent = NAMES[app];
-      var pill = f('status');
-      if (!s) {
-        pill.textContent = app === 'park' ? 'shelved' : 'no data yet';
-        pill.className = 'pill none';
-        f('meta').textContent = app === 'park'
-          ? 'The rewards app is on hold until there is enough capital for it to matter.'
-          : 'Nothing has been published yet.';
-        f('body').hidden = true;
-        root.appendChild(node);
-        return;
-      }
-      var age = Date.now() - new Date(s.received_at || s.published_at).getTime();
-      var status = String(s.status || 'unknown');
-      if (isFinite(age) && age > STALE_MS && status === 'running') status = 'stale';
-      pill.textContent = status === 'stale' ? 'no recent update' : status;
-      pill.className = 'pill ' + status;
-      f('meta').textContent = 'Last update ' + when(s.received_at || s.published_at) +
-        ' · ' + String(s.mode || '') + ' mode · strategy: ' + String(s.strategy || '—') +
-        ' · risk state: ' + String(s.risk_state || '—');
-
-      var cap = s.capital || {}, res = s.results || {};
-      f('start').textContent = money(cap.starting_usd);
-      signed(f('realised'), res.realised_pnl_usd);
-      signed(f('unrealised'), res.unrealised_pnl_usd);
-      f('costs').textContent = money(res.running_costs_usd);
-      f('days').textContent = res.days_live != null ? String(res.days_live) : '—';
-      f('fills').textContent = res.today_fills != null ? String(res.today_fills) : '—';
-      if (typeof res.rules_baseline_realised_usd === 'number') signed(f('rules'), res.rules_baseline_realised_usd);
-      else f('rules-box').hidden = true;
-      if (typeof res.web_searches === 'number') f('searches').textContent = String(res.web_searches);
-      else f('search-box').hidden = true;
-
-      var pos = f('positions');
-      (s.positions || []).forEach(function (p) {
-        var tr = document.createElement('tr');
-        cell(tr, p.market, 'mkt');
-        cell(tr, p.contracts, 'num');
-        cell(tr, typeof p.avg_price === 'number' ? p.avg_price.toFixed(2) : '—', 'num');
-        pos.appendChild(tr);
-      });
-      if (!pos.children.length) emptyRow(pos, 3, 'No open positions.');
-
-      var dec = f('decisions');
-      (s.recent_decisions || []).slice().reverse().forEach(function (d) {
-        var tr = document.createElement('tr');
-        cell(tr, when(d.at), 'num');
-        cell(tr, d.market, 'mkt');
-        var v = String(d.verdict || '');
-        var label;
-        if (d.kind === 'exit') {
-          var acts = { hold: 'hold position', sell: 'offer to sell', exit_now: 'sell now' };
-          label = 'Exit: ' + (acts[d.action] || d.action || '?');
-          if (v && v !== 'accepted') label += ' (' + v + ')';
-        } else {
-          label = v === 'enter' ? 'Buy: bid placed' : v === 'blocked' ? 'Blocked for review' : 'Pass';
-        }
-        if (d.researched) label += ' · researched';
-        var cls = v === 'enter' || (d.kind === 'exit' && v === 'accepted') ? 'enter'
-          : v === 'blocked' ? 'blocked' : 'hold';
-        cell(tr, label, 'verdict-' + cls);
-        cell(tr, d.reason && d.reason !== d.why ? d.why + ' — ' + d.reason : d.why);
-        dec.appendChild(tr);
-      });
-      if (!dec.children.length) emptyRow(dec, 4, 'No decisions yet.');
-      root.appendChild(node);
-    });
+    data = obj(data);
+    ['agent', 'park'].forEach(function (app) { renderApp(root, app, data[app]); });
   }
 
   function refresh() {
@@ -265,7 +431,7 @@
     })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.token) { $('login-err').textContent = x.j.error || 'Sign in failed.'; return; }
+        if (!x.ok || !x.j.token) { $('login-err').textContent = String(x.j.error || 'Sign in failed.'); return; }
         token = x.j.token; store(token); $('pw').value = '';
         refresh();
       })
@@ -275,7 +441,7 @@
 
   show(!!token);
   refresh();
-  timer = setInterval(refresh, 60000);
+  setInterval(refresh, POLL_MS);
 })();
 </script>
 </body>
