@@ -156,7 +156,45 @@
   .tk-mini{height:4px;border-radius:4px;background:var(--tk-line);margin-top:8px;overflow:hidden;display:flex;}
   .tk-mini span{display:block;height:100%;}
   .summary p{max-width:72ch;color:var(--ink-2);font-size:.9375rem;margin-bottom:8px;}
-  .exec{margin:4px 0 20px;} .exec h3{margin-top:12px;}
+  /* Executive summary: a live card with a clock and an activity feed. */
+  .exec{margin:14px 0 22px;border:var(--hair) solid var(--ink);background:#fff;}
+  .ex-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+           padding:12px 16px;border-bottom:var(--hair) solid var(--rule);}
+  .ex-title{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:var(--fs-label);
+            letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--ink);font-weight:500;}
+  .ex-live{display:inline-flex;align-items:center;gap:6px;color:#1E7B45;}
+  .ex-pulse{width:8px;height:8px;border-radius:50%;background:#1E7B45;position:relative;}
+  .ex-pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #1E7B45;
+                   opacity:0;animation:exPulse 2s ease-out infinite;}
+  .ex-live.stale{color:var(--ink-3);} .ex-live.stale .ex-pulse{background:var(--ink-4);}
+  .ex-live.stale .ex-pulse::after{display:none;}
+  @keyframes exPulse{0%{transform:scale(.6);opacity:.8;}100%{transform:scale(1.6);opacity:0;}}
+  .ex-clock{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.04em;color:var(--ink-3);
+            font-variant-numeric:tabular-nums;}
+  .ex-body{padding:14px 16px 6px;}
+  .ex-body p{max-width:72ch;color:var(--ink-2);font-size:.9375rem;margin-bottom:8px;}
+  .ex-body p.lead{color:var(--ink);font-weight:700;}
+  .ex-feed-h{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 6px;
+             border-top:var(--hair) solid var(--rule);font-family:var(--font-mono);font-size:var(--fs-label);
+             letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--ink-3);}
+  .ex-feed{max-height:230px;overflow-y:auto;padding:0 16px 10px;scroll-behavior:smooth;
+           -webkit-mask-image:linear-gradient(to bottom,#000 85%,transparent);mask-image:linear-gradient(to bottom,#000 85%,transparent);}
+  .ex-item{display:grid;grid-template-columns:118px 1fr;gap:4px 12px;padding:10px 0;border-bottom:var(--hair) solid var(--rule);}
+  .ex-item:last-child{border-bottom:0;}
+  .ex-time{font-family:var(--font-mono);font-size:.6875rem;color:var(--ink-3);white-space:nowrap;padding-top:2px;}
+  .ex-what{font-size:.875rem;color:var(--ink);overflow-wrap:anywhere;}
+  .ex-what b{font-weight:700;}
+  .ex-why{grid-column:2;font-size:.8125rem;color:var(--ink-3);overflow-wrap:anywhere;}
+  .ex-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+          padding:1px 6px;margin-right:6px;border:var(--hair) solid var(--ink);}
+  .ex-tag.buy{background:#1E7B45;border-color:#1E7B45;color:#fff;}
+  .ex-tag.pass{color:var(--ink-3);border-color:var(--ink-4);}
+  .ex-tag.exit{background:var(--ink);color:#fff;}
+  .ex-tag.block{background:#B3261E;border-color:#B3261E;color:#fff;}
+  .ex-item.new{animation:exIn .6s ease-out, exFlash 2.4s ease-out;}
+  @keyframes exIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
+  @keyframes exFlash{0%,30%{background:#EAF6EE;}100%{background:transparent;}}
+  @media (prefers-reduced-motion:reduce){ .ex-pulse::after,.ex-item.new{animation:none;} }
   @media (max-width:480px){ .card h2{font-size:1.5rem;} .stat .v{font-size:1.25rem;} .nav-label{display:none;} }
 </style>
 </head>
@@ -198,7 +236,7 @@
 
 <header class="page wrap">
   <h1>Ring The Bells</h1>
-  <section id="exec" class="exec summary" hidden aria-live="polite"></section>
+  <section id="exec" class="exec" hidden></section>
   <div class="banner">
     Paper trading: every trade shown here is simulated and no real orders are placed.
     The agent decides from real, live data: live Polymarket US order books and markets,
@@ -664,15 +702,85 @@
       });
   }
 
+  // ── executive summary card ─────────────────────────────────────────
+  var EX_SEEN = null;           // decision keys already shown (null until first render)
+  var EX_TS = null;             // time of the snapshot shown
+  var EX_INTERVAL_MS = 5 * 60 * 1000;
+  function ago(ms) {
+    if (!isFinite(ms) || ms < 0) return 'just now';
+    var sec = Math.floor(ms / 1000);
+    if (sec < 60) return sec + 's ago';
+    var m = Math.floor(sec / 60), r = sec % 60;
+    if (m < 60) return m + 'm ' + (r < 10 ? '0' : '') + r + 's ago';
+    var h = Math.floor(m / 60);
+    return h + 'h ' + (m % 60) + 'm ago';
+  }
+  function tickClock() {
+    var clock = $('ex-clock'), live = $('ex-live');
+    if (!clock || !EX_TS) return;
+    var age = Date.now() - new Date(EX_TS).getTime();
+    var next = EX_INTERVAL_MS - age;
+    clock.textContent = 'Updated ' + ago(age) + ' · ' +
+      (next > 0 ? 'next in ' + Math.floor(next / 60000) + ':' + ('0' + Math.floor(next / 1000) % 60).slice(-2)
+                : 'next update due');
+    var stale = age > STALE_MS;
+    live.className = 'ex-live' + (stale ? ' stale' : '');
+    live.lastChild.textContent = stale ? 'No recent update' : 'Live';
+  }
+  setInterval(tickClock, 1000);
+
+  function feedItem(d, isNew) {
+    var item = el('div', 'ex-item' + (isNew ? ' new' : ''));
+    add(item, el('div', 'ex-time', whenShort(d.at)));
+    var what = add(item, el('div', 'ex-what'));
+    var v = String(d.verdict || ''), k = d.kind === 'exit' ? 'exit' : 'entry';
+    var tag = k === 'exit' ? ['exit', 'Exit review'] : v === 'enter' ? ['buy', 'Buy'] :
+              v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
+    add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
+    add(what, el('b', '', str(d.market)));
+    var why = String(d.reason && d.reason !== d.why ? d.reason : (d.why || '')).replace(/^screen: /, '');
+    if (why) add(item, el('div', 'ex-why', why));
+    return item;
+  }
+
   function renderExec(s) {
     var box = $('exec');
     box.textContent = '';
     var sum = s && typeof s === 'object' ? arr(s.summary) : [];
     if (!sum.length) { box.hidden = true; return; }
-    var ts = s.received_at || s.published_at || s.generated_at;
-    add(box, el('h3', '', 'Executive summary · Updated ' + when(ts)));
-    sum.forEach(function (line) { add(box, el('p', '', String(line))); });
+    EX_TS = s.received_at || s.published_at || s.generated_at;
+
+    var head = add(box, el('div', 'ex-head'));
+    var title = add(head, el('div', 'ex-title'));
+    add(title, el('span', '', 'Executive summary'));
+    var live = add(title, el('span', 'ex-live'));
+    live.id = 'ex-live';
+    add(live, el('span', 'ex-pulse'));
+    add(live, el('span', '', 'Live'));
+    var clock = add(head, el('div', 'ex-clock'));
+    clock.id = 'ex-clock';
+
+    var body = add(box, el('div', 'ex-body'));
+    sum.forEach(function (line, i) { add(body, el('p', i === 0 ? 'lead' : '', String(line))); });
+
+    var decs = arr(s.feed && s.feed.length ? s.feed : s.recent_decisions)
+      .filter(function (d) { return d && typeof d === 'object'; });
+    var fh = add(box, el('div', 'ex-feed-h'));
+    add(fh, el('span', '', 'Activity'));
+    add(fh, el('span', '', 'Updated ' + when(EX_TS)));
+    var feed = add(box, el('div', 'ex-feed'));
+    feed.setAttribute('aria-label', 'Latest agent decisions, newest first');
+    var firstRender = EX_SEEN === null;
+    if (firstRender) EX_SEEN = {};
+    if (!decs.length) add(feed, el('div', 'ex-why', 'No decisions yet.'));
+    decs.slice().reverse().forEach(function (d) {
+      var key = String(d.at) + '|' + String(d.market) + '|' + String(d.kind || 'entry');
+      var isNew = !firstRender && !EX_SEEN[key];
+      EX_SEEN[key] = 1;
+      add(feed, feedItem(d, isNew));
+    });
     box.hidden = false;
+    tickClock();
   }
 
   function render(data) {
