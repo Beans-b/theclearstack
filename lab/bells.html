@@ -277,7 +277,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 13 · Sep 18, 2026 12:23 PM PT</span>
+  <div class="build"><span id="build">Build 14 · Sep 18, 2026 1:01 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -550,8 +550,10 @@
     stat(grid, 'Money free to trade', money(free));
     stat(grid, 'Paper trades', int(g.paper_trades_total));
     stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
-    stat(grid, 'Quick checks left today', g.spend_locked === true ? 'locked' :
-      (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left : DASH));
+    // Looks are model calls: the agent paces them across the day (resets 5pm Pacific).
+    stat(grid, 'Looks left today', g.spend_locked === true ? 'locked' :
+      (isNum(g.looks_left_today) ? g.looks_left_today + (isNum(g.looks_cap_today) ? ' of ' + g.looks_cap_today : '')
+       : (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left : DASH)));
     stat(grid, 'Researched decisions left', g.spend_locked === true ? 'locked' :
       (isNum(g.researched_decisions_left) ? '~' + g.researched_decisions_left : DASH));
     stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
@@ -861,7 +863,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "13";
+  var BUILD = "14";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
