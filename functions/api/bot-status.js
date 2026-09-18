@@ -15,7 +15,7 @@
 // Read only for viewers: there is no route here that can reach the bot.
 
 const APPS = ['agent', 'park'];
-const MAX_BYTES = 64000;
+const MAX_BYTES = 256000;  // must match MAX_BYTES in pmbot/share.py
 
 export async function onRequestPost({ request, env }) {
   const missingPost = missing(env, ['BOT_STATUS', 'BOT_PUSH_TOKEN']);

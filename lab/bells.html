@@ -383,8 +383,8 @@
     add(meta, el('b', '', str(s.risk_state)));
   }
 
-  var TK_RANGE = '48H';   // remembered between refreshes
-  var TK_HOURS = { '1H': 1, '6H': 6, '24H': 24, '48H': 48 };
+  var TK_RANGE = 'ALL';   // remembered between refreshes
+  var TK_HOURS = { '1H': 1, '6H': 6, '24H': 24, '48H': 48, 'ALL': Infinity };
   var SVGNS = 'http://www.w3.org/2000/svg';
   function svgEl(tag, attrs) {
     var n = document.createElementNS(SVGNS, tag);
@@ -411,7 +411,10 @@
     var vals = pts.map(function (r) { return r[1]; });
     var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
     if (hi - lo < 0.02) { var mid = (hi + lo) / 2; hi = mid + 0.01; lo = mid - 0.01; }
-    function x(i) { return i / (pts.length - 1) * W; }
+    var t0 = new Date(pts[0][0]).getTime(), t1 = new Date(pts[pts.length - 1][0]).getTime();
+    function x(i) {
+      return t1 > t0 ? (new Date(pts[i][0]).getTime() - t0) / (t1 - t0) * W : i / (pts.length - 1) * W;
+    }
     function y(v) { return top + (hi - v) / (hi - lo) * (H - top - bot); }
     var change = vals[vals.length - 1] - vals[0];
     var col = change < 0 ? '#FF5A5F' : '#3EE07A';
@@ -766,7 +769,8 @@
     var decs = arr(s.feed && s.feed.length ? s.feed : s.recent_decisions)
       .filter(function (d) { return d && typeof d === 'object'; });
     var fh = add(box, el('div', 'ex-feed-h'));
-    add(fh, el('span', '', 'Activity'));
+    add(fh, el('span', '', 'Activity · ' + decs.length + (decs.length === 1 ? ' decision' : ' decisions') +
+      (decs.length ? ' since ' + whenShort(decs[0].at) : '')));
     add(fh, el('span', '', 'Updated ' + when(EX_TS)));
     var feed = add(box, el('div', 'ex-feed'));
     feed.setAttribute('aria-label', 'Latest agent decisions, newest first');
