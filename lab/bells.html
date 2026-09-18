@@ -128,6 +128,21 @@
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
   [hidden]{display:none!important;}
   .logo-name{white-space:nowrap;}
+  /* At a glance: color only here, so gains and losses read instantly. */
+  :root{ --gain:#1E7B45; --loss:#B3261E; --budget:#B7791F; --track:#ECE9E4; }
+  .glance{margin-top:8px;}
+  .bars{display:grid;gap:14px;margin:4px 0 18px;}
+  .bar .lab{display:flex;justify-content:space-between;gap:12px;font-family:var(--font-mono);
+            font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--ink-3);}
+  .bar .lab b{font-family:var(--font);font-size:.9375rem;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:700;}
+  .track{position:relative;height:10px;background:var(--track);margin-top:6px;overflow:hidden;}
+  .fill{position:absolute;top:0;bottom:0;}
+  .fill.gain{background:var(--gain);} .fill.loss{background:var(--loss);} .fill.budget{background:var(--budget);}
+  .fill.ink{background:var(--ink);}
+  .zero{position:absolute;top:-3px;bottom:-3px;left:50%;width:1px;background:var(--ink);}
+  .gain-t{color:var(--gain)!important;} .loss-t{color:var(--loss)!important;}
+  .spark{display:block;width:100%;height:90px;margin-top:6px;border-bottom:var(--hair) solid var(--rule);}
+  .summary p{max-width:72ch;color:var(--ink-2);font-size:.9375rem;margin-bottom:8px;}
   @media (max-width:480px){ .card h2{font-size:1.5rem;} .stat .v{font-size:1.25rem;} .nav-label{display:none;} }
 </style>
 </head>
@@ -170,8 +185,10 @@
 <header class="page wrap">
   <h1>Ring The Bells</h1>
   <div class="banner">
-    Paper trading. Every trade shown here is simulated; no real orders are placed.
-    This is a personal experiment, not an investment offering.
+    Paper trading: every trade shown here is simulated and no real orders are placed.
+    The agent decides from real, live data: live Polymarket US order books and markets,
+    live sportsbook odds and live web research. This is a personal experiment, not an
+    investment offering.
   </div>
 </header>
 
@@ -203,7 +220,7 @@
   var STALE_MS = 15 * 60 * 1000;
   var POLL_MS = 30 * 1000;
   var DASH = '—';
-  var NAMES = { agent: 'Agent', park: 'Park' };
+  var NAMES = { agent: 'Agent Bells Model', park: 'Park' };
   var STATUSES = { running: 1, paused: 1, stopped: 1, error: 1 };
 
   function store(v) {
@@ -310,6 +327,114 @@
     add(meta, el('b', '', str(s.strategy)));
     meta.appendChild(document.createTextNode(' · Risk state '));
     add(meta, el('b', '', str(s.risk_state)));
+  }
+
+  function bar(parent, label, valueText, cls) {
+    var b = add(parent, el('div', 'bar'));
+    var lab = add(b, el('div', 'lab'));
+    add(lab, el('span', '', label));
+    var v = add(lab, el('b', cls || '', valueText));
+    var t = add(b, el('div', 'track'));
+    return t;
+  }
+  function fill(track, cls, leftPct, widthPct) {
+    var f = add(track, el('div', 'fill ' + cls));
+    f.style.left = Math.max(0, Math.min(100, leftPct)) + '%';
+    f.style.width = Math.max(0, Math.min(100, widthPct)) + '%';
+  }
+  function spark(parent, rows) {
+    // Net result over the last 48 hours, drawn with SVG DOM calls only.
+    var pts = arr(rows).filter(function (r) { return Array.isArray(r) && isNum(r[1]); });
+    if (pts.length < 2) return;
+    var ns = 'http://www.w3.org/2000/svg', W = 600, H = 90, pad = 6;
+    var vals = pts.map(function (r) { return r[1]; });
+    var lo = Math.min.apply(null, vals.concat([0])), hi = Math.max.apply(null, vals.concat([0]));
+    if (hi - lo < 0.01) { hi += 0.005; lo -= 0.005; }
+    function y(v) { return pad + (hi - v) / (hi - lo) * (H - 2 * pad); }
+    function x(i) { return i / (pts.length - 1) * W; }
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.setAttribute('class', 'spark');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Net result over time');
+    var z = document.createElementNS(ns, 'line');
+    z.setAttribute('x1', 0); z.setAttribute('x2', W); z.setAttribute('y1', y(0)); z.setAttribute('y2', y(0));
+    z.setAttribute('stroke', '#737373'); z.setAttribute('stroke-dasharray', '3 3'); z.setAttribute('stroke-width', '1');
+    z.setAttribute('vector-effect', 'non-scaling-stroke');
+    svg.appendChild(z);
+    var d = pts.map(function (r, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(r[1]).toFixed(1); }).join(' ');
+    var path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', vals[vals.length - 1] >= 0 ? '#1E7B45' : '#B3261E');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('vector-effect', 'non-scaling-stroke');
+    svg.appendChild(path);
+    parent.appendChild(svg);
+    add(parent, el('div', 'legend', 'Net result after costs, ' + whenShort(pts[0][0]) + ' to ' +
+      whenShort(pts[pts.length - 1][0]) + '. Dashed line is break-even.'));
+  }
+
+  function renderGlance(card, s) {
+    var g = obj(s.glance), cap = obj(s.capital);
+    var box = add(card, el('div', 'glance'));
+    add(box, el('h3', '', 'At a glance'));
+    var bars = add(box, el('div', 'bars'));
+
+    // Net result against the real money at stake, centered on break-even.
+    var net = g.net_result_usd, real = isNum(cap.real_usd) && cap.real_usd > 0 ? cap.real_usd : 10;
+    var t = bar(bars, 'Net result after costs', money(net), isNum(net) ? (net >= 0 ? 'gain-t' : 'loss-t') : '');
+    add(t, el('div', 'zero'));
+    if (isNum(net) && net !== 0) {
+      var w = Math.min(50, Math.abs(net) / real * 50);
+      if (net > 0) fill(t, 'gain', 50, w); else fill(t, 'loss', 50 - w, w);
+    }
+
+    // Wins versus losses on closed trades.
+    var wins = g.wins, losses = g.losses;
+    var wl = (isNum(wins) && isNum(losses)) ? (wins + ' won · ' + losses + ' lost') : DASH;
+    if (isNum(wins) && isNum(losses) && wins + losses === 0) wl = 'No closed trades yet';
+    t = bar(bars, 'Wins / losses', wl);
+    if (isNum(wins) && isNum(losses) && wins + losses > 0) {
+      var wp = wins / (wins + losses) * 100;
+      fill(t, 'gain', 0, wp); fill(t, 'loss', wp, 100 - wp);
+    }
+
+    // Today's model budget.
+    var spent = g.model_spend_today_usd, budget = g.model_budget_today_usd;
+    t = bar(bars, "Today's model budget used",
+      isNum(spent) && isNum(budget) ? money(spent) + ' of ' + money(budget) : DASH);
+    if (isNum(spent) && isNum(budget) && budget > 0) fill(t, 'budget', 0, spent / budget * 100);
+
+    // Paper capital in use.
+    var free = g.money_left_usd, capTot = g.deploy_cap_usd;
+    t = bar(bars, 'Paper capital in use',
+      isNum(free) && isNum(capTot) ? money(capTot - free) + ' of ' + money(capTot) : DASH);
+    if (isNum(free) && isNum(capTot) && capTot > 0) fill(t, 'ink', 0, (capTot - free) / capTot * 100);
+
+    spark(box, s.history);
+
+    var grid = add(box, el('div', 'grid'));
+    var tv = stat(grid, 'Net result', money(net));
+    if (isNum(net)) tv.lastChild.classList.add(net >= 0 ? 'gain-t' : 'loss-t');
+    tv = stat(grid, 'Trading result', money(g.trading_result_usd));
+    if (isNum(g.trading_result_usd) && g.trading_result_usd !== 0)
+      tv.lastChild.classList.add(g.trading_result_usd > 0 ? 'gain-t' : 'loss-t');
+    stat(grid, 'Running costs', money(g.running_costs_usd));
+    stat(grid, 'Money free to trade', money(free));
+    stat(grid, 'Paper trades', int(g.paper_trades_total));
+    stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
+    stat(grid, 'Decisions left today', g.spend_locked === true ? 'locked' :
+      (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left + ' quick / ~' + int(g.researched_decisions_left) + ' researched' : DASH));
+    stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
+
+    var sum = arr(s.summary);
+    if (sum.length) {
+      add(box, el('h3', '', 'Executive summary'));
+      var sb = add(box, el('div', 'summary'));
+      sum.forEach(function (line) { add(sb, el('p', '', String(line))); });
+    }
   }
 
   function renderNow(card, s) {
@@ -470,7 +595,7 @@
       return;
     }
     // One section failing should not blank the whole card.
-    [renderHeader, renderNow, renderSurvival, renderNotes, renderDecisions, renderPlans, renderPositions]
+    [renderHeader, renderGlance, renderNow, renderSurvival, renderNotes, renderDecisions, renderPlans, renderPositions]
       .forEach(function (fn) {
         try { fn(card, s, app); } catch (e) { /* skip this section */ }
       });
