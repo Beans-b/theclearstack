@@ -14,8 +14,14 @@
 const MAX_FAILS = 10;
 
 export async function onRequestPost({ request, env }) {
-  if (!env.BOT_VIEW_PASSWORD || !env.BOT_SESSION_SECRET) {
-    return json({ error: 'Server not configured.' }, 500);
+  const miss = [];
+  for (const n of ['BOT_VIEW_PASSWORD', 'BOT_SESSION_SECRET']) {
+    if (env[n] === undefined || env[n] === null) miss.push(n + ' (not found)');
+    else if (typeof env[n] === 'string' && env[n].length === 0) miss.push(n + ' (empty)');
+  }
+  if (miss.length) {
+    // Names only (public in this repo), never values.
+    return json({ error: 'Server not configured.', missing: miss }, 500);
   }
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   const hour = new Date().toISOString().slice(0, 13);
