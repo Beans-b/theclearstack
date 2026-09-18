@@ -18,8 +18,9 @@ const APPS = ['agent', 'park'];
 const MAX_BYTES = 64000;
 
 export async function onRequestPost({ request, env }) {
-  if (!env.BOT_STATUS || !env.BOT_PUSH_TOKEN) {
-    return json({ error: 'Server not configured.' }, 500);
+  const missingPost = missing(env, ['BOT_STATUS', 'BOT_PUSH_TOKEN']);
+  if (missingPost.length) {
+    return json({ error: 'Server not configured.', missing: missingPost }, 500);
   }
   const auth = request.headers.get('Authorization') || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -42,8 +43,9 @@ export async function onRequestPost({ request, env }) {
 }
 
 export async function onRequestGet({ request, env }) {
-  if (!env.BOT_STATUS || !env.BOT_SESSION_SECRET) {
-    return json({ error: 'Server not configured.' }, 500);
+  const missingGet = missing(env, ['BOT_STATUS', 'BOT_SESSION_SECRET']);
+  if (missingGet.length) {
+    return json({ error: 'Server not configured.', missing: missingGet }, 500);
   }
   const auth = request.headers.get('Authorization') || '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
@@ -59,6 +61,17 @@ export async function onRequestGet({ request, env }) {
 }
 
 // ── helpers ──────────────────────────────────────────────────────────
+// Names only (they are public in this repo), never values. "empty" means the
+// binding exists but holds an empty string.
+function missing(env, names) {
+  const out = [];
+  for (const n of names) {
+    if (env[n] === undefined || env[n] === null) out.push(n + ' (not found)');
+    else if (typeof env[n] === 'string' && env[n].length === 0) out.push(n + ' (empty)');
+  }
+  return out;
+}
+
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
     status,
