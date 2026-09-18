@@ -176,6 +176,8 @@
   .ex-live.stale{color:var(--ink-3);} .ex-live.stale .ex-pulse{background:var(--ink-4);}
   .ex-live.stale .ex-pulse::after{display:none;}
   @keyframes exPulse{0%{transform:scale(.6);opacity:.8;}100%{transform:scale(1.6);opacity:0;}}
+  .ex-now{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.04em;color:var(--ink);
+          font-variant-numeric:tabular-nums;}
   .ex-clock{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.04em;color:var(--ink-3);
             font-variant-numeric:tabular-nums;}
   .ex-body{padding:14px 16px 6px;}
@@ -275,7 +277,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 12 · 2026-09-18</span>
+  <div class="build"><span id="build">Build 13 · Sep 18, 2026 12:23 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -287,7 +289,7 @@
   var STALE_MS = 15 * 60 * 1000;
   var POLL_MS = 30 * 1000;
   var DASH = '—';
-  var NAMES = { agent: 'Agent Bells Model', park: 'Park' };
+  var NAMES = { agent: 'Agent Bells Model' };
   var STATUSES = { running: 1, paused: 1, stopped: 1, error: 1 };
 
   function store(v) {
@@ -691,14 +693,15 @@
 
   function renderPositions(card, s) {
     add(card, el('h3', '', 'Positions'));
-    var tb = table(card, ['Market', 'Contracts', 'Avg price'], '');
+    var tb = table(card, ['Market', 'Side', 'Contracts', 'Avg price'], '');
     arr(s.positions).map(obj).forEach(function (p) {
       var tr = add(tb, el('tr'));
       cell(tr, str(p.market), 'mkt');
+      cell(tr, p.side === 'no' ? 'NO' : 'YES', '');
       cell(tr, int(p.contracts), 'num');
       cell(tr, price(p.avg_price), 'num');
     });
-    if (!tb.children.length) emptyRow(tb, 3, 'No open positions.');
+    if (!tb.children.length) emptyRow(tb, 4, 'No open positions.');
   }
 
   function renderApp(root, app, s) {
@@ -706,10 +709,8 @@
     if (!s || typeof s !== 'object') {
       var h = add(card, el('h2'));
       add(h, el('span', '', NAMES[app]));
-      add(h, el('span', 'pill none', app === 'park' ? 'shelved' : 'no data yet'));
-      add(card, el('p', 'meta', app === 'park'
-        ? 'The rewards app is on hold until there is enough capital for it to matter.'
-        : 'Nothing has been published yet.'));
+      add(h, el('span', 'pill none', 'no data yet'));
+      add(card, el('p', 'meta', 'Nothing has been published yet.'));
       return;
     }
     // One section failing should not blank the whole card.
@@ -733,7 +734,12 @@
     return h + 'h ' + (m % 60) + 'm ago';
   }
   function tickClock() {
-    var clock = $('ex-clock'), live = $('ex-live');
+    var clock = $('ex-clock'), live = $('ex-live'), nowEl = $('ex-now');
+    if (nowEl) {
+      nowEl.textContent = 'Now ' + new Date().toLocaleString([], {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+    }
     if (!clock || !EX_TS) return;
     var age = Date.now() - new Date(EX_TS).getTime();
     var next = EX_INTERVAL_MS - age;
@@ -751,7 +757,8 @@
     add(item, el('div', 'ex-time', whenShort(d.at)));
     var what = add(item, el('div', 'ex-what'));
     var v = String(d.verdict || ''), k = d.kind === 'exit' ? 'exit' : 'entry';
-    var tag = k === 'exit' ? ['exit', 'Exit review'] : v === 'enter' ? ['buy', 'Buy'] :
+    var tag = k === 'exit' ? ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'] :
+              v === 'enter' ? ['buy', d.action === 'buy_no' ? 'Buy NO' : 'Buy YES'] :
               v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
     add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
     add(what, el('b', '', str(d.market)));
@@ -774,7 +781,10 @@
     live.id = 'ex-live';
     add(live, el('span', 'ex-pulse'));
     add(live, el('span', '', 'Live'));
-    var clock = add(head, el('div', 'ex-clock'));
+    var times = add(head, el('div', ''));
+    var now = add(times, el('div', 'ex-now'));
+    now.id = 'ex-now';
+    var clock = add(times, el('div', 'ex-clock'));
     clock.id = 'ex-clock';
 
     var body = add(box, el('div', 'ex-body'));
@@ -806,7 +816,7 @@
     root.textContent = '';
     data = obj(data);
     try { renderExec(data.agent); } catch (e) { $('exec').hidden = true; }
-    ['agent', 'park'].forEach(function (app) { renderApp(root, app, data[app]); });
+    renderApp(root, 'agent', data.agent);
   }
 
   function refresh() {
@@ -851,7 +861,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "12";
+  var BUILD = "13";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
