@@ -143,6 +143,7 @@
   .gain-t{color:var(--gain)!important;} .loss-t{color:var(--loss)!important;}
   .spark{display:block;width:100%;height:90px;margin-top:6px;border-bottom:var(--hair) solid var(--rule);}
   .summary p{max-width:72ch;color:var(--ink-2);font-size:.9375rem;margin-bottom:8px;}
+  .exec{margin:4px 0 20px;} .exec h3{margin-top:12px;}
   @media (max-width:480px){ .card h2{font-size:1.5rem;} .stat .v{font-size:1.25rem;} .nav-label{display:none;} }
 </style>
 </head>
@@ -184,6 +185,7 @@
 
 <header class="page wrap">
   <h1>Ring The Bells</h1>
+  <section id="exec" class="exec summary" hidden aria-live="polite"></section>
   <div class="banner">
     Paper trading: every trade shown here is simulated and no real orders are placed.
     The agent decides from real, live data: live Polymarket US order books and markets,
@@ -230,7 +232,8 @@
   var token = load();
 
   function $(id) { return document.getElementById(id); }
-  function show(loggedIn) { $('login').hidden = loggedIn; $('dash').hidden = !loggedIn; }
+  function show(loggedIn) { $('login').hidden = loggedIn; $('dash').hidden = !loggedIn;
+    if (!loggedIn) { $('exec').hidden = true; $('exec').textContent = ''; } }
 
   // ── safe DOM helpers ───────────────────────────────────────────────
   function el(tag, cls, text) {
@@ -429,12 +432,6 @@
       (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left + ' quick / ~' + int(g.researched_decisions_left) + ' researched' : DASH));
     stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
 
-    var sum = arr(s.summary);
-    if (sum.length) {
-      add(box, el('h3', '', 'Executive summary'));
-      var sb = add(box, el('div', 'summary'));
-      sum.forEach(function (line) { add(sb, el('p', '', String(line))); });
-    }
   }
 
   function renderNow(card, s) {
@@ -601,10 +598,22 @@
       });
   }
 
+  function renderExec(s) {
+    var box = $('exec');
+    box.textContent = '';
+    var sum = s && typeof s === 'object' ? arr(s.summary) : [];
+    if (!sum.length) { box.hidden = true; return; }
+    var ts = s.received_at || s.published_at || s.generated_at;
+    add(box, el('h3', '', 'Executive summary · Updated ' + when(ts)));
+    sum.forEach(function (line) { add(box, el('p', '', String(line))); });
+    box.hidden = false;
+  }
+
   function render(data) {
     var root = $('apps');
     root.textContent = '';
     data = obj(data);
+    try { renderExec(data.agent); } catch (e) { $('exec').hidden = true; }
     ['agent', 'park'].forEach(function (app) { renderApp(root, app, data[app]); });
   }
 
