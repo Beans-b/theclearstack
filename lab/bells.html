@@ -125,6 +125,13 @@
   .err{color:var(--ink);font-weight:700;font-size:var(--fs-small);margin-top:10px;min-height:1.2em;}
   .sr{position:absolute;left:-9999px;}
   footer{color:var(--ink-4);font-size:.75rem;padding-bottom:40px;}
+  .build{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px;
+         font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.04em;color:var(--ink-3);}
+  .build button{font:inherit;color:var(--ink);background:none;border:var(--hair) solid var(--ink);
+                padding:6px 12px;min-height:32px;cursor:pointer;}
+  .update{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;
+          padding:10px 16px;background:var(--ink);color:#fff;font-size:.875rem;}
+  .update button{font:inherit;font-weight:700;color:var(--ink);background:#fff;border:0;padding:6px 12px;min-height:32px;cursor:pointer;}
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
   [hidden]{display:none!important;}
   .logo-name{white-space:nowrap;}
@@ -199,6 +206,10 @@
 </style>
 </head>
 <body>
+<div class="update" id="update" hidden role="status">
+  <span>A new version of this page is ready.</span>
+  <button type="button" id="update-go">Update</button>
+</div>
 <nav id="nav" aria-label="Primary">
   <a href="/" class="nav-logo" aria-label="The Clear Stack, home">
     <svg width="28" height="32" viewBox="0 0 64 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -263,7 +274,10 @@
   </div>
 </main>
 
-<footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.</footer>
+<footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
+  <div class="build"><span id="build">Build 11 · 2026-09-18</span>
+    <button type="button" id="reload">Reload page</button></div>
+</footer>
 
 <script>
 (function () {
@@ -832,9 +846,35 @@
   });
   $('logout').addEventListener('click', function () { token = null; store(null); show(false); });
 
+  // ---- build stamp and updates ---------------------------------------------
+  // A home-screen web app has no address bar or pull-to-refresh, so the page
+  // checks bells-build.json itself and offers a one-tap update. Reloading with
+  // a fresh query string gets the new page without re-adding it to the home
+  // screen. BUILD must match lab/bells-build.json on every deploy.
+  var BUILD = "11";
+  function hardReload() {
+    location.replace(location.pathname + '?v=' + Date.now() + location.hash);
+  }
+  function checkBuild() {
+    fetch('/lab/bells-build.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (j && j.build != null && String(j.build) !== BUILD) $('update').hidden = false;
+      })
+      .catch(function () {});
+  }
+  $('reload').addEventListener('click', hardReload);
+  $('update-go').addEventListener('click', hardReload);
+  // iOS pauses timers while the app is in the background; catch up on return.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') { refresh(); checkBuild(); }
+  });
+
   show(!!token);
   refresh();
+  checkBuild();
   setInterval(refresh, POLL_MS);
+  setInterval(checkBuild, 5 * 60 * 1000);
 })();
 </script>
 </body>
