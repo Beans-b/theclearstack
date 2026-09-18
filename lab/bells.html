@@ -128,20 +128,33 @@
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
   [hidden]{display:none!important;}
   .logo-name{white-space:nowrap;}
-  /* At a glance: color only here, so gains and losses read instantly. */
-  :root{ --gain:#1E7B45; --loss:#B3261E; --budget:#B7791F; --track:#ECE9E4; }
+  /* At a glance ticker: dark trading-app card (the only dark, colored area). */
+  :root{ --tk-bg:#111311; --tk-tile:#1B1E1B; --tk-line:#2A2E2A; --tk-text:#F4F6F4; --tk-dim:#9BA39B;
+         --tk-up:#3EE07A; --tk-down:#FF5A5F; --tk-amber:#F5B942; --tk-violet:#8B7CF6; }
   .glance{margin-top:8px;}
-  .bars{display:grid;gap:14px;margin:4px 0 18px;}
-  .bar .lab{display:flex;justify-content:space-between;gap:12px;font-family:var(--font-mono);
-            font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--ink-3);}
-  .bar .lab b{font-family:var(--font);font-size:.9375rem;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:700;}
-  .track{position:relative;height:10px;background:var(--track);margin-top:6px;overflow:hidden;}
-  .fill{position:absolute;top:0;bottom:0;}
-  .fill.gain{background:var(--gain);} .fill.loss{background:var(--loss);} .fill.budget{background:var(--budget);}
-  .fill.ink{background:var(--ink);}
-  .zero{position:absolute;top:-3px;bottom:-3px;left:50%;width:1px;background:var(--ink);}
-  .gain-t{color:var(--gain)!important;} .loss-t{color:var(--loss)!important;}
-  .spark{display:block;width:100%;height:90px;margin-top:6px;border-bottom:var(--hair) solid var(--rule);}
+  .tk{background:var(--tk-bg);color:var(--tk-text);border-radius:22px;padding:18px 18px 16px;margin:6px 0 18px;}
+  .tk-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .tk-name{display:flex;align-items:center;gap:8px;font-size:.8125rem;color:var(--tk-dim);}
+  .tk-dot{width:18px;height:18px;border-radius:50%;background:var(--tk-up);display:inline-block;flex:0 0 auto;}
+  .tk-live{font-size:.75rem;color:var(--tk-up);font-weight:600;}
+  .tk-big{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums;}
+  .tk-chg{font-size:.8125rem;font-weight:600;font-variant-numeric:tabular-nums;}
+  .up{color:var(--tk-up);} .down{color:var(--tk-down);} .flat{color:var(--tk-dim);}
+  .tk-chart{display:block;width:100%;height:190px;margin-top:10px;}
+  .tk-empty{height:120px;display:flex;align-items:center;justify-content:center;color:var(--tk-dim);font-size:.8125rem;}
+  .tk-tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .tk-tab{background:transparent;border:0;color:var(--tk-dim);font:inherit;font-size:.75rem;font-weight:600;
+          padding:8px 14px;border-radius:999px;cursor:pointer;}
+  .tk-tab[aria-pressed="true"]{background:#2A2E2A;color:var(--tk-text);}
+  .tk-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:14px;}
+  .tk-chip{background:var(--tk-tile);border-radius:14px;padding:10px 12px;min-width:0;}
+  .tk-chip .row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .tk-chip .nm{display:flex;align-items:center;gap:7px;font-size:.75rem;color:var(--tk-text);}
+  .tk-chip .d{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+  .tk-chip .val{font-size:.75rem;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .tk-chip .sub{font-size:.6875rem;color:var(--tk-dim);margin-top:4px;font-family:var(--font);letter-spacing:0;text-transform:none;opacity:1;}
+  .tk-mini{height:4px;border-radius:4px;background:var(--tk-line);margin-top:8px;overflow:hidden;display:flex;}
+  .tk-mini span{display:block;height:100%;}
   .summary p{max-width:72ch;color:var(--ink-2);font-size:.9375rem;margin-bottom:8px;}
   .exec{margin:4px 0 20px;} .exec h3{margin-top:12px;}
   @media (max-width:480px){ .card h2{font-size:1.5rem;} .stat .v{font-size:1.25rem;} .nav-label{display:none;} }
@@ -332,106 +345,159 @@
     add(meta, el('b', '', str(s.risk_state)));
   }
 
-  function bar(parent, label, valueText, cls) {
-    var b = add(parent, el('div', 'bar'));
-    var lab = add(b, el('div', 'lab'));
-    add(lab, el('span', '', label));
-    var v = add(lab, el('b', cls || '', valueText));
-    var t = add(b, el('div', 'track'));
-    return t;
+  var TK_RANGE = '48H';   // remembered between refreshes
+  var TK_HOURS = { '1H': 1, '6H': 6, '24H': 24, '48H': 48 };
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, String(attrs[k])); });
+    return n;
   }
-  function fill(track, cls, leftPct, widthPct) {
-    var f = add(track, el('div', 'fill ' + cls));
-    f.style.left = Math.max(0, Math.min(100, leftPct)) + '%';
-    f.style.width = Math.max(0, Math.min(100, widthPct)) + '%';
+  function signedMoney(v) {
+    if (!isNum(v)) return DASH;
+    return (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + Math.abs(v).toFixed(Math.abs(v) < 0.01 && v !== 0 ? 4 : 2);
   }
-  function spark(parent, rows) {
-    // Net result over the last 48 hours, drawn with SVG DOM calls only.
-    var pts = arr(rows).filter(function (r) { return Array.isArray(r) && isNum(r[1]); });
-    if (pts.length < 2) return;
-    var ns = 'http://www.w3.org/2000/svg', W = 600, H = 90, pad = 6;
+  function tone(v) { return !isNum(v) || v === 0 ? 'flat' : v > 0 ? 'up' : 'down'; }
+
+  function drawTicker(host, rows, real) {
+    host.textContent = '';
+    var cutoff = Date.now() - TK_HOURS[TK_RANGE] * 3600 * 1000;
+    var pts = arr(rows).filter(function (r) {
+      return Array.isArray(r) && isNum(r[1]) && new Date(r[0]).getTime() >= cutoff;
+    });
+    if (pts.length < 2) {
+      add(host, el('div', 'tk-empty', 'The chart fills in as updates arrive (one every 5 minutes).'));
+      return null;
+    }
+    var W = 640, H = 190, top = 26, bot = 22;
     var vals = pts.map(function (r) { return r[1]; });
-    var lo = Math.min.apply(null, vals.concat([0])), hi = Math.max.apply(null, vals.concat([0]));
-    if (hi - lo < 0.01) { hi += 0.005; lo -= 0.005; }
-    function y(v) { return pad + (hi - v) / (hi - lo) * (H - 2 * pad); }
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if (hi - lo < 0.02) { var mid = (hi + lo) / 2; hi = mid + 0.01; lo = mid - 0.01; }
     function x(i) { return i / (pts.length - 1) * W; }
-    var svg = document.createElementNS(ns, 'svg');
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    svg.setAttribute('preserveAspectRatio', 'none');
-    svg.setAttribute('class', 'spark');
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', 'Net result over time');
-    var z = document.createElementNS(ns, 'line');
-    z.setAttribute('x1', 0); z.setAttribute('x2', W); z.setAttribute('y1', y(0)); z.setAttribute('y2', y(0));
-    z.setAttribute('stroke', '#737373'); z.setAttribute('stroke-dasharray', '3 3'); z.setAttribute('stroke-width', '1');
-    z.setAttribute('vector-effect', 'non-scaling-stroke');
-    svg.appendChild(z);
-    var d = pts.map(function (r, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(r[1]).toFixed(1); }).join(' ');
-    var path = document.createElementNS(ns, 'path');
-    path.setAttribute('d', d);
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', vals[vals.length - 1] >= 0 ? '#1E7B45' : '#B3261E');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('vector-effect', 'non-scaling-stroke');
-    svg.appendChild(path);
-    parent.appendChild(svg);
-    add(parent, el('div', 'legend', 'Net result after costs, ' + whenShort(pts[0][0]) + ' to ' +
-      whenShort(pts[pts.length - 1][0]) + '. Dashed line is break-even.'));
+    function y(v) { return top + (hi - v) / (hi - lo) * (H - top - bot); }
+    var change = vals[vals.length - 1] - vals[0];
+    var col = change < 0 ? '#FF5A5F' : '#3EE07A';
+    var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'none', 'class': 'tk-chart',
+                             role: 'img', 'aria-label': 'Net result over the selected range' });
+    var gid = 'tkg' + Math.floor(Math.random() * 1e9);
+    var defs = svgEl('defs', {});
+    var grad = svgEl('linearGradient', { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+    grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': col, 'stop-opacity': 0.35 }));
+    grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': col, 'stop-opacity': 0 }));
+    defs.appendChild(grad); svg.appendChild(defs);
+    var line = pts.map(function (r, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(r[1]).toFixed(1); }).join(' ');
+    svg.appendChild(svgEl('path', { d: line + ' L' + W + ' ' + H + ' L0 ' + H + ' Z', fill: 'url(#' + gid + ')' }));
+    svg.appendChild(svgEl('path', { d: line, fill: 'none', stroke: col, 'stroke-width': 2,
+                                    'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }));
+    // High and low markers with dashed guides, as in the reference design.
+    var iHi = vals.indexOf(Math.max.apply(null, vals));
+    var iLo = vals.indexOf(Math.min.apply(null, vals));
+    [[iHi, '#3EE07A', 'hi'], [iLo, '#FF5A5F', 'lo']].forEach(function (m) {
+      var i = m[0], cx = x(i), cy = y(vals[i]);
+      var toRight = m[2] === 'hi';
+      svg.appendChild(svgEl('line', { x1: toRight ? 0 : cx, x2: toRight ? cx : W, y1: cy, y2: cy,
+        stroke: m[1], 'stroke-opacity': 0.55, 'stroke-dasharray': '4 4', 'stroke-width': 1,
+        'vector-effect': 'non-scaling-stroke' }));
+      svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 5, fill: m[1], stroke: '#111311', 'stroke-width': 2 }));
+    });
+    host.appendChild(svg);
+    // Labels in HTML (text only) so they stay crisp and never stretch.
+    var labs = add(host, el('div', ''));
+    labs.style.cssText = 'display:flex;justify-content:space-between;font-size:.6875rem;margin-top:4px';
+    add(labs, el('span', 'down', 'Low ' + signedMoney(Math.min.apply(null, vals))));
+    add(labs, el('span', 'up', 'High ' + signedMoney(Math.max.apply(null, vals))));
+    return change;
+  }
+
+  function chip(parent, color, name, value, sub, parts) {
+    var c = add(parent, el('div', 'tk-chip'));
+    var row = add(c, el('div', 'row'));
+    var nm = add(row, el('span', 'nm'));
+    var d = add(nm, el('span', 'd')); d.style.background = color;
+    add(nm, el('span', '', name));
+    add(row, el('span', 'val', value));
+    if (sub) add(c, el('div', 'sub', sub));
+    if (parts) {
+      var mini = add(c, el('div', 'tk-mini'));
+      parts.forEach(function (pt) {
+        var sp = add(mini, el('span', ''));
+        sp.style.width = Math.max(0, Math.min(100, pt[0])) + '%';
+        sp.style.background = pt[1];
+      });
+    }
   }
 
   function renderGlance(card, s) {
     var g = obj(s.glance), cap = obj(s.capital);
     var box = add(card, el('div', 'glance'));
     add(box, el('h3', '', 'At a glance'));
-    var bars = add(box, el('div', 'bars'));
+    var tk = add(box, el('div', 'tk'));
 
-    // Net result against the real money at stake, centered on break-even.
-    var net = g.net_result_usd, real = isNum(cap.real_usd) && cap.real_usd > 0 ? cap.real_usd : 10;
-    var t = bar(bars, 'Net result after costs', money(net), isNum(net) ? (net >= 0 ? 'gain-t' : 'loss-t') : '');
-    add(t, el('div', 'zero'));
-    if (isNum(net) && net !== 0) {
-      var w = Math.min(50, Math.abs(net) / real * 50);
-      if (net > 0) fill(t, 'gain', 50, w); else fill(t, 'loss', 50 - w, w);
+    var topRow = add(tk, el('div', 'tk-top'));
+    var nm = add(topRow, el('span', 'tk-name'));
+    add(nm, el('span', 'tk-dot'));
+    add(nm, el('span', '', 'Net result after costs'));
+    add(topRow, el('span', 'tk-live', s.status === 'running' ? 'Live' : str(s.status)));
+
+    var net = g.net_result_usd;
+    add(tk, el('div', 'tk-big', money(net)));
+    var chg = add(tk, el('div', 'tk-chg', ''));
+    var chartHost = add(tk, el('div', ''));
+    var real = isNum(cap.real_usd) && cap.real_usd > 0 ? cap.real_usd : 10;
+
+    function redraw() {
+      var change = drawTicker(chartHost, s.history, real);
+      if (isNum(change)) {
+        chg.className = 'tk-chg ' + tone(change);
+        chg.textContent = signedMoney(change) + ' (' + (change >= 0 ? '+' : '−') +
+          Math.abs(change / real * 100).toFixed(2) + '% of real capital) · ' + TK_RANGE;
+      } else {
+        chg.className = 'tk-chg flat';
+        chg.textContent = 'Change shows once there is history';
+      }
     }
+    var tabs = add(tk, el('div', 'tk-tabs'));
+    Object.keys(TK_HOURS).forEach(function (k) {
+      var b = add(tabs, el('button', 'tk-tab', k));
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(k === TK_RANGE));
+      b.addEventListener('click', function () {
+        TK_RANGE = k;
+        Array.prototype.forEach.call(tabs.children, function (t) {
+          t.setAttribute('aria-pressed', String(t.textContent === k));
+        });
+        redraw();
+      });
+    });
+    redraw();
 
-    // Wins versus losses on closed trades.
-    var wins = g.wins, losses = g.losses;
-    var wl = (isNum(wins) && isNum(losses)) ? (wins + ' won · ' + losses + ' lost') : DASH;
-    if (isNum(wins) && isNum(losses) && wins + losses === 0) wl = 'No closed trades yet';
-    t = bar(bars, 'Wins / losses', wl);
-    if (isNum(wins) && isNum(losses) && wins + losses > 0) {
-      var wp = wins / (wins + losses) * 100;
-      fill(t, 'gain', 0, wp); fill(t, 'loss', wp, 100 - wp);
-    }
-
-    // Today's model budget.
+    var chips = add(tk, el('div', 'tk-chips'));
+    var wins = g.wins, losses = g.losses, closed = (isNum(wins) ? wins : 0) + (isNum(losses) ? losses : 0);
+    chip(chips, '#3EE07A', 'Wins', int(wins), isNum(g.won_usd) ? '+$' + g.won_usd.toFixed(2) + ' won' : '',
+      closed ? [[wins / closed * 100, '#3EE07A'], [losses / closed * 100, '#FF5A5F']] : [[0, '#3EE07A']]);
+    chip(chips, '#FF5A5F', 'Losses', int(losses), isNum(g.lost_usd) ? '−$' + g.lost_usd.toFixed(2) + ' lost' : '',
+      closed ? [[losses / closed * 100, '#FF5A5F']] : [[0, '#FF5A5F']]);
     var spent = g.model_spend_today_usd, budget = g.model_budget_today_usd;
-    t = bar(bars, "Today's model budget used",
-      isNum(spent) && isNum(budget) ? money(spent) + ' of ' + money(budget) : DASH);
-    if (isNum(spent) && isNum(budget) && budget > 0) fill(t, 'budget', 0, spent / budget * 100);
-
-    // Paper capital in use.
+    var bp = isNum(spent) && isNum(budget) && budget > 0 ? spent / budget * 100 : 0;
+    chip(chips, '#F5B942', 'Model budget', isNum(budget) ? Math.round(bp) + '% used' : DASH,
+      isNum(spent) && isNum(budget) ? money(spent) + ' of ' + money(budget) + ' today' : '', [[bp, '#F5B942']]);
     var free = g.money_left_usd, capTot = g.deploy_cap_usd;
-    t = bar(bars, 'Paper capital in use',
-      isNum(free) && isNum(capTot) ? money(capTot - free) + ' of ' + money(capTot) : DASH);
-    if (isNum(free) && isNum(capTot) && capTot > 0) fill(t, 'ink', 0, (capTot - free) / capTot * 100);
+    var cp = isNum(free) && isNum(capTot) && capTot > 0 ? (capTot - free) / capTot * 100 : 0;
+    chip(chips, '#8B7CF6', 'Capital in use', isNum(capTot) ? Math.round(cp) + '%' : DASH,
+      isNum(free) && isNum(capTot) ? money(capTot - free) + ' of ' + money(capTot) : '', [[cp, '#8B7CF6']]);
 
-    spark(box, s.history);
-
+    // Headline figures stay in the site's black and white style.
     var grid = add(box, el('div', 'grid'));
-    var tv = stat(grid, 'Net result', money(net));
-    if (isNum(net)) tv.lastChild.classList.add(net >= 0 ? 'gain-t' : 'loss-t');
-    tv = stat(grid, 'Trading result', money(g.trading_result_usd));
-    if (isNum(g.trading_result_usd) && g.trading_result_usd !== 0)
-      tv.lastChild.classList.add(g.trading_result_usd > 0 ? 'gain-t' : 'loss-t');
+    stat(grid, 'Trading result', signedMoney(g.trading_result_usd));
     stat(grid, 'Running costs', money(g.running_costs_usd));
     stat(grid, 'Money free to trade', money(free));
     stat(grid, 'Paper trades', int(g.paper_trades_total));
     stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
-    stat(grid, 'Decisions left today', g.spend_locked === true ? 'locked' :
-      (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left + ' quick / ~' + int(g.researched_decisions_left) + ' researched' : DASH));
+    stat(grid, 'Quick checks left today', g.spend_locked === true ? 'locked' :
+      (isNum(g.quick_checks_left) ? '~' + g.quick_checks_left : DASH));
+    stat(grid, 'Researched decisions left', g.spend_locked === true ? 'locked' :
+      (isNum(g.researched_decisions_left) ? '~' + g.researched_decisions_left : DASH));
     stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
-
   }
 
   function renderNow(card, s) {
