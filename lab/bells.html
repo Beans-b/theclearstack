@@ -306,7 +306,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 18 · Sep 18, 2026 8:40 PM PT</span>
+  <div class="build"><span id="build">Build 19 · Sep 18, 2026 8:43 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -375,7 +375,18 @@
     var m = String(slug || '').match(/-(total|neg|pos)-(\d+)pt(\d)$/);
     if (!m) return '';
     var n = m[2] + '.' + m[3];
-    return m[1] === 'total' ? 'Total over ' + n : 'Spread ' + (m[1] === 'neg' ? '−' : '+') + n;
+    return m[1] === 'total' ? 'Total ' + n : 'Spread ' + (m[1] === 'neg' ? '−' : '+') + n;
+  }
+  // What a YES or NO position is betting on, in plain words.
+  function betWords(slug, side) {
+    var m = String(slug || '').match(/-(total|neg|pos)-(\d+)pt(\d)$/);
+    var yes = side !== 'no';
+    if (m && m[1] === 'total') {
+      var n = m[2] + '.' + m[3];
+      return yes ? 'Betting the total goes over ' + n : 'Betting the total stays under ' + n;
+    }
+    if (m) return yes ? 'Betting the team covers the spread' : 'Betting the team does not cover';
+    return yes ? 'Betting YES' : 'Betting NO';
   }
   function marketName(parent, slug) {
     var t = TITLES[String(slug)] || '', line = lineOf(slug);
@@ -650,8 +661,9 @@
       pos.forEach(function (p) {
         var it = add(box, el('div', 'det-item bought'));
         var top = add(it, el('div', 'det-top'));
-        add(top, el('span', 'ex-tag bought', 'Holding ' + (p.side === 'no' ? 'NO' : 'YES')));
+        add(top, el('span', 'ex-tag bought', 'Holding'));
         marketName(top, p.market);
+        add(it, el('div', 'det-meta', betWords(p.market, p.side)));
         add(it, el('div', 'det-meta', int(p.contracts) + ' contracts · avg ' + price(p.avg_price) +
           ' · pays $1.00 each if ' + (p.side === 'no' ? 'NO' : 'YES')));
         var why = buyReason(s, p.market);
@@ -663,10 +675,11 @@
       ords.forEach(function (o) {
         var it = add(box, el('div', 'det-item'));
         var top = add(it, el('div', 'det-top'));
-        var verb = o.action === 'sell' ? 'Sell ' : 'Buy ';
+        var verb = o.action === 'sell' ? 'Sell' : 'Buy';
         it.classList.add(o.action === 'sell' ? 'sell' : 'bought');
-        add(top, el('span', 'ex-tag ' + (o.action === 'sell' ? 'sell' : 'bought'), verb + (o.side === 'no' ? 'NO' : 'YES')));
+        add(top, el('span', 'ex-tag ' + (o.action === 'sell' ? 'sell' : 'bought'), verb));
         marketName(top, o.market);
+        add(it, el('div', 'det-meta', betWords(o.market, o.side)));
         add(it, el('div', 'det-meta', int(o.qty) + ' at ' + price(o.price) +
           (o.paper ? ' · paper order, fills only if the market trades to this price' : '')));
         var why = String(o.reason || '') || buyReason(s, o.market);
@@ -878,13 +891,13 @@
     if (d.kind === 'trade') {
       // A fill: a bought contract is green, a sold one blue.
       color = a.indexOf('sold') === 0 ? 'sell' : 'bought';
-      tag = [color, (color === 'sell' ? 'Sold ' : 'Bought ') + (d.side === 'no' ? 'NO' : 'YES')];
+      tag = [color, color === 'sell' ? 'Sold' : 'Bought'];
     } else if (d.kind === 'exit') {
       var sells = (a === 'sell' || a === 'exit_now') && v !== 'fallback';
-      if (sells) { color = 'sell'; tag = ['sell', (a === 'exit_now' ? 'Sell now · ' : 'Sell · ') + (d.side === 'no' ? 'NO' : 'YES')]; }
+      if (sells) { color = 'sell'; tag = ['sell', a === 'exit_now' ? 'Sell now' : 'Sell']; }
       else tag = ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
     } else if (v === 'enter') {
-      color = 'bought'; tag = ['bought', a === 'buy_no' ? 'Buy NO' : 'Buy YES'];
+      color = 'bought'; tag = ['bought', 'Buy'];
     } else {
       tag = v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
     }
@@ -893,7 +906,11 @@
     var what = add(item, el('div', 'ex-what'));
     add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
     marketName(what, d.market);
-    if (color && d.kind !== 'trade') add(what, el('span', 'ex-sub', 'Order placed · waiting to fill'));
+    if (color) {
+      var side = d.side || (a === 'buy_no' || /_no$/.test(a) ? 'no' : 'yes');
+      add(what, el('span', 'ex-sub', betWords(d.market, side)));
+      if (d.kind !== 'trade') add(what, el('span', 'ex-sub', 'Order placed · waiting to fill'));
+    }
     var why = String(d.reason && d.reason !== d.why ? d.reason : (d.why || '')).replace(/^screen: /, '');
     if (why) add(item, el('div', 'ex-why', why));
     return item;
@@ -928,11 +945,19 @@
     // The latest buys, sells and fills, pinned above the scrolling feed so an
     // action is never buried under passes.
     // Buys and sells, pinned so they are never buried under passes.
+    var seenPin = {};
     var acted = decs.filter(function (d) {
       var a = String(d.action || ''), v = String(d.verdict || '');
       return d.kind === 'trade' || (d.kind !== 'exit' && v === 'enter') ||
              (d.kind === 'exit' && (a === 'sell' || a === 'exit_now') && v !== 'fallback');
-    }).slice(-3).reverse();
+    }).reverse().filter(function (d) {
+      // One entry per market: the latest. A lapsed order replaced by a new
+      // one on the same game is the same position, not two.
+      var k = String(d.market);
+      if (seenPin[k]) return false;
+      seenPin[k] = 1;
+      return true;
+    }).slice(0, 3);
     if (acted.length) {
       var ah = add(box, el('div', 'ex-feed-h'));
       add(ah, el('span', '', 'Latest buys and sells'));
@@ -1008,7 +1033,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "18";
+  var BUILD = "19";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
