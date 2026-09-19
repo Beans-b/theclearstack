@@ -209,6 +209,12 @@
   .ex-item.act.bought .ex-what b{color:var(--act-buy);}
   .ex-item.act.sell{background:var(--act-sell-bg);border-left-color:var(--act-sell);}
   .ex-item.act.sell .ex-what b{color:var(--act-sell);}
+  .ex-amt{display:block;font-size:.8125rem;font-weight:700;color:var(--ink);margin-top:2px;}
+  .ex-item.act.inactive{background:#F3F2EF;border-left-color:#B5B2AC;}
+  .ex-item.act.inactive .ex-what b,.ex-item.act.inactive .ex-amt{color:var(--ink-3);}
+  .ex-item.act.inactive .ex-tag{background:#fff;border-color:#B5B2AC;color:var(--ink-3);}
+  .ex-item.act.inactive .ex-why{color:var(--ink-4);}
+  .ex-gone{display:block;font-size:.8125rem;color:var(--ink-2);margin-top:4px;}
   .ex-pin{padding:0 16px 6px;}
   .ex-sub{display:block;font-family:var(--font-mono);font-size:.6875rem;color:var(--ink-3);font-weight:400;}
   .stat.tap{cursor:pointer;position:relative;}
@@ -306,7 +312,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 19 · Sep 18, 2026 8:43 PM PT</span>
+  <div class="build"><span id="build">Build 20 · Sep 18, 2026 8:49 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -664,8 +670,9 @@
         add(top, el('span', 'ex-tag bought', 'Holding'));
         marketName(top, p.market);
         add(it, el('div', 'det-meta', betWords(p.market, p.side)));
-        add(it, el('div', 'det-meta', int(p.contracts) + ' contracts · avg ' + price(p.avg_price) +
-          ' · pays $1.00 each if ' + (p.side === 'no' ? 'NO' : 'YES')));
+        add(it, el('div', 'det-meta', money(isNum(p.contracts) && isNum(p.avg_price) ? p.contracts * p.avg_price : null) +
+          ' · ' + int(p.contracts) + ' contracts at ' + cents(p.avg_price) + ' average · pays ' +
+          money(p.contracts) + ' if it wins'));
         var why = buyReason(s, p.market);
         if (why) add(it, el('div', 'det-why', 'Why: ' + why));
       });
@@ -680,7 +687,9 @@
         add(top, el('span', 'ex-tag ' + (o.action === 'sell' ? 'sell' : 'bought'), verb));
         marketName(top, o.market);
         add(it, el('div', 'det-meta', betWords(o.market, o.side)));
-        add(it, el('div', 'det-meta', int(o.qty) + ' at ' + price(o.price) +
+        add(it, el('div', 'det-meta', money(isNum(o.qty) && isNum(o.price) ? o.qty * o.price : null) + ' · ' +
+          int(o.qty) + (o.qty === 1 ? ' contract' : ' contracts') + ' at ' + cents(o.price) +
+          ' · pays ' + money(o.qty) + ' if it wins' +
           (o.paper ? ' · paper order, fills only if the market trades to this price' : '')));
         var why = String(o.reason || '') || buyReason(s, o.market);
         if (why) add(it, el('div', 'det-why', 'Why: ' + why));
@@ -883,6 +892,33 @@
   }
   setInterval(tickClock, 1000);
 
+  // Set by renderExec from the snapshot: current orders and holdings by
+  // market, and the latest buy/sell per market.
+  var CTX = { orders: {}, held: {}, latest: {} };
+  function cents(v) { return isNum(v) ? Math.round(v * 100) + '¢' : DASH; }
+  function amountText(d) {
+    var o = CTX.orders[String(d.market)];
+    var qty = isNum(d.qty) ? d.qty : null, px = isNum(d.price) ? d.price : null, usd = isNum(d.usd) ? d.usd : null;
+    // A buy decision recorded before amounts were kept: use the live order.
+    if (qty === null && o && CTX.latest[String(d.market)] === d) { qty = o.qty; px = o.price; }
+    if (qty === null || px === null) return '';
+    if (usd === null) usd = qty * px;
+    return money(usd) + ' · ' + qty + (qty === 1 ? ' contract' : ' contracts') + ' at ' + cents(px) +
+      ' · pays ' + money(qty) + ' if it wins';
+  }
+  // Why a buy is no longer active, or '' if it is.
+  function goneWhy(d) {
+    if (d.kind === 'trade') return '';
+    if (d.ended_why) return String(d.ended_why) + (d.ended_at ? ' (' + whenShort(d.ended_at) + ')' : '');
+    var last = CTX.latest[String(d.market)];
+    if (last && last !== d) {
+      return "it didn't fill, and the agent placed a newer order on this game at " + whenShort(last.at);
+    }
+    var k = String(d.market);
+    if (!CTX.orders[k] && !CTX.held[k]) return 'this order is no longer on the book and did not fill';
+    return '';
+  }
+
   var TRADE_WORDS = { bought_yes: 'Bought YES', bought_no: 'Bought NO',
                       sold_yes: 'Sold YES', sold_no: 'Sold NO' };
   function feedItem(d, isNew) {
@@ -909,7 +945,15 @@
     if (color) {
       var side = d.side || (a === 'buy_no' || /_no$/.test(a) ? 'no' : 'yes');
       add(what, el('span', 'ex-sub', betWords(d.market, side)));
-      if (d.kind !== 'trade') add(what, el('span', 'ex-sub', 'Order placed · waiting to fill'));
+      var amt = amountText(d);
+      if (amt) add(what, el('span', 'ex-amt', amt));
+      var gone = goneWhy(d);
+      if (gone) {
+        item.classList.add('inactive');
+        add(what, el('span', 'ex-gone', 'Not active: ' + gone + '.'));
+      } else if (d.kind !== 'trade') {
+        add(what, el('span', 'ex-sub', 'Active · order placed, waiting to fill'));
+      }
     }
     var why = String(d.reason && d.reason !== d.why ? d.reason : (d.why || '')).replace(/^screen: /, '');
     if (why) add(item, el('div', 'ex-why', why));
@@ -945,24 +989,31 @@
     // The latest buys, sells and fills, pinned above the scrolling feed so an
     // action is never buried under passes.
     // Buys and sells, pinned so they are never buried under passes.
-    var seenPin = {};
+    CTX = { orders: {}, held: {}, latest: {} };
+    arr(s.orders).forEach(function (o) { if (o && o.market) CTX.orders[String(o.market)] = o; });
+    arr(s.positions).forEach(function (p) { if (p && p.market) CTX.held[String(p.market)] = p; });
     var acted = decs.filter(function (d) {
       var a = String(d.action || ''), v = String(d.verdict || '');
       return d.kind === 'trade' || (d.kind !== 'exit' && v === 'enter') ||
              (d.kind === 'exit' && (a === 'sell' || a === 'exit_now') && v !== 'fallback');
-    }).reverse().filter(function (d) {
-      // One entry per market: the latest. A lapsed order replaced by a new
-      // one on the same game is the same position, not two.
+    });
+    acted.forEach(function (d) { CTX.latest[String(d.market)] = d; });   // oldest first: last wins
+    // Newest markets first (up to 3); under each, the active entry then the
+    // older ones on that game, greyed with the reason they ended.
+    var markets = [];
+    acted.slice().reverse().forEach(function (d) {
       var k = String(d.market);
-      if (seenPin[k]) return false;
-      seenPin[k] = 1;
-      return true;
-    }).slice(0, 3);
-    if (acted.length) {
+      if (markets.indexOf(k) < 0) markets.push(k);
+    });
+    markets = markets.slice(0, 3);
+    if (markets.length) {
       var ah = add(box, el('div', 'ex-feed-h'));
       add(ah, el('span', '', 'Latest buys and sells'));
       var pin = add(box, el('div', 'ex-pin'));
-      acted.forEach(function (d) { add(pin, feedItem(d, false)); });
+      markets.forEach(function (k) {
+        acted.filter(function (d) { return String(d.market) === k; }).reverse()
+          .forEach(function (d) { add(pin, feedItem(d, false)); });
+      });
     }
     var fh = add(box, el('div', 'ex-feed-h'));
     add(fh, el('span', '', 'Activity · ' + decs.length + (decs.length === 1 ? ' decision' : ' decisions') +
@@ -1033,7 +1084,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "19";
+  var BUILD = "20";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
