@@ -197,6 +197,26 @@
   .ex-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
           padding:1px 6px;margin-right:6px;border:var(--hair) solid var(--ink);}
   .ex-tag.buy{background:#1E7B45;border-color:#1E7B45;color:#fff;}
+  /* Buys, sells and fills stand out: the agent acted, not just looked. */
+  .ex-item.act{background:#EEF7F1;border-left:3px solid #1E7B45;padding-left:10px;margin-left:-13px;}
+  .ex-item.act .ex-what b{color:#1E7B45;}
+  .ex-item.act .ex-why{color:#1E5B38;}
+  .ex-pin{padding:0 16px 6px;}
+  .ex-tag.fill{background:#0E5A31;border-color:#0E5A31;color:#fff;}
+  .ex-sub{display:block;font-family:var(--font-mono);font-size:.6875rem;color:var(--ink-3);font-weight:400;}
+  .stat.tap{cursor:pointer;position:relative;}
+  .stat.tap:hover,.stat.tap:focus-visible{background:#F3F1EC;outline:none;}
+  .stat.tap .hint{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+                  color:var(--ink-3);margin-top:4px;}
+  .stat.tap.has{box-shadow:inset 3px 0 0 #1E7B45;}
+  .detail{border:var(--hair) solid var(--ink);border-top:0;background:#fff;padding:12px 16px 4px;}
+  .detail h4{margin:4px 0 8px;}
+  .det-item{padding:10px 0;border-bottom:var(--hair) solid var(--rule);}
+  .det-item:last-child{border-bottom:0;}
+  .det-top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;}
+  .det-top b{font-size:.9375rem;}
+  .det-meta{font-family:var(--font-mono);font-size:.75rem;color:var(--ink-3);margin-top:2px;}
+  .det-why{font-size:.875rem;color:var(--ink-2);margin-top:6px;overflow-wrap:anywhere;}
   .ex-tag.pass{color:var(--ink-3);border-color:var(--ink-4);}
   .ex-tag.exit{background:var(--ink);color:#fff;}
   .ex-tag.block{background:#B3261E;border-color:#B3261E;color:#fff;}
@@ -277,7 +297,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 14 · Sep 18, 2026 1:01 PM PT</span>
+  <div class="build"><span id="build">Build 15 · Sep 18, 2026 8:22 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -334,6 +354,26 @@
     if (isNaN(d)) return DASH;
     return d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   }
+  // Titles the agent read from the exchange, by market slug (from the feed).
+  var TITLES = {};
+  function learnTitles(s) {
+    arr(s && s.feed).concat(arr(s && s.recent_decisions)).forEach(function (d) {
+      if (d && d.market && d.title) TITLES[String(d.market)] = String(d.title);
+    });
+  }
+  // What the market is, from the end of its slug: "...-total-64pt5" etc.
+  function lineOf(slug) {
+    var m = String(slug || '').match(/-(total|neg|pos)-(\d+)pt(\d)$/);
+    if (!m) return '';
+    var n = m[2] + '.' + m[3];
+    return m[1] === 'total' ? 'Total over ' + n : 'Spread ' + (m[1] === 'neg' ? '−' : '+') + n;
+  }
+  function marketName(parent, slug) {
+    var t = TITLES[String(slug)] || '', line = lineOf(slug);
+    add(parent, el('b', '', t || str(slug)));
+    if (line) add(parent, el('span', 'ex-sub', line));
+  }
+
   function stat(grid, label, value, signedVal) {
     var box = add(grid, el('div', 'stat'));
     add(box, el('div', 'k', label));
@@ -549,7 +589,26 @@
     stat(grid, 'Running costs', money(g.running_costs_usd));
     stat(grid, 'Money free to trade', money(free));
     stat(grid, 'Paper trades', int(g.paper_trades_total));
-    stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
+    var tile = stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
+    var holdings = arr(s.positions).length + arr(s.orders).length;
+    tile.classList.add('tap');
+    if (holdings) tile.classList.add('has');
+    tile.setAttribute('role', 'button');
+    tile.setAttribute('tabindex', '0');
+    tile.setAttribute('aria-expanded', String(DETAIL_OPEN));
+    add(tile, el('div', 'hint', DETAIL_OPEN ? 'Hide details' : 'Tap for details'));
+    var detailHost = el('div', '');
+    function toggle() {
+      DETAIL_OPEN = !DETAIL_OPEN;
+      tile.setAttribute('aria-expanded', String(DETAIL_OPEN));
+      tile.lastChild.textContent = DETAIL_OPEN ? 'Hide details' : 'Tap for details';
+      detailHost.textContent = '';
+      if (DETAIL_OPEN) renderHoldings(detailHost, s);
+    }
+    tile.addEventListener('click', toggle);
+    tile.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
     // Looks are model calls: the agent paces them across the day (resets 5pm Pacific).
     stat(grid, 'Looks left today', g.spend_locked === true ? 'locked' :
       (isNum(g.looks_left_today) ? g.looks_left_today + (isNum(g.looks_cap_today) ? ' of ' + g.looks_cap_today : '')
@@ -557,6 +616,53 @@
     stat(grid, 'Researched decisions left', g.spend_locked === true ? 'locked' :
       (isNum(g.researched_decisions_left) ? '~' + g.researched_decisions_left : DASH));
     stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
+    box.appendChild(detailHost);
+    if (DETAIL_OPEN) renderHoldings(detailHost, s);
+  }
+
+  var DETAIL_OPEN = false;       // remembered between refreshes
+  // Why it holds or wants a market: the latest buy decision in the feed.
+  function buyReason(s, slug) {
+    var list = arr(s.feed).filter(function (d) {
+      return d && d.market === slug && d.kind !== 'trade' && d.verdict === 'enter';
+    });
+    var d = list[list.length - 1];
+    return d ? String(d.reason || d.why || '') : '';
+  }
+  function renderHoldings(host, s) {
+    var box = add(host, el('div', 'detail'));
+    var pos = arr(s.positions).map(obj), ords = arr(s.orders).map(obj);
+    if (!pos.length && !ords.length) {
+      add(box, el('p', 'empty', 'Nothing held and no orders resting.'));
+      return;
+    }
+    if (pos.length) {
+      add(box, el('h4', '', 'Held'));
+      pos.forEach(function (p) {
+        var it = add(box, el('div', 'det-item'));
+        var top = add(it, el('div', 'det-top'));
+        add(top, el('span', 'ex-tag buy', 'Holding ' + (p.side === 'no' ? 'NO' : 'YES')));
+        marketName(top, p.market);
+        add(it, el('div', 'det-meta', int(p.contracts) + ' contracts · avg ' + price(p.avg_price) +
+          ' · pays $1.00 each if ' + (p.side === 'no' ? 'NO' : 'YES')));
+        var why = buyReason(s, p.market);
+        if (why) add(it, el('div', 'det-why', 'Why: ' + why));
+      });
+    }
+    if (ords.length) {
+      add(box, el('h4', '', 'Orders waiting to fill'));
+      ords.forEach(function (o) {
+        var it = add(box, el('div', 'det-item'));
+        var top = add(it, el('div', 'det-top'));
+        var verb = o.action === 'sell' ? 'Sell ' : 'Buy ';
+        add(top, el('span', 'ex-tag buy', verb + (o.side === 'no' ? 'NO' : 'YES')));
+        marketName(top, o.market);
+        add(it, el('div', 'det-meta', int(o.qty) + ' at ' + price(o.price) +
+          (o.paper ? ' · paper order, fills only if the market trades to this price' : '')));
+        var why = String(o.reason || '') || buyReason(s, o.market);
+        if (why) add(it, el('div', 'det-why', 'Why: ' + why));
+      });
+    }
   }
 
   function renderNow(card, s) {
@@ -716,7 +822,7 @@
       return;
     }
     // One section failing should not blank the whole card.
-    [renderHeader, renderGlance, renderNow, renderSurvival, renderNotes, renderDecisions, renderPlans, renderPositions]
+    [renderHeader, renderGlance, renderNow, renderSurvival, renderNotes, renderPlans, renderPositions]
       .forEach(function (fn) {
         try { fn(card, s, app); } catch (e) { /* skip this section */ }
       });
@@ -754,16 +860,28 @@
   }
   setInterval(tickClock, 1000);
 
+  var TRADE_WORDS = { bought_yes: 'Bought YES', bought_no: 'Bought NO',
+                      sold_yes: 'Sold YES', sold_no: 'Sold NO' };
   function feedItem(d, isNew) {
-    var item = el('div', 'ex-item' + (isNew ? ' new' : ''));
+    var v = String(d.verdict || ''), a = String(d.action || '');
+    var tag, acted = false;
+    if (d.kind === 'trade') {
+      tag = ['fill', 'Filled · ' + (TRADE_WORDS[a] || a)]; acted = true;
+    } else if (d.kind === 'exit') {
+      var sells = (a === 'sell' || a === 'exit_now') && v !== 'fallback';
+      tag = sells ? ['buy', a === 'exit_now' ? 'Sell now' : 'Sell'] :
+                    ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
+      acted = sells;
+    } else if (v === 'enter') {
+      tag = ['buy', a === 'buy_no' ? 'Buy NO' : 'Buy YES']; acted = true;
+    } else {
+      tag = v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
+    }
+    var item = el('div', 'ex-item' + (acted ? ' act' : '') + (isNew ? ' new' : ''));
     add(item, el('div', 'ex-time', whenShort(d.at)));
     var what = add(item, el('div', 'ex-what'));
-    var v = String(d.verdict || ''), k = d.kind === 'exit' ? 'exit' : 'entry';
-    var tag = k === 'exit' ? ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'] :
-              v === 'enter' ? ['buy', d.action === 'buy_no' ? 'Buy NO' : 'Buy YES'] :
-              v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
     add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
-    add(what, el('b', '', str(d.market)));
+    marketName(what, d.market);
     var why = String(d.reason && d.reason !== d.why ? d.reason : (d.why || '')).replace(/^screen: /, '');
     if (why) add(item, el('div', 'ex-why', why));
     return item;
@@ -792,8 +910,22 @@
     var body = add(box, el('div', 'ex-body'));
     sum.forEach(function (line, i) { add(body, el('p', i === 0 ? 'lead' : '', String(line))); });
 
+    learnTitles(s);
     var decs = arr(s.feed && s.feed.length ? s.feed : s.recent_decisions)
       .filter(function (d) { return d && typeof d === 'object'; });
+    // The latest buys, sells and fills, pinned above the scrolling feed so an
+    // action is never buried under passes.
+    var acted = decs.filter(function (d) {
+      var a = String(d.action || ''), v = String(d.verdict || '');
+      return d.kind === 'trade' || (d.kind !== 'exit' && v === 'enter') ||
+             (d.kind === 'exit' && (a === 'sell' || a === 'exit_now') && v !== 'fallback');
+    }).slice(-3).reverse();
+    if (acted.length) {
+      var ah = add(box, el('div', 'ex-feed-h'));
+      add(ah, el('span', '', 'Latest actions'));
+      var pin = add(box, el('div', 'ex-pin'));
+      acted.forEach(function (d) { add(pin, feedItem(d, false)); });
+    }
     var fh = add(box, el('div', 'ex-feed-h'));
     add(fh, el('span', '', 'Activity · ' + decs.length + (decs.length === 1 ? ' decision' : ' decisions') +
       (decs.length ? ' since ' + whenShort(decs[0].at) : '')));
@@ -863,7 +995,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "14";
+  var BUILD = "15";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
