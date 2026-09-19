@@ -196,8 +196,8 @@
   .ex-why{grid-column:2;font-size:.8125rem;color:var(--ink-3);overflow-wrap:anywhere;}
   .ex-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
           padding:1px 6px;margin-right:6px;border:var(--hair) solid var(--ink);}
-  /* Only real trades get color. Green: bought (an order filled). Blue: sold.
-     Orders still waiting to fill are black and white. */
+  /* Only buys and sells get color, from the moment the order is placed.
+     Green: a buy. Blue: a sell. Everything else is black and white. */
   :root{ --act-buy:#1E7B45; --act-buy-bg:#EEF7F1;
          --act-sell:#1D5FA8; --act-sell-bg:#EAF2FB; }
   .ex-tag.bought{background:var(--act-buy);border-color:var(--act-buy);color:#fff;}
@@ -216,6 +216,8 @@
   .stat.tap .hint{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
                   color:var(--ink-3);margin-top:4px;}
   .stat.tap.held{box-shadow:inset 3px 0 0 var(--act-buy);}
+  .det-item.bought{background:var(--act-buy-bg);border-left:3px solid var(--act-buy);padding-left:10px;}
+  .det-item.sell{background:var(--act-sell-bg);border-left:3px solid var(--act-sell);padding-left:10px;}
   .detail{border:var(--hair) solid var(--ink);border-top:0;background:#fff;padding:12px 16px 4px;}
   .detail h4{margin:4px 0 8px;}
   .det-item{padding:10px 0;border-bottom:var(--hair) solid var(--rule);}
@@ -304,7 +306,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 17 · Sep 18, 2026 8:39 PM PT</span>
+  <div class="build"><span id="build">Build 18 · Sep 18, 2026 8:40 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -599,7 +601,7 @@
     var tile = stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
     var holdings = arr(s.positions).length + arr(s.orders).length;
     tile.classList.add('tap');
-    if (arr(s.positions).length) tile.classList.add('held');
+    if (arr(s.positions).length || arr(s.orders).length) tile.classList.add('held');
     tile.setAttribute('role', 'button');
     tile.setAttribute('tabindex', '0');
     tile.setAttribute('aria-expanded', String(DETAIL_OPEN));
@@ -646,7 +648,7 @@
     if (pos.length) {
       add(box, el('h4', '', 'Held'));
       pos.forEach(function (p) {
-        var it = add(box, el('div', 'det-item'));
+        var it = add(box, el('div', 'det-item bought'));
         var top = add(it, el('div', 'det-top'));
         add(top, el('span', 'ex-tag bought', 'Holding ' + (p.side === 'no' ? 'NO' : 'YES')));
         marketName(top, p.market);
@@ -662,7 +664,8 @@
         var it = add(box, el('div', 'det-item'));
         var top = add(it, el('div', 'det-top'));
         var verb = o.action === 'sell' ? 'Sell ' : 'Buy ';
-        add(top, el('span', 'ex-tag order', verb + (o.side === 'no' ? 'NO' : 'YES')));
+        it.classList.add(o.action === 'sell' ? 'sell' : 'bought');
+        add(top, el('span', 'ex-tag ' + (o.action === 'sell' ? 'sell' : 'bought'), verb + (o.side === 'no' ? 'NO' : 'YES')));
         marketName(top, o.market);
         add(it, el('div', 'det-meta', int(o.qty) + ' at ' + price(o.price) +
           (o.paper ? ' · paper order, fills only if the market trades to this price' : '')));
@@ -877,13 +880,11 @@
       color = a.indexOf('sold') === 0 ? 'sell' : 'bought';
       tag = [color, (color === 'sell' ? 'Sold ' : 'Bought ') + (d.side === 'no' ? 'NO' : 'YES')];
     } else if (d.kind === 'exit') {
-      // A sell ORDER is not a sale; the fill is what turns blue.
       var sells = (a === 'sell' || a === 'exit_now') && v !== 'fallback';
-      tag = sells ? ['order', (a === 'exit_now' ? 'Sell now order · ' : 'Sell order · ') + (d.side === 'no' ? 'NO' : 'YES')]
-                  : ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
+      if (sells) { color = 'sell'; tag = ['sell', (a === 'exit_now' ? 'Sell now · ' : 'Sell · ') + (d.side === 'no' ? 'NO' : 'YES')]; }
+      else tag = ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
     } else if (v === 'enter') {
-      // An order placed, waiting to fill: not a trade yet, so no color.
-      tag = ['order', 'Order placed · ' + (a === 'buy_no' ? 'Buy NO' : 'Buy YES')];
+      color = 'bought'; tag = ['bought', a === 'buy_no' ? 'Buy NO' : 'Buy YES'];
     } else {
       tag = v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
     }
@@ -892,6 +893,7 @@
     var what = add(item, el('div', 'ex-what'));
     add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
     marketName(what, d.market);
+    if (color && d.kind !== 'trade') add(what, el('span', 'ex-sub', 'Order placed · waiting to fill'));
     var why = String(d.reason && d.reason !== d.why ? d.reason : (d.why || '')).replace(/^screen: /, '');
     if (why) add(item, el('div', 'ex-why', why));
     return item;
@@ -925,11 +927,15 @@
       .filter(function (d) { return d && typeof d === 'object'; });
     // The latest buys, sells and fills, pinned above the scrolling feed so an
     // action is never buried under passes.
-    // Real trades only (fills), pinned so a buy or sale is never buried.
-    var acted = decs.filter(function (d) { return d.kind === 'trade'; }).slice(-3).reverse();
+    // Buys and sells, pinned so they are never buried under passes.
+    var acted = decs.filter(function (d) {
+      var a = String(d.action || ''), v = String(d.verdict || '');
+      return d.kind === 'trade' || (d.kind !== 'exit' && v === 'enter') ||
+             (d.kind === 'exit' && (a === 'sell' || a === 'exit_now') && v !== 'fallback');
+    }).slice(-3).reverse();
     if (acted.length) {
       var ah = add(box, el('div', 'ex-feed-h'));
-      add(ah, el('span', '', 'Latest trades'));
+      add(ah, el('span', '', 'Latest buys and sells'));
       var pin = add(box, el('div', 'ex-pin'));
       acted.forEach(function (d) { add(pin, feedItem(d, false)); });
     }
@@ -1002,7 +1008,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "17";
+  var BUILD = "18";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
