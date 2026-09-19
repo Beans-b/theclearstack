@@ -196,19 +196,29 @@
   .ex-why{grid-column:2;font-size:.8125rem;color:var(--ink-3);overflow-wrap:anywhere;}
   .ex-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
           padding:1px 6px;margin-right:6px;border:var(--hair) solid var(--ink);}
-  .ex-tag.buy{background:#1E7B45;border-color:#1E7B45;color:#fff;}
+  /* Only actions get color. Green: a buy that filled (it owns the contracts).
+     Yellow: a trade placed, waiting to fill. Blue: a sell, placed or filled. */
+  :root{ --act-buy:#1E7B45; --act-buy-bg:#EEF7F1; --act-order:#A36A00; --act-order-bg:#FFF6DC;
+         --act-sell:#1D5FA8; --act-sell-bg:#EAF2FB; }
+  .ex-tag.bought{background:var(--act-buy);border-color:var(--act-buy);color:#fff;}
+  .ex-tag.order{background:#F2B01E;border-color:#F2B01E;color:#1a1300;}
+  .ex-tag.sell{background:var(--act-sell);border-color:var(--act-sell);color:#fff;}
   /* Buys, sells and fills stand out: the agent acted, not just looked. */
-  .ex-item.act{background:#EEF7F1;border-left:3px solid #1E7B45;padding-left:10px;margin-left:-13px;}
-  .ex-item.act .ex-what b{color:#1E7B45;}
-  .ex-item.act .ex-why{color:#1E5B38;}
+  .ex-item.act{padding-left:10px;margin-left:-13px;border-left:3px solid;}
+  .ex-item.act.bought{background:var(--act-buy-bg);border-left-color:var(--act-buy);}
+  .ex-item.act.bought .ex-what b{color:var(--act-buy);}
+  .ex-item.act.order{background:var(--act-order-bg);border-left-color:#F2B01E;}
+  .ex-item.act.order .ex-what b{color:var(--act-order);}
+  .ex-item.act.sell{background:var(--act-sell-bg);border-left-color:var(--act-sell);}
+  .ex-item.act.sell .ex-what b{color:var(--act-sell);}
   .ex-pin{padding:0 16px 6px;}
-  .ex-tag.fill{background:#0E5A31;border-color:#0E5A31;color:#fff;}
   .ex-sub{display:block;font-family:var(--font-mono);font-size:.6875rem;color:var(--ink-3);font-weight:400;}
   .stat.tap{cursor:pointer;position:relative;}
   .stat.tap:hover,.stat.tap:focus-visible{background:#F3F1EC;outline:none;}
   .stat.tap .hint{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
                   color:var(--ink-3);margin-top:4px;}
-  .stat.tap.has{box-shadow:inset 3px 0 0 #1E7B45;}
+  .stat.tap.held{box-shadow:inset 3px 0 0 var(--act-buy);}
+  .stat.tap.waiting{box-shadow:inset 3px 0 0 #F2B01E;}
   .detail{border:var(--hair) solid var(--ink);border-top:0;background:#fff;padding:12px 16px 4px;}
   .detail h4{margin:4px 0 8px;}
   .det-item{padding:10px 0;border-bottom:var(--hair) solid var(--rule);}
@@ -219,10 +229,10 @@
   .det-why{font-size:.875rem;color:var(--ink-2);margin-top:6px;overflow-wrap:anywhere;}
   .ex-tag.pass{color:var(--ink-3);border-color:var(--ink-4);}
   .ex-tag.exit{background:var(--ink);color:#fff;}
-  .ex-tag.block{background:#B3261E;border-color:#B3261E;color:#fff;}
+  .ex-tag.block{background:#fff;border-color:var(--ink);color:var(--ink);}
   .ex-item.new{animation:exIn .6s ease-out, exFlash 2.4s ease-out;}
   @keyframes exIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
-  @keyframes exFlash{0%,30%{background:#EAF6EE;}100%{background:transparent;}}
+  @keyframes exFlash{0%,30%{background:#EFEDE8;}100%{background:transparent;}}
   @media (prefers-reduced-motion:reduce){ .ex-pulse::after,.ex-item.new{animation:none;} }
   @media (max-width:480px){ .card h2{font-size:1.5rem;} .stat .v{font-size:1.25rem;} .nav-label{display:none;} }
 </style>
@@ -297,7 +307,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 15 · Sep 18, 2026 8:22 PM PT</span>
+  <div class="build"><span id="build">Build 16 · Sep 18, 2026 8:34 PM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -592,7 +602,8 @@
     var tile = stat(grid, 'Open positions / orders', int(g.open_positions) + ' / ' + int(g.open_orders));
     var holdings = arr(s.positions).length + arr(s.orders).length;
     tile.classList.add('tap');
-    if (holdings) tile.classList.add('has');
+    if (arr(s.positions).length) tile.classList.add('held');
+    else if (arr(s.orders).length) tile.classList.add('waiting');
     tile.setAttribute('role', 'button');
     tile.setAttribute('tabindex', '0');
     tile.setAttribute('aria-expanded', String(DETAIL_OPEN));
@@ -641,7 +652,7 @@
       pos.forEach(function (p) {
         var it = add(box, el('div', 'det-item'));
         var top = add(it, el('div', 'det-top'));
-        add(top, el('span', 'ex-tag buy', 'Holding ' + (p.side === 'no' ? 'NO' : 'YES')));
+        add(top, el('span', 'ex-tag bought', 'Holding ' + (p.side === 'no' ? 'NO' : 'YES')));
         marketName(top, p.market);
         add(it, el('div', 'det-meta', int(p.contracts) + ' contracts · avg ' + price(p.avg_price) +
           ' · pays $1.00 each if ' + (p.side === 'no' ? 'NO' : 'YES')));
@@ -655,7 +666,7 @@
         var it = add(box, el('div', 'det-item'));
         var top = add(it, el('div', 'det-top'));
         var verb = o.action === 'sell' ? 'Sell ' : 'Buy ';
-        add(top, el('span', 'ex-tag buy', verb + (o.side === 'no' ? 'NO' : 'YES')));
+        add(top, el('span', 'ex-tag ' + (o.action === 'sell' ? 'sell' : 'order'), verb + (o.side === 'no' ? 'NO' : 'YES')));
         marketName(top, o.market);
         add(it, el('div', 'det-meta', int(o.qty) + ' at ' + price(o.price) +
           (o.paper ? ' · paper order, fills only if the market trades to this price' : '')));
@@ -864,20 +875,22 @@
                       sold_yes: 'Sold YES', sold_no: 'Sold NO' };
   function feedItem(d, isNew) {
     var v = String(d.verdict || ''), a = String(d.action || '');
-    var tag, acted = false;
+    var tag, color = '';
     if (d.kind === 'trade') {
-      tag = ['fill', 'Filled · ' + (TRADE_WORDS[a] || a)]; acted = true;
+      // A fill: a bought contract is green, a sold one blue.
+      color = a.indexOf('sold') === 0 ? 'sell' : 'bought';
+      tag = [color, (color === 'sell' ? 'Sold ' : 'Bought ') + (d.side === 'no' ? 'NO' : 'YES')];
     } else if (d.kind === 'exit') {
       var sells = (a === 'sell' || a === 'exit_now') && v !== 'fallback';
-      tag = sells ? ['buy', a === 'exit_now' ? 'Sell now' : 'Sell'] :
-                    ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
-      acted = sells;
+      if (sells) { color = 'sell'; tag = ['sell', (a === 'exit_now' ? 'Sell now · ' : 'Sell order · ') + (d.side === 'no' ? 'NO' : 'YES')]; }
+      else tag = ['exit', d.side === 'no' ? 'Exit review · NO' : 'Exit review'];
     } else if (v === 'enter') {
-      tag = ['buy', a === 'buy_no' ? 'Buy NO' : 'Buy YES']; acted = true;
+      // An order placed, not yet filled: a trade in progress.
+      color = 'order'; tag = ['order', 'Trade placed · ' + (a === 'buy_no' ? 'Buy NO' : 'Buy YES')];
     } else {
       tag = v === 'blocked' ? ['block', 'Blocked'] : ['pass', 'Pass'];
     }
-    var item = el('div', 'ex-item' + (acted ? ' act' : '') + (isNew ? ' new' : ''));
+    var item = el('div', 'ex-item' + (color ? ' act ' + color : '') + (isNew ? ' new' : ''));
     add(item, el('div', 'ex-time', whenShort(d.at)));
     var what = add(item, el('div', 'ex-what'));
     add(what, el('span', 'ex-tag ' + tag[0], tag[1]));
@@ -995,7 +1008,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "15";
+  var BUILD = "16";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
