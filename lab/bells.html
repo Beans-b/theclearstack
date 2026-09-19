@@ -312,7 +312,7 @@
 </main>
 
 <footer class="wrap">This page checks for new data every 30 seconds. Times are shown in your local time zone.
-  <div class="build"><span id="build">Build 21 · Sep 18, 2026 9:16 PM PT</span>
+  <div class="build"><span id="build">Build 22 · Sep 19, 2026 9:02 AM PT</span>
     <button type="button" id="reload">Reload page</button></div>
 </footer>
 
@@ -642,6 +642,11 @@
     stat(grid, 'Researched decisions left', g.spend_locked === true ? 'locked' :
       (isNum(g.researched_decisions_left) ? '~' + g.researched_decisions_left : DASH));
     stat(grid, 'Runway', isNum(g.runway_days) ? Math.round(g.runway_days) + ' days' : DASH);
+    // Fill quality: the price move in the 5 minutes after each fill. Positive means
+    // the market moved the agent's way, the honest test of whether its buys are good.
+    stat(grid, 'Price move after fills', isNum(g.avg_markout_cents) && g.fills_with_markout > 0
+      ? (g.avg_markout_cents > 0 ? '+' : '') + g.avg_markout_cents.toFixed(1) + '¢ avg · ' + g.fills_with_markout + ' fills'
+      : 'No fills yet', isNum(g.avg_markout_cents) && g.fills_with_markout > 0 ? g.avg_markout_cents : null);
     box.appendChild(detailHost);
     if (DETAIL_OPEN) renderHoldings(detailHost, s);
   }
@@ -1084,7 +1089,7 @@
   // checks bells-build.json itself and offers a one-tap update. Reloading with
   // a fresh query string gets the new page without re-adding it to the home
   // screen. BUILD must match lab/bells-build.json on every deploy.
-  var BUILD = "21";
+  var BUILD = "22";
   function hardReload() {
     location.replace(location.pathname + '?v=' + Date.now() + location.hash);
   }
